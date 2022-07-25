@@ -82,10 +82,15 @@ internal class AndroidUsbPrinterManager(context: Context) : AbstractUsbPrinterMa
     return context.usbManager().deviceList.values.map(::toCommonDevice)
   }
 
-  override fun openDeviceConnection(printer: UsbDevice): UsbDeviceConnection? {
+  override suspend fun openDeviceConnection(printer: UsbDevice): UsbDeviceConnection? {
     val platformDevice = context.platformDevice(printer) ?: return null
-    return context.usbManager().openDevice(platformDevice)?.let { conn ->
-      AndroidUsbDeviceConnection(platformDevice, conn)
+
+    return if (awaitPermission(printer)) {
+      context.usbManager().openDevice(platformDevice)?.let { conn ->
+        AndroidUsbDeviceConnection(platformDevice, conn)
+      }
+    } else {
+      null
     }
   }
 }

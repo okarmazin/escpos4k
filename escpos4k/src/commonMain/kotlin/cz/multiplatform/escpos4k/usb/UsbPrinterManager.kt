@@ -27,7 +27,7 @@ public interface UsbPrinterManager {
    *
    * @return The open connection or `null` if an error occurred.
    */
-  public fun openConnection(printer: UsbDevice): UsbPrinterConnection?
+  public suspend fun openConnection(printer: UsbDevice): UsbPrinterConnection?
 
   /**
    * The list of all connected USB devices that have been determined to likely be a printer.
@@ -43,7 +43,7 @@ public interface UsbPrinterManager {
 
 internal abstract class AbstractUsbPrinterManager : UsbPrinterManager {
 
-  override fun openConnection(printer: UsbDevice): UsbPrinterConnection? {
+  override suspend fun openConnection(printer: UsbDevice): UsbPrinterConnection? {
     val deviceConnection = openDeviceConnection(printer) ?: return null
     return UsbPrinterConnection(deviceConnection)
   }
@@ -53,7 +53,7 @@ internal abstract class AbstractUsbPrinterManager : UsbPrinterManager {
 
   protected abstract fun allVisibleDevices(): List<UsbDevice>
 
-  protected abstract fun openDeviceConnection(printer: UsbDevice): UsbDeviceConnection?
+  protected abstract suspend fun openDeviceConnection(printer: UsbDevice): UsbDeviceConnection?
 }
 
 /**
