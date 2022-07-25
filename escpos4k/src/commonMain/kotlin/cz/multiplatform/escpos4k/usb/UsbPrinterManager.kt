@@ -140,6 +140,7 @@ internal fun UsbDevice.likelyPrinterEndpoint(): UsbEndpoint? {
                 UsbClass.DiagnosticDevice,
                 UsbClass.WirelessController,
                 UsbClass.Miscellaneous,
+                UsbClass.Billboard,
                 UsbClass.ApplicationSpecific -> {
                   // All of these classes disqualify this device from being a printer.
                   true

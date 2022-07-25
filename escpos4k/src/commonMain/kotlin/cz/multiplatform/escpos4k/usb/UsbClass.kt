@@ -215,7 +215,7 @@ public sealed class UsbClass(internal val raw: UByte) {
    * values. Values outside of that defined spec are reserved. These class codes can only be used in
    * Device Descriptors.
    */
-  public object Billboard : UsbClass(0x11u), DeviceClass
+  public object Billboard : UsbClass(0x11u), DeviceClass, InterfaceClass
 
   /**
    * Base Class 12h (USB Type-C Bridge Device)
