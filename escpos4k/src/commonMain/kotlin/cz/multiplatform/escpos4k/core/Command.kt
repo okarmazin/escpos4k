@@ -86,10 +86,10 @@ internal sealed class Command {
     override fun bytes(): Sequence<Byte> = sequenceOf(27, 97, alignment.value)
   }
 
-  class TextSize(widthMagnification: Byte, heightMagification: Byte) : Command() {
+  class TextSize(widthMagnification: Byte, heightMagnification: Byte) : Command() {
     override val size: Int = 3
 
-    private val sizeByte = constructSize(widthMagnification, heightMagification)
+    private val sizeByte = constructSize(widthMagnification, heightMagnification)
 
     override fun bytes(): Sequence<Byte> = sequenceOf(29, 33, sizeByte)
 
