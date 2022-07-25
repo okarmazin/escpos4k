@@ -1,19 +1,52 @@
+import com.vanniktech.maven.publish.KotlinMultiplatform
+
 plugins {
   alias(escpos4k.plugins.kotlin.multiplatform)
   alias(escpos4k.plugins.android.library)
-  id("maven-publish")
+  alias(escpos4k.plugins.vanniktechPublishingBase)
 }
 
 group = "cz.multiplatform.escpos4k"
 
 version = "0.1-SNAPSHOT"
 
+mavenPublishing {
+  publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
+  signAllPublications()
+
+  pom {
+    name.set("EscPos4k")
+    description.set("ESC/POS for Kotlin Multiplatform")
+    inceptionYear.set("2022")
+    url.set("https://github.com/okarmazin/escpos4k")
+    licenses {
+      license {
+        name.set("The Apache License, Version 2.0")
+        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+        distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+      }
+    }
+    developers {
+      developer {
+        id.set("okarmazin")
+        name.set("Ondřej Karmazín")
+        url.set("https://github.com/okarmazin")
+      }
+    }
+    scm {
+      connection.set("scm:git:git://github.com/okarmazin/escpos4k.git")
+      developerConnection.set("scm:git:git://github.com/okarmazin/escpos4k.git")
+      url.set("https://github.com/okarmazin/escpos4k")
+    }
+  }
+
+  configure(KotlinMultiplatform())
+}
+
 kotlin {
   explicitApi()
 
-  android {
-    publishLibraryVariants("release")
-  }
+  android { publishLibraryVariants("release") }
 
   ios()
 
@@ -46,8 +79,8 @@ android {
   sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
   lint {
-    isWarningsAsErrors = true
-    isAbortOnError = false
+    warningsAsErrors = true
+    abortOnError = false
   }
 
   compileOptions {

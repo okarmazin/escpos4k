@@ -1,6 +1,6 @@
 [versions]
 accompanist = "0.24.11-rc"
-androidGradlePlugin = "7.0.2"
+androidGradlePlugin = "7.2.1"
 androidx-activity = "1.4.0"
 androidx-datastore = "1.0.0"
 androidx-fragment = "1.5.0-rc01"
@@ -22,6 +22,7 @@ moko-resources = "0.20.1"
 mppSettings = "0.8.1"
 okhttp = "5.0.0-alpha.8"
 sqldelight = "1.5.3"
+vanniktechPublishing = "0.21.0"
 
 
 
@@ -144,3 +145,4 @@ kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotl
 kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version = "0.5.1" }
 compose-multiplatform = { id = "org.jetbrains.compose", version = "1.2.0-alpha01-dev716" }
 dependencyUpdates = { id = "com.github.ben-manes.versions", version = "0.42.0" }
+vanniktechPublishingBase = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktechPublishing"}
