@@ -80,16 +80,10 @@ internal sealed class Command {
     override fun bytes(): Sequence<Byte> = sequenceOf(27, 116, charset.escposPageNumber)
   }
 
-  class Justify(val alignment: Alignment) : Command() {
+  class Justify(val alignment: TextAlignment) : Command() {
     override val size: Int = 3
 
     override fun bytes(): Sequence<Byte> = sequenceOf(27, 97, alignment.value)
-
-    enum class Alignment(val value: Byte) {
-      LEFT(0),
-      CENTER(1),
-      RIGHT(2)
-    }
   }
 
   class TextSize(widthMagnification: Byte, heightMagification: Byte) : Command() {
@@ -106,4 +100,16 @@ internal sealed class Command {
       return (w + h).toByte()
     }
   }
+
+  object Cut : Command() {
+    override val size: Int = 3
+
+    override fun bytes(): Sequence<Byte> = sequenceOf(29, 86, 1)
+  }
+}
+
+public enum class TextAlignment(internal val value: Byte) {
+  LEFT(0),
+  CENTER(1),
+  RIGHT(2)
 }

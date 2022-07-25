@@ -17,7 +17,10 @@
 package cz.multiplatform.escpos4k.core
 
 /** @see [Printer.print] */
-public class PrintableBuilder internal constructor() {
+public class PrintableBuilder
+internal constructor(
+    internal val charsPerLine: Int,
+) {
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.values().first()))
 
@@ -88,6 +91,30 @@ public class PrintableBuilder internal constructor() {
     text(text + "\n")
   }
 
+  /**
+   * Print the two text fragments on a single line in two columns.
+   *
+   * The left text is aligned to the LEFT, the right text is aligned to the RIGHT.
+   *
+   * @param minSpace The minimum amount of spaces between the two columns, default 1.
+   */
+  public fun twoColumnLine(
+      left: String,
+      right: String,
+      charWidth: Int = 1,
+      minSpace: Int = 1,
+  ) {
+    // TODO: Extract the character width from [commands] instead of forcing the caller to supply it.
+    val numSpaces =
+        (charsPerLine - left.length * charWidth - right.length * charWidth).coerceAtLeast(minSpace)
+    val spacer = buildString { repeat(numSpaces) { append(' ') } }
+
+    textAlign(TextAlignment.LEFT)
+    text(left)
+    text(spacer)
+    line(right) // Note: line
+  }
+
   /** Turn underline ON or OFF. */
   public fun underline(enabled: Boolean) {
     commands.add(Command.Underline(enabled))
@@ -113,5 +140,18 @@ public class PrintableBuilder internal constructor() {
    */
   public fun charset(charset: Charset) {
     commands.add(Command.SelectCharset(charset))
+  }
+
+  /**
+   * Set the text alignment.
+   *
+   * @see TextAlignment
+   */
+  public fun textAlign(alignment: TextAlignment) {
+    commands.add(Command.Justify(alignment))
+  }
+
+  public fun cut() {
+    commands.add(Command.Cut)
   }
 }
