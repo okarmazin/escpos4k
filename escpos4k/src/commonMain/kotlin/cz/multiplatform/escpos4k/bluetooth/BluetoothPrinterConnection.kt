@@ -17,16 +17,16 @@
 package cz.multiplatform.escpos4k.bluetooth
 
 import cz.multiplatform.escpos4k.core.PrintError
-import cz.multiplatform.escpos4k.core.Printer
+import cz.multiplatform.escpos4k.core.PrinterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 public class BluetoothPrinterConnection(
     private val deviceConnection: BluetoothDeviceConnection,
-) : Printer {
+) : PrinterConnection {
   override val name: String = with(deviceConnection.device) { name ?: address }
 
-  public val isOpen: Boolean
+  public override val isOpen: Boolean
     get() = deviceConnection.isOpen
 
   public fun close(): Unit = deviceConnection.close()

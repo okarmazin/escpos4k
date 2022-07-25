@@ -16,8 +16,10 @@
 
 package cz.multiplatform.escpos4k.core
 
-public interface Printer {
+public interface PrinterConnection {
   public val name: String
+  public val isOpen: Boolean
+
   /**
    * Build and print the [content]. The builder contains a variety of command functions.
    *

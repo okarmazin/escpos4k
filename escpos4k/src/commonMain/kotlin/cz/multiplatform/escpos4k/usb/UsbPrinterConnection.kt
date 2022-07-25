@@ -17,16 +17,16 @@
 package cz.multiplatform.escpos4k.usb
 
 import cz.multiplatform.escpos4k.core.PrintError
-import cz.multiplatform.escpos4k.core.Printer
+import cz.multiplatform.escpos4k.core.PrinterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 public class UsbPrinterConnection(
     private val deviceConnection: UsbDeviceConnection,
-) : Printer {
+) : PrinterConnection {
   override val name: String = with(deviceConnection.device) { productName ?: osAssignedName }
 
-  public val isOpen: Boolean
+  public override val isOpen: Boolean
     get() = deviceConnection.isOpen
 
   public fun close(): Unit = deviceConnection.close()

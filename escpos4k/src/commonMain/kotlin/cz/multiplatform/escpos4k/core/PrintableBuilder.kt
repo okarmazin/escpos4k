@@ -16,7 +16,7 @@
 
 package cz.multiplatform.escpos4k.core
 
-/** @see [Printer.print] */
+/** @see [PrinterConnection.print] */
 public class PrintableBuilder
 internal constructor(
     internal val charsPerLine: Int,
