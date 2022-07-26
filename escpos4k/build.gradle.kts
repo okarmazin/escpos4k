@@ -8,7 +8,7 @@ plugins {
 
 group = "cz.multiplatform.escpos4k"
 
-version = "0.1-SNAPSHOT"
+version = "0.1"
 
 mavenPublishing {
   publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
@@ -48,7 +48,7 @@ kotlin {
 
   android { publishLibraryVariants("release") }
 
-  ios()
+//  ios()
 
   sourceSets {
     val commonMain by getting {
@@ -64,7 +64,6 @@ kotlin {
       }
     }
     val androidMain by getting
-    val iosMain by getting
   }
 }
 
