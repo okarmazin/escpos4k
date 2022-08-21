@@ -8,7 +8,7 @@ plugins {
 
 group = "cz.multiplatform.escpos4k"
 
-version = "0.1.1"
+version = "0.2.0-SNAPSHOT"
 
 mavenPublishing {
   publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
