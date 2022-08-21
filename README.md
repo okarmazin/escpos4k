@@ -9,7 +9,7 @@ ESC/POS is similar in this regard to the QR code - QR codes were [invented by De
 for use in their automotive manufacturing plants, but are now used just about everywhere.
 
 Similarly, most thermal printers - at least those intended for printing receipts and similar items - 
-work with a subset ESC/POS. The set of _actually supported_ ESC/POS commands varies wildly among
+work with a subset of ESC/POS. The set of _actually supported_ ESC/POS commands varies among
 printer OEMs and printer models.
 
 #### What does this library do?
