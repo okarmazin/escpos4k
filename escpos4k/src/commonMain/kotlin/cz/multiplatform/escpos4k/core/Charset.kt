@@ -177,7 +177,7 @@ public enum class Charset(
   Windows1258(52, "windows-1258"),
 
   /** Page 53 [KZ-1048: Kazakhstan] */
-  KZ1048(52, "KZ-1048"),
+  KZ1048(52, "KZ-1048");
 
   //  /** Page 66 [Devanagari] */
   //  Devanagari(66),
@@ -214,4 +214,8 @@ public enum class Charset(
 
   //  TODO
   //  public fun encode(text: String): ByteArray = encode(text, this)
+
+  public companion object {
+    internal val default = values().first()
+  }
 }

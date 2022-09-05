@@ -17,12 +17,13 @@
 package cz.multiplatform.escpos4k.core
 
 /** @see [PrinterConnection.print] */
+@Suppress("MemberVisibilityCanBePrivate")
 public class PrintableBuilder
 internal constructor(
     internal val charsPerLine: Int,
 ) {
   internal val commands: MutableList<Command> =
-      mutableListOf(Command.Initialize, Command.SelectCharset(Charset.values().first()))
+      mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
 
   /**
    * Set character size.
@@ -43,9 +44,37 @@ internal constructor(
    *   line("I'm back to normal size :(")
    * }
    * ```
+   * @see withTextSize
    */
   public fun textSize(width: Byte = 1, height: Byte = 1) {
     commands.add(Command.TextSize(width, height))
+  }
+
+  /**
+   * Sets the text size to [width] and [height] and executes [content]. After the content is
+   * executed, the size is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   line("I am sized 1x1")
+   *
+   *   textSize(2, 2)
+   *   line("I am sized 2x2")
+   *
+   *   withTextSize(3, 3) {
+   *     line("GIANT 3x3!")
+   *   }
+   *
+   *   line("I am sized 2x2 again")
+   * }
+   * ```
+   * @see textSize
+   */
+  public fun withTextSize(width: Byte, height: Byte, content: PrintableBuilder.() -> Unit) {
+    val prev = commands.asReversed().asSequence().filterIsInstance<Command.TextSize>().firstOrNull()
+    textSize(width, height)
+    content()
+    textSize(prev?.width ?: 1, prev?.height ?: 1)
   }
 
   /**
@@ -115,19 +144,124 @@ internal constructor(
     line(right) // Note: line
   }
 
-  /** Turn underline ON or OFF. */
+  /**
+   * Turn underline ON or OFF.
+   * @see withUnderline
+   */
   public fun underline(enabled: Boolean) {
     commands.add(Command.Underline(enabled))
   }
 
-  /** Turn emphasis mode ON or OFF. */
+  /**
+   * Sets `underlined` mode ON and executes [content]. After the content is executed, the underline
+   * setting is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   underline(true)
+   *   line("I am a wee underlined text.")
+   *
+   *   withUnderline(false) {
+   *     line("Nobody puts a line under me!")
+   *   }
+   *
+   *   line("I am underlined again.")
+   * }
+   * ```
+   * @see underline
+   */
+  public fun withUnderline(enabled: Boolean, content: PrintableBuilder.() -> Unit) {
+    val prev =
+        commands
+            .asReversed()
+            .asSequence()
+            .filterIsInstance<Command.Underline>()
+            .firstOrNull()
+            ?.enabled
+            ?: false
+
+    underline(enabled)
+    content()
+    underline(prev)
+  }
+
+  /**
+   * Turn emphasis mode ON or OFF.
+   * @see withBold
+   */
   public fun bold(enabled: Boolean) {
     commands.add(Command.Bold(enabled))
   }
 
-  /** Turn italics ON or OFF. */
+  /**
+   * Sets `bold` mode ON and executes [content]. After the content is executed, the `bold` setting
+   * is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   bold(true)
+   *   line("Bold!")
+   *
+   *   withBold(false) {
+   *     line("Normal.")
+   *   }
+   *
+   *   line("Bold Again!")
+   * }
+   * ```
+   *
+   * @see bold
+   */
+  public fun withBold(enabled: Boolean, content: PrintableBuilder.() -> Unit) {
+    val prev =
+        commands.asReversed().asSequence().filterIsInstance<Command.Bold>().firstOrNull()?.enabled
+            ?: false
+
+    bold(enabled)
+    content()
+    bold(prev)
+  }
+
+  /**
+   * Turn italics ON or OFF.
+   * @see withItalics
+   */
   public fun italics(enabled: Boolean) {
     commands.add(Command.Italics(enabled))
+  }
+
+  /**
+   * Sets `italics` mode ON and executes [content]. After the content is executed, the `italics`
+   * setting is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   italics(true)
+   *   line("That Pisa tower is my jam.")
+   *
+   *   withItalics(false) {
+   *     line("I don't like slanted things.")
+   *   }
+   *
+   *   line("Italics again!")
+   * }
+   * ```
+   *
+   * @see italics
+   */
+  public fun withItalics(enabled: Boolean, content: PrintableBuilder.() -> Unit) {
+    val prev =
+        commands
+            .asReversed()
+            .asSequence()
+            .filterIsInstance<Command.Italics>()
+            .firstOrNull()
+            ?.enabled
+            ?: false
+
+    italics(enabled)
+    content()
+    italics(prev)
   }
 
   /**
@@ -137,9 +271,48 @@ internal constructor(
    * Characters outside the character set will be replaced with a replacement character.
    *
    * @see [text]
+   * @see [withCharset]
    */
   public fun charset(charset: Charset) {
     commands.add(Command.SelectCharset(charset))
+  }
+
+  /**
+   * Selects the [charset] and executes [content]. After the content is executed, the selected
+   * charset is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   line("Famous bridges")
+   *
+   *   // 865 can encode Ø, but not ů
+   *   charset(Charset.CP865)
+   *   line("Øresundsbroen: 7845m\n")
+   *
+   *   withCharset(Charset.CP852) {
+   *     // 852 can encode ů, but not Ø
+   *     line("Karlův most: 515m\n")
+   *   }
+   *
+   *   line("I can encode Ø again!")
+   * }
+   * ```
+   * @see charset
+   * @see text
+   */
+  public fun withCharset(charset: Charset, content: PrintableBuilder.() -> Unit) {
+    val prev =
+        commands
+            .asReversed()
+            .asSequence()
+            .filterIsInstance<Command.SelectCharset>()
+            .firstOrNull()
+            ?.charset
+            ?: Charset.default
+
+    charset(charset)
+    content()
+    charset(prev)
   }
 
   /**
