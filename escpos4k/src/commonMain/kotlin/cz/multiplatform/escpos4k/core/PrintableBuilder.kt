@@ -121,13 +121,29 @@ internal constructor(
   }
 
   /**
-   * Print the two text fragments on a single line in two columns.
+   * Print the two text fragments on a single line in two columns, appending '\n' to the right text.
    *
    * The left text is aligned to the LEFT, the right text is aligned to the RIGHT.
    *
    * @param minSpace The minimum amount of spaces between the two columns, default 1.
    */
   public fun twoColumnLine(
+      left: String,
+      right: String,
+      charWidth: Int = 1,
+      minSpace: Int = 1,
+  ) {
+    twoColumnText(left, right + "\n", charWidth, minSpace)
+  }
+
+  /**
+   * Print the two text fragments in two columns without terminating the line.
+   *
+   * The left text is aligned to the LEFT, the right text is aligned to the RIGHT.
+   *
+   * @param minSpace The minimum amount of spaces between the two columns, default 1.
+   */
+  public fun twoColumnText(
       left: String,
       right: String,
       charWidth: Int = 1,
@@ -141,7 +157,7 @@ internal constructor(
     textAlign(TextAlignment.LEFT)
     text(left)
     text(spacer)
-    line(right) // Note: line
+    text(right)
   }
 
   /**
