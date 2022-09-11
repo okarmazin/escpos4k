@@ -56,16 +56,13 @@ internal constructor(
    *
    * ```
    * printer.print {
-   *   line("I am sized 1x1")
-   *
-   *   textSize(2, 2)
-   *   line("I am sized 2x2")
+   *   line("I am sized 1x1 by default.")
    *
    *   withTextSize(3, 3) {
    *     line("GIANT 3x3!")
    *   }
    *
-   *   line("I am sized 2x2 again")
+   *   line("I am sized 1x1 again!")
    * }
    * ```
    * @see textSize
@@ -96,9 +93,16 @@ internal constructor(
    * @see charset
    */
   public fun text(text: String) {
-    commands.add(
-        Command.Text(
-            text, (commands.last { it is Command.SelectCharset } as Command.SelectCharset).charset))
+    // TODO maybe keep the current charset as a member variable instead of looking it up every time.
+    val currentCharset =
+        commands
+            .asReversed()
+            .asSequence()
+            .filterIsInstance<Command.SelectCharset>()
+            .firstOrNull()
+            ?.charset
+            ?: Charset.default
+    commands.add(Command.Text(text, currentCharset))
   }
 
   /**
@@ -169,7 +173,7 @@ internal constructor(
   }
 
   /**
-   * Sets `underlined` mode ON and executes [content]. After the content is executed, the underline
+   * Sets `underlined` mode and executes [content]. After the content is executed, the underline
    * setting is restored to the value it had before calling this function.
    *
    * ```
@@ -210,8 +214,8 @@ internal constructor(
   }
 
   /**
-   * Sets `bold` mode ON and executes [content]. After the content is executed, the `bold` setting
-   * is restored to the value it had before calling this function.
+   * Sets `bold` mode and executes [content]. After the content is executed, the `bold` setting is
+   * restored to the value it had before calling this function.
    *
    * ```
    * printer.print {
@@ -247,7 +251,7 @@ internal constructor(
   }
 
   /**
-   * Sets `italics` mode ON and executes [content]. After the content is executed, the `italics`
+   * Sets `italics` mode and executes [content]. After the content is executed, the `italics`
    * setting is restored to the value it had before calling this function.
    *
    * ```
@@ -284,8 +288,6 @@ internal constructor(
    * Select a [Charset]. Text printed with [text] will be encoded to single-byte characters
    * according to this character set.
    *
-   * Characters outside the character set will be replaced with a replacement character.
-   *
    * @see [text]
    * @see [withCharset]
    */
@@ -303,11 +305,11 @@ internal constructor(
    *
    *   // 865 can encode Ø, but not ů
    *   charset(Charset.CP865)
-   *   line("Øresundsbroen: 7845m\n")
+   *   line("Øresundsbroen: 7845m")
    *
    *   withCharset(Charset.CP852) {
    *     // 852 can encode ů, but not Ø
-   *     line("Karlův most: 515m\n")
+   *     line("Karlův most: 515m")
    *   }
    *
    *   line("I can encode Ø again!")
