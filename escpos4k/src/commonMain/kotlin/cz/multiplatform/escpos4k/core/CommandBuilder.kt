@@ -18,7 +18,7 @@ package cz.multiplatform.escpos4k.core
 
 /** @see [PrinterConnection.print] */
 @Suppress("MemberVisibilityCanBePrivate")
-public class PrintableBuilder
+public class CommandBuilder
 internal constructor(
     internal val charsPerLine: Int,
 ) {
@@ -67,7 +67,7 @@ internal constructor(
    * ```
    * @see textSize
    */
-  public fun withTextSize(width: Byte, height: Byte, content: PrintableBuilder.() -> Unit) {
+  public fun withTextSize(width: Byte, height: Byte, content: CommandBuilder.() -> Unit) {
     val prev = commands.asReversed().asSequence().filterIsInstance<Command.TextSize>().firstOrNull()
     textSize(width, height)
     content()
@@ -190,7 +190,7 @@ internal constructor(
    * ```
    * @see underline
    */
-  public fun withUnderline(enabled: Boolean, content: PrintableBuilder.() -> Unit) {
+  public fun withUnderline(enabled: Boolean, content: CommandBuilder.() -> Unit) {
     val prev =
         commands
             .asReversed()
@@ -232,7 +232,7 @@ internal constructor(
    *
    * @see bold
    */
-  public fun withBold(enabled: Boolean, content: PrintableBuilder.() -> Unit) {
+  public fun withBold(enabled: Boolean, content: CommandBuilder.() -> Unit) {
     val prev =
         commands.asReversed().asSequence().filterIsInstance<Command.Bold>().firstOrNull()?.enabled
             ?: false
@@ -269,7 +269,7 @@ internal constructor(
    *
    * @see italics
    */
-  public fun withItalics(enabled: Boolean, content: PrintableBuilder.() -> Unit) {
+  public fun withItalics(enabled: Boolean, content: CommandBuilder.() -> Unit) {
     val prev =
         commands
             .asReversed()
@@ -318,7 +318,7 @@ internal constructor(
    * @see charset
    * @see text
    */
-  public fun withCharset(charset: Charset, content: PrintableBuilder.() -> Unit) {
+  public fun withCharset(charset: Charset, content: CommandBuilder.() -> Unit) {
     val prev =
         commands
             .asReversed()

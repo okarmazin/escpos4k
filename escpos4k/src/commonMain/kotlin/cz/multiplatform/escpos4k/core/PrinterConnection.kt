@@ -58,9 +58,9 @@ public interface PrinterConnection {
    */
   public suspend fun print(
       charsPerLine: Int = Constants.charsPerLine60mm,
-      content: PrintableBuilder.() -> Unit
+      content: CommandBuilder.() -> Unit
   ): PrintError? {
-    val builder = PrintableBuilder(Constants.charsPerLine60mm).apply(content)
+    val builder = CommandBuilder(Constants.charsPerLine60mm).apply(content)
     val bytes = builder.commands.flatMap { it.bytes() }.toByteArray()
     return printRaw(bytes)
   }
