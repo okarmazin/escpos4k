@@ -64,6 +64,11 @@ kotlin {
       }
     }
     val androidMain by getting
+    val androidTest by getting {
+      dependencies {
+        implementation(escpos4k.kotlin.test.junit)
+      }
+    }
     val iosMain by getting
   }
 }
