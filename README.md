@@ -1,10 +1,12 @@
 # ESC/POS for Kotlin Multiplatform
 
 <!-- TOC -->
+
 * [ESC/POS for Kotlin Multiplatform](#escpos-for-kotlin-multiplatform)
     * [What is ESC/POS?](#what-is-escpos)
     * [What does this library do?](#what-does-this-library-do)
     * [Feature/Platform matrix](#featureplatform-matrix)
+
 <!-- TOC -->
 
 #### What is ESC/POS?
@@ -36,8 +38,9 @@ The following table summarizes connector implementation status on each platform.
 - :x: - Not yet implemented
 - `N/A` - Technology not available on that platform
 
-|           | Android            | iOS   |
-|-----------|--------------------|-------|
-| Bluetooth | :heavy_check_mark: | :x:   |
-| USB       | :heavy_check_mark: | `N/A` |
-| TCP       | :x:                | :x:   |
+|                         | Android            | iOS                |
+|-------------------------|--------------------|--------------------|
+| **Command builder**     | :heavy_check_mark: | :heavy_check_mark: |
+| **Bluetooth connector** | :heavy_check_mark: | :x:                |
+| **USB connector**       | :heavy_check_mark: | `N/A`              |
+| **TCP connector**       | :x:                | :x:                |
