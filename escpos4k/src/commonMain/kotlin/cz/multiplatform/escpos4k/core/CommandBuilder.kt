@@ -25,6 +25,9 @@ internal constructor(
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
 
+  private inline fun <reified T> List<Command>.lastOfType(): T? =
+      asReversed().asSequence().filterIsInstance<T>().firstOrNull()
+
   /**
    * Set character size.
    *
@@ -68,7 +71,7 @@ internal constructor(
    * @see textSize
    */
   public fun withTextSize(width: Byte, height: Byte, content: CommandBuilder.() -> Unit) {
-    val prev = commands.asReversed().asSequence().filterIsInstance<Command.TextSize>().firstOrNull()
+    val prev = commands.lastOfType<Command.TextSize>()
     textSize(width, height)
     content()
     textSize(prev?.width ?: 1, prev?.height ?: 1)
@@ -94,14 +97,7 @@ internal constructor(
    */
   public fun text(text: String) {
     // TODO maybe keep the current charset as a member variable instead of looking it up every time.
-    val currentCharset =
-        commands
-            .asReversed()
-            .asSequence()
-            .filterIsInstance<Command.SelectCharset>()
-            .firstOrNull()
-            ?.charset
-            ?: Charset.default
+    val currentCharset = commands.lastOfType<Command.SelectCharset>()?.charset ?: Charset.default
     commands.add(Command.Text(text, currentCharset))
   }
 
@@ -191,14 +187,7 @@ internal constructor(
    * @see underline
    */
   public fun withUnderline(enabled: Boolean, content: CommandBuilder.() -> Unit) {
-    val prev =
-        commands
-            .asReversed()
-            .asSequence()
-            .filterIsInstance<Command.Underline>()
-            .firstOrNull()
-            ?.enabled
-            ?: false
+    val prev = commands.lastOfType<Command.Underline>()?.enabled ?: false
 
     underline(enabled)
     content()
@@ -233,9 +222,7 @@ internal constructor(
    * @see bold
    */
   public fun withBold(enabled: Boolean, content: CommandBuilder.() -> Unit) {
-    val prev =
-        commands.asReversed().asSequence().filterIsInstance<Command.Bold>().firstOrNull()?.enabled
-            ?: false
+    val prev = commands.lastOfType<Command.Bold>()?.enabled ?: false
 
     bold(enabled)
     content()
@@ -270,14 +257,7 @@ internal constructor(
    * @see italics
    */
   public fun withItalics(enabled: Boolean, content: CommandBuilder.() -> Unit) {
-    val prev =
-        commands
-            .asReversed()
-            .asSequence()
-            .filterIsInstance<Command.Italics>()
-            .firstOrNull()
-            ?.enabled
-            ?: false
+    val prev = commands.lastOfType<Command.Italics>()?.enabled ?: false
 
     italics(enabled)
     content()
@@ -319,14 +299,7 @@ internal constructor(
    * @see text
    */
   public fun withCharset(charset: Charset, content: CommandBuilder.() -> Unit) {
-    val prev =
-        commands
-            .asReversed()
-            .asSequence()
-            .filterIsInstance<Command.SelectCharset>()
-            .firstOrNull()
-            ?.charset
-            ?: Charset.default
+    val prev = commands.lastOfType<Command.SelectCharset>()?.charset ?: Charset.default
 
     charset(charset)
     content()
