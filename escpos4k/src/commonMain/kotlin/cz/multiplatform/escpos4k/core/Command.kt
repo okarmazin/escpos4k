@@ -83,6 +83,61 @@ internal sealed class Command {
   object Cut : Command() {
     override fun bytes(): Sequence<Byte> = sequenceOf(29, 86, 1)
   }
+
+  class QrCode(
+      content: String,
+      errorCorrection: QrCorrectionLevel,
+  ) : Command() {
+    private val content: ByteArray
+
+    init {
+      require(content.isNotEmpty()) { "Cannot print QR code with no content." }
+
+      /*
+        THE DATA TRANSMISSION FUNCTION:
+        - Transmits `k` bytes d1..dk to the printer.
+        - Requires at least one byte of data.
+        - Important!!! The size information we send with pL and pH is in range 4-7092
+
+        29 40 107 pL pH 49 80 48 d1...dk
+
+        Spec:
+        (pL + pH × 256) = 4 – 7092
+        d = 0 – 255
+        k = (pL + pH × 256) − 3
+      */
+
+      @Suppress("JoinDeclarationAndAssignment") //
+      var data: ByteArray
+
+      // 1. Select the EC level
+      data = byteArrayOf(29, 40, 107, 3, 0, 49, 69, errorCorrection.level)
+
+      // 2. Send the content to the printer. This does not initiate the print process, it merely
+      //    stores the data in the printer's symbol buffer.
+      val contentBytes = content.encodeToByteArray()
+      val base = contentBytes.size + 3
+      val (pL, pH) = base.toByte() to (base shr 8).toByte()
+      data += byteArrayOf(29, 40, 107, pL, pH, 49, 80, 48, *contentBytes)
+
+      // 3. Send the print command. This will print the data from step 2.
+      data += byteArrayOf(29, 40, 107, 3, 0, 49, 81, 48)
+      this.content = data
+    }
+
+    override fun bytes(): Sequence<Byte> = content.asSequence()
+  }
+}
+
+public enum class QrCorrectionLevel(internal val level: Byte) {
+  /** 7 % (approx.) */
+  L(48),
+  /** 15 % (approx.) */
+  M(49),
+  /** 25 % (approx.) */
+  Q(50),
+  /** 30 % (approx.) */
+  H(51)
 }
 
 public enum class TextAlignment(internal val value: Byte) {

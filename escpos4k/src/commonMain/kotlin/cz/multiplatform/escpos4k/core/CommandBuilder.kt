@@ -318,4 +318,16 @@ internal constructor(
   public fun cut() {
     commands.add(Command.Cut)
   }
+
+  /**
+   * Print a QR Code containing the [content].
+   *
+   * QR Code printing is not affected by print mode (bold, double-strike, underline...) except for
+   * two settings: 1) Character size 2) Upside-down mode
+   *
+   * `content` must not be empty.
+   */
+  public fun qr(content: String, errorCorrection: QrCorrectionLevel = QrCorrectionLevel.L) {
+    commands.add(Command.QrCode(content, errorCorrection))
+  }
 }
