@@ -1,15 +1,18 @@
 import com.vanniktech.maven.publish.KotlinMultiplatform
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-  alias(escpos4k.plugins.kotlin.multiplatform)
-  alias(escpos4k.plugins.android.library)
-  alias(escpos4k.plugins.vanniktechPublishingBase)
+  alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.android.library)
+  alias(libs.plugins.vanniktechPublishingBase)
+  alias(libs.plugins.kotest.multiplatform)
 }
 
 group = "cz.multiplatform.escpos4k"
 
 version = "0.2.0-SNAPSHOT"
 
+@Suppress("UnstableApiUsage")
 mavenPublishing {
   publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
   signAllPublications()
@@ -53,26 +56,30 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        api(escpos4k.arrow.core)
-        implementation(escpos4k.kotlinx.coroutines.core)
+        api(libs.arrow.core)
+        implementation(libs.kotlinx.coroutines.core)
       }
     }
     val commonTest by getting {
       dependencies {
-        implementation(escpos4k.kotlin.test.common.annotations)
-        implementation(escpos4k.kotlin.test.common.assertions)
+        implementation(libs.kotest.assertions.core)
+        implementation(libs.kotest.framework.engine)
+        implementation(libs.kotlin.test.common.annotations)
+        implementation(libs.kotlin.test.common.assertions)
       }
     }
     val androidMain by getting
     val androidTest by getting {
       dependencies {
-        implementation(escpos4k.kotlin.test.junit)
+        implementation(libs.kotlin.test.junit)
+        implementation(libs.kotest.runner.junit5)
       }
     }
     val iosMain by getting
   }
 }
 
+@Suppress("UnstableApiUsage")
 android {
   compileSdk = 31
   defaultConfig {
