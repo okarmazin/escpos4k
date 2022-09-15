@@ -16,6 +16,7 @@
 
 package cz.multiplatform.escpos4k.usb
 
+import arrow.core.identity
 import cz.multiplatform.escpos4k.core.PrintError
 import cz.multiplatform.escpos4k.core.PrinterConnection
 import kotlinx.coroutines.Dispatchers
@@ -43,8 +44,13 @@ public class UsbPrinterConnection(
       */
 
       val outEndpoint =
-          deviceConnection.device.likelyPrinterEndpoint()
-              ?: return@withContext PrintError.NotAPrinter
+          deviceConnection.device
+              .findOutputEndpoint()
+              .fold(
+                  {
+                    return@withContext PrintError.NotAPrinter
+                  },
+                  ::identity)
       val iface =
           deviceConnection.device.interfaces.firstOrNull {
             it.bInterfaceNumber == outEndpoint.ifaceNumber

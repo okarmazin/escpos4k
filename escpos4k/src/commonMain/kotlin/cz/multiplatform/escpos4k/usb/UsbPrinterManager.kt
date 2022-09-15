@@ -16,6 +16,10 @@
 
 package cz.multiplatform.escpos4k.usb
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.rightIfNotNull
+
 public interface UsbPrinterManager {
 
   public fun hasPermission(printer: UsbDevice): Boolean
@@ -49,7 +53,7 @@ internal abstract class AbstractUsbPrinterManager : UsbPrinterManager {
   }
 
   override fun visiblePrinters(): List<UsbDevice> =
-      allVisibleDevices().filter { it.likelyPrinterEndpoint() != null }
+      allVisibleDevices().filter { it.findOutputEndpoint().isRight() }
 
   protected abstract fun allVisibleDevices(): List<UsbDevice>
 
@@ -64,119 +68,77 @@ internal abstract class AbstractUsbPrinterManager : UsbPrinterManager {
  * Note: If this function returns `null`, it does not mean that the device is not a printer. It only
  * means that our detection algorithm didn't figure it out.
  */
-internal fun UsbDevice.likelyPrinterEndpoint(): UsbEndpoint? {
-  when (deviceClass) {
-    UsbClass.DefinedByInterface,
-    UsbClass.VendorSpecific -> {
-      // First check if there is an explicitly defined Printer interface.
-      interfaces
-          .firstOrNull { it.isPrinter() }
-          ?.let { printerIface ->
-            // Every Printer-class interface must have a BULK OUT endpoint, otherwise we couldn't
-            // send
-            // print commands to it. So the bulkOutEp function SHOULD always return a not-null
-            // result.
-            // If it returns null, something is seriously wrong with the device.
-            return printerIface.bulkOutEp()
-          }
+internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndpoint> {
+  if (deviceClass !in setOf(UsbClass.DefinedByInterface, UsbClass.VendorSpecific)) {
+    return EndpointSearchError.InvalidDeviceClass.left()
+  }
 
-      // If there are no Printer interfaces, we have to try some sort of heuristic.
+  // First check if there is an explicitly defined Printer interface.
+  interfaces
+      .firstOrNull { it.isPrinter() }
+      ?.let { printerIface ->
+        // Every Printer-class interface must have a BULK OUT endpoint, otherwise we couldn't
+        // send print commands to it. So the bulkOutEp function SHOULD always return a not-null
+        // result. If it returns null, something is seriously wrong with the device.
+        return printerIface.bulkOutEp().rightIfNotNull { EndpointSearchError.BulkOutNotFound }
+      }
 
-      when (interfaces.size) {
-        0 -> {
-          // Is this even allowed by the USB standard?
-          // TODO check the standard if no-interface devices are allowed.
-          return null
-        }
-        1 -> {
-          val iface = interfaces[0]
-          return when (iface.interfaceClass) {
-            UsbClass.VendorSpecific,
-            UsbClass.Printer /* In reality cannot be Printer */ -> {
-              /*
-                THIS IS THE MOST LIKELY PATH TO BE TAKEN WITH ESC/POS PRINTERS!
+  val validClasses = setOf(UsbClass.Printer, UsbClass.VendorSpecific)
+  fun isDisqualified(iface: UsbInterface) = iface.interfaceClass !in validClasses
 
-                ESC/POS printers often do not advertise themselves as printers, but rather as
-                Vendor-specific devices with a single Vendor-specific interface. That's this path.
-              */
+  // If there are no Printer interfaces, we have to try some sort of heuristic.
+  // NOTE: The when cases may look redundant at first sight, but they are not. Do not merge the
+  // `1` and `else` branches.
+  when (interfaces.size) {
+    0 -> {
+      // Is this even allowed by the USB standard?
+      // TODO check the standard if no-interface devices are allowed.
+      return EndpointSearchError.BulkOutNotFound.left()
+    }
+    1 -> {
+      val iface = interfaces[0]
+      return if (isDisqualified(iface)) {
+        EndpointSearchError.DisqualifyingInterfaceFound(iface).left()
+      } else {
+        /*
+          THIS IS THE MOST LIKELY PATH TO BE TAKEN WITH ESC/POS PRINTERS!
 
-              iface.bulkOutEp()
-            }
-
-            // Other classes cannot be printers.
-            else -> null
-          }
-        }
-        else -> {
-          /*
-             The device has multiple interfaces and none of them are Printer.
-             We differentiate multi-interface devices from single-interface devices because the
-             additional information allows us to perform additional filtering.
-
-             Some USB classes are considered (by us) to be mutually exclusive with printer devices.
-             These classes disqualify the device even if the device has other interfaces that we
-             accept to be printers.
-
-             For example if any of the interfaces have the WirelessController USB class,
-             it is pretty much guaranteed to be something irrelevant.
-             When was the last time you saw a printer acting as a Bluetooth dongle??
-          */
-
-          fun isDisqualified(iface: UsbInterface) =
-              when (iface.interfaceClass) {
-                UsbClass.Audio,
-                UsbClass.CommAndCdc,
-                UsbClass.Hid,
-                UsbClass.Physical,
-                UsbClass.MassStorage,
-                UsbClass.CdcData,
-                UsbClass.SmartCard,
-                UsbClass.ContentSecurity,
-                UsbClass.Video,
-                UsbClass.PersonalHealthcare,
-                UsbClass.AudioVideo,
-                UsbClass.UsbCBridge,
-                UsbClass.I3C,
-                UsbClass.DiagnosticDevice,
-                UsbClass.WirelessController,
-                UsbClass.Miscellaneous,
-                UsbClass.Billboard,
-                UsbClass.ApplicationSpecific -> {
-                  // All of these classes disqualify this device from being a printer.
-                  true
-                }
-                UsbClass.Image -> {
-                  // This class is singled out for visibility. It is true that printers with
-                  // embedded scanners will include the Image class for the scanner, but we assume
-                  // that our target printers are small thermal printers without any scanning
-                  // capabilities. Therefore, we consider the Image class to be disqualifying.
-                  // If we wanted to detect big multipurpose printers, this would be incorrect.
-                  // On the other hand, it is expected that serious printers (like those with
-                  // scanners) properly include a Printer-class interface and have already been
-                  // returned from this function based on that fact (we specifically search
-                  // for a Printer-class interface as the first operation in this function).
-                  true
-                }
-                UsbClass.Printer,
-                UsbClass.VendorSpecific -> {
-                  false
-                }
-              }
-          return if (interfaces.any(::isDisqualified)) {
-            null
-          } else {
-            interfaces
-                .filter { it.interfaceClass == UsbClass.VendorSpecific }
-                .firstNotNullOfOrNull { it.bulkOutEp() }
-          }
-        }
+          ESC/POS printers often do not advertise themselves as printers, but rather as
+          Vendor-specific devices with a single Vendor-specific interface.
+        */
+        iface.bulkOutEp().rightIfNotNull { EndpointSearchError.BulkOutNotFound }
       }
     }
     else -> {
-      // No other Device classes can be printers.
-      return null
+      /*
+         The device has multiple interfaces and none of them are Printer.
+         We differentiate multi-interface devices from single-interface devices because the
+         additional information allows us to perform additional filtering.
+
+         Some USB classes are considered (by us) to be mutually exclusive with printer devices.
+         These classes disqualify the device even if the device has other interfaces that would
+         be considered valid.
+
+         For example if any of the interfaces have the WirelessController USB class,
+         it is pretty much guaranteed to be something irrelevant.
+         When was the last time you saw a printer acting as a Bluetooth dongle?
+      */
+
+      interfaces.firstOrNull(::isDisqualified)?.let {
+        return EndpointSearchError.DisqualifyingInterfaceFound(it).left()
+      }
+
+      return interfaces
+          .firstNotNullOfOrNull { it.bulkOutEp() }
+          .rightIfNotNull { EndpointSearchError.BulkOutNotFound }
     }
   }
+}
+
+internal sealed class EndpointSearchError {
+  object InvalidDeviceClass : EndpointSearchError()
+  object BulkOutNotFound : EndpointSearchError()
+  class DisqualifyingInterfaceFound(val cause: UsbInterface) : EndpointSearchError()
 }
 
 private fun UsbInterface.isPrinter() = interfaceClass == UsbClass.Printer

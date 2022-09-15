@@ -1,6 +1,7 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   base
-  alias(escpos4k.plugins.dependencyUpdates)
+  alias(libs.plugins.dependencyUpdates)
 }
 
 tasks.named<Delete>("clean") {

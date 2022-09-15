@@ -61,7 +61,7 @@ public interface PrinterConnection {
       content: CommandBuilder.() -> Unit
   ): PrintError? {
     val builder = CommandBuilder(Constants.charsPerLine60mm).apply(content)
-    val bytes = builder.commands.flatMap { it.bytes() }.toByteArray()
+    val bytes = builder.commands.flatMap { it.bytes().asSequence() }.toByteArray()
     return printRaw(bytes)
   }
 

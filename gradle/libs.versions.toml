@@ -6,10 +6,17 @@ dependencyUpdates = "0.42.0"
 kotlin = "1.7.10"
 ktor = "2.1.1"
 vanniktechPublishing = "0.22.0"
+kotest = "5.4.2"
 
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 
 kotlin-test-common-annotations = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
 kotlin-test-common-assertions = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin" }
@@ -30,6 +37,7 @@ ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotia
 [plugins]
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
-kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 dependencyUpdates = { id = "com.github.ben-manes.versions", version.ref = "dependencyUpdates" }
+kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 vanniktechPublishingBase = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktechPublishing" }

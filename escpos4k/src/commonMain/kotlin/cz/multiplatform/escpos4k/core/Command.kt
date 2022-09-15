@@ -17,12 +17,31 @@
 package cz.multiplatform.escpos4k.core
 
 internal sealed class Command {
-  abstract fun bytes(): Sequence<Byte>
+  abstract fun bytes(): ByteArray
 
   class Text(private val text: String, charset: Charset) : Command() {
     private val encodedBytes: ByteArray by lazy { encode(text, charset) }
 
-    override fun bytes(): Sequence<Byte> = encodedBytes.asSequence()
+    override fun bytes(): ByteArray = encodedBytes.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as Text
+
+      if (!encodedBytes.contentEquals(other.encodedBytes)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return encodedBytes.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "Text(text='$text', encodedBytes=${encodedBytes.contentToString()})"
+    }
   }
 
   /**
@@ -35,53 +54,168 @@ internal sealed class Command {
    * information is maintained. User NV memory data is maintained.
    */
   object Initialize : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(27, 64)
-  }
-
-  /**
-   * Print and line feed.
-   *
-   * Prints the data in the print buffer and feeds one line, based on the current line spacing.
-   */
-  object LF : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(10)
+    override fun bytes(): ByteArray = byteArrayOf(27, 64)
   }
 
   class Underline(val enabled: Boolean) : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(27, 45, if (enabled) 1 else 0)
+    private val content = byteArrayOf(27, 45, if (enabled) 1 else 0)
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as Underline
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "Underline(enabled=$enabled, content=${content.contentToString()})"
+    }
   }
 
   class Italics(val enabled: Boolean) : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(27, 52, if (enabled) 1 else 0)
+    private val content = byteArrayOf(27, 52, if (enabled) 1 else 0)
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as Italics
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "Italics(enabled=$enabled, content=${content.contentToString()})"
+    }
   }
 
   class Bold(val enabled: Boolean) : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(27, 69, if (enabled) 1 else 0)
+    private val content = byteArrayOf(27, 69, if (enabled) 1 else 0)
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as Bold
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "Bold(enabled=$enabled, content=${content.contentToString()})"
+    }
   }
 
   class SelectCharset(val charset: Charset) : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(27, 116, charset.escposPageNumber)
+    private val content = byteArrayOf(27, 116, charset.escposPageNumber)
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as SelectCharset
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "SelectCharset(charset=$charset, content=${content.contentToString()})"
+    }
   }
 
   class Justify(val alignment: TextAlignment) : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(27, 97, alignment.value)
+    private val content = byteArrayOf(27, 97, alignment.value)
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as Justify
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "Justify(alignment=$alignment, content=${content.contentToString()})"
+    }
   }
 
-  class TextSize(val width: Byte, val height: Byte) : Command() {
-    private val sizeByte = constructSize(width, height)
+  class TextSize(val width: Int, val height: Int) : Command() {
+    private val content = byteArrayOf(29, 33, constructSize(width, height))
 
-    override fun bytes(): Sequence<Byte> = sequenceOf(29, 33, sizeByte)
+    override fun bytes(): ByteArray = content.copyOf()
 
-    private fun constructSize(wMag: Byte, hMag: Byte): Byte {
-      val w = (wMag.coerceIn(1, 8) - 1) shl 4
-      val h = hMag.coerceIn(1, 8) - 1
+    private fun constructSize(width: Int, height: Int): Byte {
+      val w = (width.coerceIn(1, 8) - 1) shl 4
+      val h = height.coerceIn(1, 8) - 1
 
       return (w + h).toByte()
+    }
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as TextSize
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "TextSize(width=$width, height=$height, content=${content.contentToString()})"
     }
   }
 
   object Cut : Command() {
-    override fun bytes(): Sequence<Byte> = sequenceOf(29, 86, 1)
+    override fun bytes(): ByteArray = byteArrayOf(29, 86, 1)
   }
 
   class QrCode(
@@ -125,7 +259,26 @@ internal sealed class Command {
       this.content = data
     }
 
-    override fun bytes(): Sequence<Byte> = content.asSequence()
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as QrCode
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "QrCode(content=${content.contentToString()})"
+    }
   }
 }
 

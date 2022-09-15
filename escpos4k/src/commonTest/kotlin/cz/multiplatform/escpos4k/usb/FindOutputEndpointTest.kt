@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 
-class UsbDeviceTest {
+class FindOutputEndpointTest {
 
   @Test
   fun likelyPrinterEndpoint_printerInterface_withBulkOut() {
@@ -23,7 +23,7 @@ class UsbDeviceTest {
             1,
             listOf(printerInterface))
 
-    assertSame(printerInterface.endpoints[1], device.likelyPrinterEndpoint())
+    assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().orNull()!!)
   }
 
   @Test
@@ -43,7 +43,7 @@ class UsbDeviceTest {
             1,
             listOf(printerInterface))
 
-    assertNull(device.likelyPrinterEndpoint())
+    assertNull(device.findOutputEndpoint().orNull())
   }
 
   @Test
@@ -63,7 +63,7 @@ class UsbDeviceTest {
             1,
             listOf(printerInterface))
 
-    assertSame(printerInterface.endpoints[1], device.likelyPrinterEndpoint())
+    assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().orNull()!!)
   }
 
   @Test
@@ -83,7 +83,7 @@ class UsbDeviceTest {
             1,
             listOf(printerInterface))
 
-    assertNull(device.likelyPrinterEndpoint())
+    assertNull(device.findOutputEndpoint().orNull())
   }
 
   @Test
@@ -104,7 +104,7 @@ class UsbDeviceTest {
     val device =
         UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
 
-    assertSame(printerInterfaces[1].endpoints[1], device.likelyPrinterEndpoint())
+    assertSame(printerInterfaces[1].endpoints[1], device.findOutputEndpoint().orNull()!!)
   }
 
   @Test
@@ -126,7 +126,7 @@ class UsbDeviceTest {
     val device =
         UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
 
-    assertNull(device.likelyPrinterEndpoint())
+    assertNull(device.findOutputEndpoint().orNull())
   }
 
   private fun bulkAndControl(): List<UsbEndpoint> =

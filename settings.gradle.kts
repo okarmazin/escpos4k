@@ -6,11 +6,8 @@ pluginManagement {
   }
 }
 
-enableFeaturePreview("VERSION_CATALOGS")
-
 dependencyResolutionManagement {
-  versionCatalogs { create("escpos4k") { from(files("gradle/escpos4k.versions.toml")) } }
-
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
   repositories {
     mavenCentral()
     google()
