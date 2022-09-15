@@ -182,12 +182,12 @@ internal sealed class Command {
     }
   }
 
-  class TextSize(val width: Byte, val height: Byte) : Command() {
+  class TextSize(val width: Int, val height: Int) : Command() {
     private val content = byteArrayOf(29, 33, constructSize(width, height))
 
     override fun bytes(): ByteArray = content.copyOf()
 
-    private fun constructSize(width: Byte, height: Byte): Byte {
+    private fun constructSize(width: Int, height: Int): Byte {
       val w = (width.coerceIn(1, 8) - 1) shl 4
       val h = height.coerceIn(1, 8) - 1
 

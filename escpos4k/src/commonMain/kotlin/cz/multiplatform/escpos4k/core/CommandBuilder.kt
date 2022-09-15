@@ -25,57 +25,8 @@ internal constructor(
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
 
-  private inline fun <reified T> List<Command>.lastOfType(): T? =
+  private inline fun <reified T> List<Command>.lastOfTypeOrNull(): T? =
       asReversed().asSequence().filterIsInstance<T>().firstOrNull()
-
-  /**
-   * Set character size.
-   *
-   * Acceptable size range is `1..8` where the size represents multiplication factor.
-   *
-   * 2 = double size; 3 = triple size ...
-   *
-   * Values outside this range will be coerced into it.
-   *
-   * Default size is `1`
-   *
-   * ```
-   * printer.print {
-   *   textSize(width = 2, height = 3)
-   *   line("Me big!")
-   *   textSize() // Utilizing default arguments
-   *   line("I'm back to normal size :(")
-   * }
-   * ```
-   * @see withTextSize
-   */
-  public fun textSize(width: Byte = 1, height: Byte = 1) {
-    commands.add(Command.TextSize(width, height))
-  }
-
-  /**
-   * Sets the text size to [width] and [height] and executes [content]. After the content is
-   * executed, the size is restored to the value it had before calling this function.
-   *
-   * ```
-   * printer.print {
-   *   line("I am sized 1x1 by default.")
-   *
-   *   withTextSize(3, 3) {
-   *     line("GIANT 3x3!")
-   *   }
-   *
-   *   line("I am sized 1x1 again!")
-   * }
-   * ```
-   * @see textSize
-   */
-  public fun withTextSize(width: Byte, height: Byte, content: CommandBuilder.() -> Unit) {
-    val prev = commands.lastOfType<Command.TextSize>()
-    textSize(width, height)
-    content()
-    textSize(prev?.width ?: 1, prev?.height ?: 1)
-  }
 
   /**
    * Print text. The supplied Kotlin String will be encoded to single-byte characters according to
@@ -96,8 +47,8 @@ internal constructor(
    * @see charset
    */
   public fun text(text: String) {
-    // TODO maybe keep the current charset as a member variable instead of looking it up every time.
-    val currentCharset = commands.lastOfType<Command.SelectCharset>()?.charset ?: Charset.default
+    val currentCharset =
+        commands.lastOfTypeOrNull<Command.SelectCharset>()?.charset ?: Charset.default
     commands.add(Command.Text(text, currentCharset))
   }
 
@@ -161,110 +112,6 @@ internal constructor(
   }
 
   /**
-   * Turn underline ON or OFF.
-   * @see withUnderline
-   */
-  public fun underline(enabled: Boolean) {
-    commands.add(Command.Underline(enabled))
-  }
-
-  /**
-   * Sets `underlined` mode and executes [content]. After the content is executed, the underline
-   * setting is restored to the value it had before calling this function.
-   *
-   * ```
-   * printer.print {
-   *   underline(true)
-   *   line("I am a wee underlined text.")
-   *
-   *   withUnderline(false) {
-   *     line("Nobody puts a line under me!")
-   *   }
-   *
-   *   line("I am underlined again.")
-   * }
-   * ```
-   * @see underline
-   */
-  public fun withUnderline(enabled: Boolean, content: CommandBuilder.() -> Unit) {
-    val prev = commands.lastOfType<Command.Underline>()?.enabled ?: false
-
-    underline(enabled)
-    content()
-    underline(prev)
-  }
-
-  /**
-   * Turn emphasis mode ON or OFF.
-   * @see withBold
-   */
-  public fun bold(enabled: Boolean) {
-    commands.add(Command.Bold(enabled))
-  }
-
-  /**
-   * Sets `bold` mode and executes [content]. After the content is executed, the `bold` setting is
-   * restored to the value it had before calling this function.
-   *
-   * ```
-   * printer.print {
-   *   bold(true)
-   *   line("Bold!")
-   *
-   *   withBold(false) {
-   *     line("Normal.")
-   *   }
-   *
-   *   line("Bold Again!")
-   * }
-   * ```
-   *
-   * @see bold
-   */
-  public fun withBold(enabled: Boolean, content: CommandBuilder.() -> Unit) {
-    val prev = commands.lastOfType<Command.Bold>()?.enabled ?: false
-
-    bold(enabled)
-    content()
-    bold(prev)
-  }
-
-  /**
-   * Turn italics ON or OFF.
-   * @see withItalics
-   */
-  public fun italics(enabled: Boolean) {
-    commands.add(Command.Italics(enabled))
-  }
-
-  /**
-   * Sets `italics` mode and executes [content]. After the content is executed, the `italics`
-   * setting is restored to the value it had before calling this function.
-   *
-   * ```
-   * printer.print {
-   *   italics(true)
-   *   line("That Pisa tower is my jam.")
-   *
-   *   withItalics(false) {
-   *     line("I don't like slanted things.")
-   *   }
-   *
-   *   line("Italics again!")
-   * }
-   * ```
-   *
-   * @see italics
-   */
-  public fun withItalics(enabled: Boolean, content: CommandBuilder.() -> Unit) {
-    val prev = commands.lastOfType<Command.Italics>()?.enabled ?: false
-
-    italics(enabled)
-    content()
-    italics(prev)
-  }
-
-  /**
    * Select a [Charset]. Text printed with [text] will be encoded to single-byte characters
    * according to this character set.
    *
@@ -272,7 +119,13 @@ internal constructor(
    * @see [withCharset]
    */
   public fun charset(charset: Charset) {
-    commands.add(Command.SelectCharset(charset))
+    val prev =
+        commands.lastOfTypeOrNull<Command.SelectCharset>() ?: Command.SelectCharset(Charset.default)
+    val new = Command.SelectCharset(charset)
+
+    if (prev != new) {
+      commands.add(new)
+    }
   }
 
   /**
@@ -299,7 +152,7 @@ internal constructor(
    * @see text
    */
   public fun withCharset(charset: Charset, content: CommandBuilder.() -> Unit) {
-    val prev = commands.lastOfType<Command.SelectCharset>()?.charset ?: Charset.default
+    val prev = commands.lastOfTypeOrNull<Command.SelectCharset>()?.charset ?: Charset.default
 
     charset(charset)
     content()
@@ -307,12 +160,196 @@ internal constructor(
   }
 
   /**
-   * Set the text alignment.
+   * Set character size.
    *
+   * Acceptable size range is `1..8` where the size represents multiplication factor.
+   *
+   * 2 = double size; 3 = triple size ...
+   *
+   * Values outside this range will be coerced into it.
+   *
+   * Default size is `1`
+   *
+   * ```
+   * printer.print {
+   *   textSize(width = 2, height = 3)
+   *   line("Me big!")
+   *   textSize() // Utilizing default arguments
+   *   line("I'm back to normal size :(")
+   * }
+   * ```
+   * @see withTextSize
+   */
+  public fun textSize(width: Int = 1, height: Int = 1) {
+    val prev = commands.lastOfTypeOrNull<Command.TextSize>() ?: Command.TextSize(1, 1)
+    val new = Command.TextSize(width.coerceIn(1..8), height.coerceIn(1..8))
+
+    if (prev != new) {
+      commands.add(new)
+    }
+  }
+
+  /**
+   * Sets the text size to [width] and [height] and executes [content]. After the content is
+   * executed, the size is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   line("I am sized 1x1 by default.")
+   *
+   *   withTextSize(3, 3) {
+   *     line("GIANT 3x3!")
+   *   }
+   *
+   *   line("I am sized 1x1 again!")
+   * }
+   * ```
+   * @see textSize
+   */
+  public fun withTextSize(width: Int, height: Int, content: CommandBuilder.() -> Unit) {
+    val prev = commands.lastOfTypeOrNull<Command.TextSize>() ?: Command.TextSize(1, 1)
+
+    textSize(width, height)
+    content()
+    textSize(prev.width, prev.height)
+  }
+
+  /**
+   * Turn emphasis mode ON or OFF.
+   * @see withBold
+   */
+  public fun bold(enabled: Boolean) {
+    val prev = commands.lastOfTypeOrNull<Command.Bold>() ?: Command.Bold(false)
+    val new = Command.Bold(enabled)
+
+    if (prev != new) {
+      commands.add(new)
+    }
+  }
+
+  /**
+   * Sets `bold` mode and executes [content]. After the content is executed, the `bold` setting is
+   * restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   bold(true)
+   *   line("Bold!")
+   *
+   *   withBold(false) {
+   *     line("Normal.")
+   *   }
+   *
+   *   line("Bold Again!")
+   * }
+   * ```
+   *
+   * @see bold
+   */
+  public fun withBold(enabled: Boolean, content: CommandBuilder.() -> Unit) {
+    val prev = commands.lastOfTypeOrNull<Command.Bold>()?.enabled ?: false
+
+    bold(enabled)
+    content()
+    bold(prev)
+  }
+
+  /**
+   * Turn underline ON or OFF.
+   * @see withUnderline
+   */
+  public fun underline(enabled: Boolean) {
+    val prev = commands.lastOfTypeOrNull<Command.Underline>() ?: Command.Underline(false)
+    val new = Command.Underline(enabled)
+
+    if (prev != new) {
+      commands.add(new)
+    }
+  }
+
+  /**
+   * Sets `underlined` mode and executes [content]. After the content is executed, the underline
+   * setting is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   underline(true)
+   *   line("I am a wee underlined text.")
+   *
+   *   withUnderline(false) {
+   *     line("Nobody puts a line under me!")
+   *   }
+   *
+   *   line("I am underlined again.")
+   * }
+   * ```
+   * @see underline
+   */
+  public fun withUnderline(enabled: Boolean, content: CommandBuilder.() -> Unit) {
+    val prev = commands.lastOfTypeOrNull<Command.Underline>()?.enabled ?: false
+
+    underline(enabled)
+    content()
+    underline(prev)
+  }
+
+  /**
+   * Turn italics ON or OFF.
+   * @see withItalics
+   */
+  public fun italics(enabled: Boolean) {
+    val prev = commands.lastOfTypeOrNull<Command.Italics>() ?: Command.Italics(false)
+    val new = Command.Italics(enabled)
+
+    if (prev != new) {
+      commands.add(new)
+    }
+  }
+
+  /**
+   * Sets `italics` mode and executes [content]. After the content is executed, the `italics`
+   * setting is restored to the value it had before calling this function.
+   *
+   * ```
+   * printer.print {
+   *   italics(true)
+   *   line("That Pisa tower is my jam.")
+   *
+   *   withItalics(false) {
+   *     line("I don't like slanted things.")
+   *   }
+   *
+   *   line("Italics again!")
+   * }
+   * ```
+   *
+   * @see italics
+   */
+  public fun withItalics(enabled: Boolean, content: CommandBuilder.() -> Unit) {
+    val prev = commands.lastOfTypeOrNull<Command.Italics>()?.enabled ?: false
+
+    italics(enabled)
+    content()
+    italics(prev)
+  }
+
+  /**
+   * Set the text alignment. Only takes effect if the printer is in the start-of-line state.
+   * Therefore, this cannot be used to align multiple pieces of text on the same line.
+   *
+   * Aligning multiple pieces of text on the same line has to be done manually by adding the
+   * appropriate number of spaces in between the fragments and then printing them as a single line.
+   *
+   * @see twoColumnLine
    * @see TextAlignment
    */
   public fun textAlign(alignment: TextAlignment) {
-    commands.add(Command.Justify(alignment))
+    val prev = commands.lastOfTypeOrNull<Command.Justify>() ?: Command.Justify(TextAlignment.LEFT)
+    val new = Command.Justify(alignment)
+
+    if (prev != new) {
+      commands.add(new)
+    }
   }
 
   public fun cut() {
