@@ -29,22 +29,23 @@ internal constructor(
       asReversed().asSequence().filterIsInstance<T>().firstOrNull()
 
   /**
-   * Print text. The supplied Kotlin String will be encoded to single-byte characters according to
-   * the previously selected [charset].
+   * Print text without terminating the line. The supplied Kotlin `String` will be encoded to
+   * single-byte characters according to the currently selected [charset].
+   *
+   * The behavior when [text] contains characters not belonging to the currently selected charset is
+   * platform dependent. Usually the unknown character is replaced with a replacement character.
    *
    * ```
    * printer.print {
-   *   text("Famous bridges:\n")
+   *   text("I am.")
+   *   text("I am also.")
    *
-   *   charset(Charset.CP865) // Can encode Ø, but not ů
-   *   text("Øresundsbroen: 7845m\n")
-   *
-   *   charset(Charset.CP852) // Can encode ů, but not Ø
-   *   text("Karlův most: 515m\n")
+   *   // The above prints: "I am.I am also."
    * }
    * ```
    *
    * @see charset
+   * @see line
    */
   public fun text(text: String) {
     val currentCharset =
@@ -53,7 +54,11 @@ internal constructor(
   }
 
   /**
-   * Print text followed by a newline. Useful when the whole content is stored in a variable.
+   * Print text followed by `\n`. The supplied Kotlin `String` will be encoded to single-byte
+   * characters according to the currently selected [charset].
+   *
+   * The behavior when [text] contains characters not belonging to the currently selected charset is
+   * platform dependent. Usually the unknown character is replaced with a replacement character.
    *
    * Literally just `text(text + "\n")`
    *
@@ -66,17 +71,22 @@ internal constructor(
    *   line(text) // Much better
    * }
    * ```
+   *
+   * @see charset
+   * @see text
    */
   public fun line(text: String) {
     text(text + "\n")
   }
 
   /**
-   * Print the two text fragments on a single line in two columns, appending '\n' to the right text.
+   * Print the two text fragments in two columns and terminate the line.
    *
-   * The left text is aligned to the LEFT, the right text is aligned to the RIGHT.
+   * The two text fragments are spaced out such that the `left` text is aligned to the start of the
+   * line and the `right` text is aligned to the end of the line.
    *
    * @param minSpace The minimum amount of spaces between the two columns, default 1.
+   * @see twoColumnText
    */
   public fun twoColumnLine(
       left: String,
@@ -90,9 +100,11 @@ internal constructor(
   /**
    * Print the two text fragments in two columns without terminating the line.
    *
-   * The left text is aligned to the LEFT, the right text is aligned to the RIGHT.
+   * The two text fragments are spaced out such that the `left` text is aligned to the start of the
+   * line and the `right` text is aligned to the end of the line.
    *
    * @param minSpace The minimum amount of spaces between the two columns, default 1.
+   * @see twoColumnLine
    */
   public fun twoColumnText(
       left: String,
@@ -114,6 +126,18 @@ internal constructor(
   /**
    * Select a [Charset]. Text printed with [text] will be encoded to single-byte characters
    * according to this character set.
+   *
+   * ```
+   * printer.print {
+   *   line("Famous bridges:")
+   *
+   *   charset(Charset.CP865) // Can encode Ø, but not ů
+   *   line("Øresundsbroen: 7845m")
+   *
+   *   charset(Charset.CP852) // Can encode ů, but not Ø
+   *   line("Karlův most: 515m")
+   * }
+   * ```
    *
    * @see [text]
    * @see [withCharset]
@@ -160,24 +184,25 @@ internal constructor(
   }
 
   /**
-   * Set character size.
-   *
-   * Acceptable size range is `1..8` where the size represents multiplication factor.
+   * Set character size. Acceptable size range is `1..8`.
    *
    * 2 = double size; 3 = triple size ...
    *
    * Values outside this range will be coerced into it.
    *
-   * Default size is `1`
+   * Default size is `1`.
    *
    * ```
    * printer.print {
    *   textSize(width = 2, height = 3)
    *   line("Me big!")
+   *
    *   textSize() // Utilizing default arguments
-   *   line("I'm back to normal size :(")
+   *
+   *   line("I'm back to normal size.")
    * }
    * ```
+   *
    * @see withTextSize
    */
   public fun textSize(width: Int = 1, height: Int = 1) {
@@ -191,7 +216,7 @@ internal constructor(
 
   /**
    * Sets the text size to [width] and [height] and executes [content]. After the content is
-   * executed, the size is restored to the value it had before calling this function.
+   * executed, the text size setting is restored to the value it had before calling this function.
    *
    * ```
    * printer.print {
@@ -204,6 +229,7 @@ internal constructor(
    *   line("I am sized 1x1 again!")
    * }
    * ```
+   *
    * @see textSize
    */
   public fun withTextSize(width: Int, height: Int, content: CommandBuilder.() -> Unit) {
@@ -215,7 +241,8 @@ internal constructor(
   }
 
   /**
-   * Turn emphasis mode ON or OFF.
+   * Turn `bold` mode ON or OFF.
+   *
    * @see withBold
    */
   public fun bold(enabled: Boolean) {
@@ -255,7 +282,8 @@ internal constructor(
   }
 
   /**
-   * Turn underline ON or OFF.
+   * Turn `underlined` mode ON or OFF.
+   *
    * @see withUnderline
    */
   public fun underline(enabled: Boolean) {
@@ -268,7 +296,7 @@ internal constructor(
   }
 
   /**
-   * Sets `underlined` mode and executes [content]. After the content is executed, the underline
+   * Sets `underlined` mode and executes [content]. After the content is executed, the `underline`
    * setting is restored to the value it had before calling this function.
    *
    * ```
@@ -294,7 +322,8 @@ internal constructor(
   }
 
   /**
-   * Turn italics ON or OFF.
+   * Turn `italics` mode ON or OFF.
+   *
    * @see withItalics
    */
   public fun italics(enabled: Boolean) {
@@ -338,7 +367,8 @@ internal constructor(
    * Therefore, this cannot be used to align multiple pieces of text on the same line.
    *
    * Aligning multiple pieces of text on the same line has to be done manually by adding the
-   * appropriate number of spaces in between the fragments and then printing them as a single line.
+   * appropriate number of spaces in between the fragments and then printing this spaced out text as
+   * a single line.
    *
    * @see twoColumnLine
    * @see TextAlignment
