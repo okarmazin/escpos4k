@@ -157,7 +157,7 @@ internal sealed class Command {
     }
   }
 
-  class Justify(val alignment: TextAlignment) : Command() {
+  class Justify(private val alignment: TextAlignment) : Command() {
     private val content = byteArrayOf(27, 97, alignment.value)
 
     override fun bytes(): ByteArray = content.copyOf()
@@ -218,29 +218,13 @@ internal sealed class Command {
     override fun bytes(): ByteArray = byteArrayOf(29, 86, 1)
   }
 
-  class QrCode(
+  class QRCode(
       content: String,
-      errorCorrection: QrCorrectionLevel,
+      errorCorrection: QRCorrectionLevel,
   ) : Command() {
     private val content: ByteArray
 
     init {
-      require(content.isNotEmpty()) { "Cannot print QR code with no content." }
-
-      /*
-        THE DATA TRANSMISSION FUNCTION:
-        - Transmits `k` bytes d1..dk to the printer.
-        - Requires at least one byte of data.
-        - Important!!! The size information we send with pL and pH is in range 4-7092
-
-        29 40 107 pL pH 49 80 48 d1...dk
-
-        Spec:
-        (pL + pH × 256) = 4 – 7092
-        d = 0 – 255
-        k = (pL + pH × 256) − 3
-      */
-
       @Suppress("JoinDeclarationAndAssignment") //
       var data: ByteArray
 
@@ -265,7 +249,7 @@ internal sealed class Command {
       if (this === other) return true
       if (other == null || this::class != other::class) return false
 
-      other as QrCode
+      other as QRCode
 
       if (!content.contentEquals(other.content)) return false
 
@@ -277,20 +261,224 @@ internal sealed class Command {
     }
 
     override fun toString(): String {
-      return "QrCode(content=${content.contentToString()})"
+      return "QRCode(content=${content.contentToString()})"
     }
   }
-}
 
-public enum class QrCorrectionLevel(internal val level: Byte) {
-  /** 7 % (approx.) */
-  L(48),
-  /** 15 % (approx.) */
-  M(49),
-  /** 25 % (approx.) */
-  Q(50),
-  /** 30 % (approx.) */
-  H(51)
+  class AztecCode(
+      content: String,
+      errorCorrection: Int,
+  ) : Command() {
+    private val content: ByteArray
+
+    init {
+      @Suppress("JoinDeclarationAndAssignment") //
+      var data: ByteArray
+
+      // 1. Set the EC level
+      data = byteArrayOf(29, 40, 107, 3, 0, 53, 69, errorCorrection.toByte())
+
+      // 2. Send the content to the printer. This does not initiate the print process, it merely
+      //    stores the data in the printer's symbol buffer.
+      val contentBytes = content.encodeToByteArray()
+      val base = contentBytes.size + 3
+      val (pL, pH) = base.toByte() to (base shr 8).toByte()
+      data += byteArrayOf(29, 40, 107, pL, pH, 53, 80, 48, *contentBytes)
+
+      // 3. Send the print command. This will print the data from step 2.
+      data += byteArrayOf(29, 40, 107, 3, 0, 53, 81, 48)
+      this.content = data
+    }
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as AztecCode
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "AztecCode(content=${content.contentToString()})"
+    }
+  }
+
+  class DataMatrix(content: String) : Command() {
+    private val content: ByteArray
+
+    init {
+      var data: ByteArray
+
+      // Note: Unlike other codes, DataMatrix sets its error correction on its own.
+
+      // 1. Send the content to the printer. This does not initiate the print process, it merely
+      //    stores the data in the printer's symbol buffer.
+      val contentBytes = content.encodeToByteArray()
+      val base = contentBytes.size + 3
+      val (pL, pH) = base.toByte() to (base shr 8).toByte()
+      data = byteArrayOf(29, 40, 107, pL, pH, 54, 80, 48, *contentBytes)
+
+      // 2. Send the print command. This will print the data from step 1.
+      data += byteArrayOf(29, 40, 107, 3, 0, 54, 81, 48)
+      this.content = data
+    }
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as DataMatrix
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "DataMatrix(content=${content.contentToString()})"
+    }
+  }
+
+  class UPCA(content: String, hri: HriPosition) : Command() {
+    private val content: ByteArray
+
+    init {
+      @Suppress("JoinDeclarationAndAssignment") //
+      var data: ByteArray
+
+      // 1. Set the HRI position and select the HRI font.
+      //    The last 0 is "Font A". We need to specify this because there is no default value for
+      //    the font. If we just set the position, there would be a space for the HRI, but it would
+      //    be blank
+      data = byteArrayOf(29, 72, hri.position, 29, 102, 0)
+
+      // 2. Print the barcode
+      val d = content.map { it.digitToInt().toByte() }.toByteArray()
+      data += byteArrayOf(29, 107, 65, 12, *d)
+
+      this.content = data
+    }
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as UPCA
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "UPCA(content=${content.contentToString()})"
+    }
+  }
+
+  class EAN13(content: String, hri: HriPosition) : Command() {
+    private val content: ByteArray
+
+    init {
+      @Suppress("JoinDeclarationAndAssignment") //
+      var data: ByteArray
+
+      // 1. Set the HRI position and select the HRI font.
+      //    The last 0 is "Font A". We need to specify this because there is no default value for
+      //    the font. If we just set the position, there would be a space for the HRI, but it would
+      //    be blank
+      data = byteArrayOf(29, 72, hri.position, 29, 102, 0)
+
+      // 2. Print the barcode
+      val d = content.map { it.digitToInt().toByte() }.toByteArray()
+      data += byteArrayOf(29, 107, 67, 13, *d)
+
+      this.content = data
+    }
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as EAN13
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "EAN13(content=${content.contentToString()})"
+    }
+  }
+
+  class EAN8(content: String, hri: HriPosition) : Command() {
+    private val content: ByteArray
+
+    init {
+      @Suppress("JoinDeclarationAndAssignment") //
+      var data: ByteArray
+
+      // 1. Set the HRI position and select the HRI font.
+      //    The last 0 is "Font A". We need to specify this because there is no default value for
+      //    the font. If we just set the position, there would be a space for the HRI, but it would
+      //    be blank
+      data = byteArrayOf(29, 72, hri.position, 29, 102, 0)
+
+      // 2. Print the barcode
+      val d = content.map { it.digitToInt().toByte() }.toByteArray()
+      data += byteArrayOf(29, 107, 68, 8, *d)
+
+      this.content = data
+    }
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as EAN8
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "EAN8(content=${content.contentToString()})"
+    }
+  }
 }
 
 public enum class TextAlignment(internal val value: Byte) {
