@@ -387,14 +387,12 @@ internal constructor(
   }
 
   /**
-   * Print a QR Code containing the [content].
+   * Print a barcode. Multiple barcodes are supported, both 1D and 2D. Please see the sealed
+   * [BarcodeSpec] class for information on the supported barcode types.
    *
-   * QR Code printing is not affected by print mode (bold, double-strike, underline...) except for
-   * two settings: 1) Character size 2) Upside-down mode
-   *
-   * `content` must not be empty.
+   * @see BarcodeSpec
    */
-  public fun qr(content: String, errorCorrection: QrCorrectionLevel = QrCorrectionLevel.L) {
-    commands.add(Command.QrCode(content, errorCorrection))
+  public fun barcode(spec: BarcodeSpec) {
+    commands.add(spec.asCommand()) //
   }
 }

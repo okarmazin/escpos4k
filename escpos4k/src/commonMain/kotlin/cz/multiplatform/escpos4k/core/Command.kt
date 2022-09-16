@@ -157,7 +157,7 @@ internal sealed class Command {
     }
   }
 
-  class Justify(val alignment: TextAlignment) : Command() {
+  class Justify(private val alignment: TextAlignment) : Command() {
     private val content = byteArrayOf(27, 97, alignment.value)
 
     override fun bytes(): ByteArray = content.copyOf()
@@ -225,8 +225,6 @@ internal sealed class Command {
     private val content: ByteArray
 
     init {
-      require(content.isNotEmpty()) { "Cannot print QR code with no content." }
-
       /*
         THE DATA TRANSMISSION FUNCTION:
         - Transmits `k` bytes d1..dk to the printer.
@@ -280,17 +278,6 @@ internal sealed class Command {
       return "QrCode(content=${content.contentToString()})"
     }
   }
-}
-
-public enum class QrCorrectionLevel(internal val level: Byte) {
-  /** 7 % (approx.) */
-  L(48),
-  /** 15 % (approx.) */
-  M(49),
-  /** 25 % (approx.) */
-  Q(50),
-  /** 30 % (approx.) */
-  H(51)
 }
 
 public enum class TextAlignment(internal val value: Byte) {
