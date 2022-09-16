@@ -2,6 +2,7 @@ package cz.multiplatform.escpos4k.core
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.ints.shouldBeExactly
+import io.kotest.matchers.shouldBe
 
 class BarcodeSpecTest : FunSpec() {
   init {
@@ -40,6 +41,32 @@ class BarcodeSpecTest : FunSpec() {
         val longText = buildString { repeat(10_000) { append("1") } }
         BarcodeSpec.DataMatrixSpec.create(longText)
             .shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.TooLong)
+      }
+    }
+
+    context("UPC-A") {
+      test("factory enforces length limits") {
+        BarcodeSpec.UpcASpec.create("1234567890123", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.IncorrectLength)
+        BarcodeSpec.UpcASpec.create("123456789", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.IncorrectLength)
+      }
+
+      test("factory calculates correct check digit if length == 11") {
+        BarcodeSpec.UpcASpec.create("03600029145", HriPosition.BELOW)
+            .shouldBeRight()
+            .text
+            .shouldBe("036000291452")
+      }
+
+      test("factory enforces correct digit if length == 12") {
+        BarcodeSpec.UpcASpec.create("036000291453", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.InvalidCheckDigit(2, 3))
+      }
+
+      test("factory enforces digits only") {
+        BarcodeSpec.UpcASpec.create("03600029145x", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.IllegalCharacter(11, 'x'))
       }
     }
   }

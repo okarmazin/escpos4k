@@ -22,6 +22,7 @@ import arrow.core.right
 import cz.multiplatform.escpos4k.core.BarcodeSpec.AztecCodeSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.DataMatrixSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.QRCodeSpec.Companion.create
+import cz.multiplatform.escpos4k.core.BarcodeSpec.UpcASpec.Companion.create
 
 /**
  * A sealed hierarchy of supported barcodes. Each `BarcodeSpec` is instantiated via a factory
@@ -209,6 +210,98 @@ public sealed class BarcodeSpec {
       }
     }
   }
+
+  /**
+   * Print a UPC-A barcode.
+   *
+   * Please see [create] for full information.
+   *
+   * @see create
+   */
+  public class UpcASpec private constructor(public val text: String, public val hri: HriPosition) :
+      BarcodeSpec() {
+    override fun asCommand(): Command = Command.UPC_A(text, hri)
+
+    public sealed class UpcAError {
+      public data class IllegalCharacter(val index: Int, val character: Char) : UpcAError() {
+        public val message: String = "Illegal character '$character' at index $index"
+
+        override fun toString(): String {
+          return "IllegalCharacter(message='$message')"
+        }
+      }
+      public object IncorrectLength : UpcAError()
+      public data class InvalidCheckDigit(val expected: Int, val actual: Int) : UpcAError()
+    }
+
+    public companion object {
+
+      /**
+       * Print the 12-digit UPC-A barcode.
+       *
+       * The UPC-A standard is enforced by this function. The argument to this function must only
+       * contain digits and the input must be of certain length.
+       *
+       * The following input is accepted:
+       *
+       * 1) 11-digit string. This function will calculate and add the 12th check digit.
+       *
+       * 2) 12-digit string. This function will check whether the 12th digit is a valid check digit,
+       * returning an error if not.
+       */
+      public fun create(text: String, hri: HriPosition): Either<UpcAError, UpcASpec> {
+        text.forEachIndexed { index, c ->
+          if (!c.isDigit()) {
+            return UpcAError.IllegalCharacter(index, c).left()
+          }
+        }
+
+        when (text.length) {
+          11 -> {
+            val codeWithCheckDigit = text + calculateCheckDigit(text)
+            return UpcASpec(codeWithCheckDigit, hri).right()
+          }
+          12 -> {
+            val checkDigit = calculateCheckDigit(text.take(11))
+            val candidate = text.last().digitToInt()
+            return if (candidate == checkDigit) {
+              UpcASpec(text, hri).right()
+            } else {
+              UpcAError.InvalidCheckDigit(checkDigit, candidate).left()
+            }
+          }
+          else -> {
+            return UpcAError.IncorrectLength.left()
+          }
+        }
+      }
+
+      private fun calculateCheckDigit(data: String): Int {
+        val sum =
+            data.foldIndexed(0) { index, acc, c ->
+              if (index % 2 == 0) {
+                acc + 3 * c.digitToInt()
+              } else {
+                acc + c.digitToInt()
+              }
+            }
+
+        val rem = sum % 10
+        return if (rem == 0) rem else 10 - rem
+      }
+    }
+  }
+}
+
+/**
+ * The HRI (Human Readable Interpretation) position when printing barcodes. These are the readable
+ * digits you can find on barcodes in the shop.
+ */
+public enum class HriPosition(internal val position: Byte) {
+  NONE(0),
+  ABOVE(1),
+  BELOW(2),
+  ABOVE_AND_BELOW(3),
 }
 
 public enum class QrCorrectionLevel(internal val level: Byte) {
