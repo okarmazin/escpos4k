@@ -31,5 +31,16 @@ class BarcodeSpecTest : FunSpec() {
         BarcodeSpec.AztecCodeSpec.create("hello", 100).shouldBeRight().ecPercent shouldBeExactly 95
       }
     }
+
+    context("DataMatrixSpec") {
+      test("factory enforces text length limits") {
+        BarcodeSpec.DataMatrixSpec.create("")
+            .shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.EmptyContent)
+
+        val longText = buildString { repeat(10_000) { append("1") } }
+        BarcodeSpec.DataMatrixSpec.create(longText)
+            .shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.TooLong)
+      }
+    }
   }
 }

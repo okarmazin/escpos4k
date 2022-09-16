@@ -311,6 +311,47 @@ internal sealed class Command {
       return "AztecCode(content=${content.contentToString()})"
     }
   }
+
+  class DataMatrix(content: String) : Command() {
+    private val content: ByteArray
+
+    init {
+      var data: ByteArray
+
+      // Note: Unlike other codes, DataMatrix sets its error correction on its own.
+
+      // 1. Send the content to the printer. This does not initiate the print process, it merely
+      //    stores the data in the printer's symbol buffer.
+      val contentBytes = content.encodeToByteArray()
+      val base = contentBytes.size + 3
+      val (pL, pH) = base.toByte() to (base shr 8).toByte()
+      data = byteArrayOf(29, 40, 107, pL, pH, 54, 80, 48, *contentBytes)
+
+      // 2. Send the print command. This will print the data from step 1.
+      data += byteArrayOf(29, 40, 107, 3, 0, 54, 81, 48)
+      this.content = data
+    }
+
+    override fun bytes(): ByteArray = content.copyOf()
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as DataMatrix
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "DataMatrix(content=${content.contentToString()})"
+    }
+  }
 }
 
 public enum class TextAlignment(internal val value: Byte) {

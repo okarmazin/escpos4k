@@ -20,6 +20,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import cz.multiplatform.escpos4k.core.BarcodeSpec.AztecCodeSpec.Companion.create
+import cz.multiplatform.escpos4k.core.BarcodeSpec.DataMatrixSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.QRCodeSpec.Companion.create
 
 /**
@@ -59,9 +60,7 @@ public sealed class BarcodeSpec {
       public val errorCorrection: QrCorrectionLevel,
   ) : BarcodeSpec() {
 
-    override fun asCommand(): Command.QrCode {
-      return Command.QrCode(text, errorCorrection)
-    }
+    override fun asCommand(): Command.QrCode = Command.QrCode(text, errorCorrection)
 
     override fun equals(other: Any?): Boolean {
       if (this === other) return true
@@ -96,8 +95,8 @@ public sealed class BarcodeSpec {
       /**
        * Print a QR Code.
        *
-       * `text.length` must be in `1..7089`, but the upper limit of 7k can only be achieved with
-       * fully numeric `text`. The realistic limit for random text content is about **`2k`**.
+       * `text.length` must be in `1..7089`, but the upper limit of can only be achieved with fully
+       * numeric `text`. The realistic limit for random text content is about **`2k`**.
        */
       public fun create(
           text: String,
@@ -128,14 +127,13 @@ public sealed class BarcodeSpec {
       public val text: String,
       public val ecPercent: Int,
   ) : BarcodeSpec() {
-    override fun asCommand(): Command {
-      return Command.AztecCode(text, ecPercent)
-    }
+    override fun asCommand(): Command = Command.AztecCode(text, ecPercent)
 
     public sealed class AztecCodeError {
       public object EmptyContent : AztecCodeError()
       public object TooLong : AztecCodeError()
     }
+
     public companion object {
       private const val maxLength = 3832
 
@@ -147,8 +145,8 @@ public sealed class BarcodeSpec {
        * `Some printers will print a QR code instead of an Aztec Code. The behavior is unknown ahead
        * of time.`
        *
-       * `text.length` must be in `1..3832`, but the upper limit of 3.8k can only be achieved with
-       * fully numeric `text`. The realistic limit for random text is about **`1.9k`**.
+       * `text.length` must be in `1..3832`, but the upper limit can only be achieved with fully
+       * numeric `text`. The realistic limit for random text is about **`1.9k`**.
        *
        * `ecPercent` must be in `5..95`. Values outside this range are coerced into it. The
        * recommended value (which is also the default) is 23.
@@ -166,6 +164,48 @@ public sealed class BarcodeSpec {
         }
 
         return AztecCodeSpec(text, ecPercent.coerceIn(5..95)).right()
+      }
+    }
+  }
+
+  /**
+   * Print a Data Matrix.
+   *
+   * Please see [create] for full info.
+   *
+   * @see create
+   */
+  public class DataMatrixSpec private constructor(public val text: String) : BarcodeSpec() {
+
+    override fun asCommand(): Command = Command.DataMatrix(text)
+
+    public sealed class DataMatrixError {
+      public object EmptyContent : DataMatrixError()
+      public object TooLong : DataMatrixError()
+    }
+
+    public companion object {
+      private const val maxLength = 3116
+      /**
+       * Print a Data Matrix.
+       *
+       * **IMPORTANT NOTICE**
+       *
+       * `Some printers will print a QR code instead of an Aztec Code. The behavior is unknown ahead
+       * of time.`
+       *
+       * `text.length` must be in `1..3116`, but the upper limit can only be achieved with fully
+       * numeric text. The realistic limit for random text is lower.
+       */
+      public fun create(text: String): Either<DataMatrixError, DataMatrixSpec> {
+        if (text.isEmpty()) {
+          return DataMatrixError.EmptyContent.left()
+        }
+        if (text.length > maxLength) {
+          return DataMatrixError.TooLong.left()
+        }
+
+        return DataMatrixSpec(text).right()
       }
     }
   }
