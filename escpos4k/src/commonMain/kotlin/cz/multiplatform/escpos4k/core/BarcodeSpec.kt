@@ -19,6 +19,8 @@ package cz.multiplatform.escpos4k.core
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import cz.multiplatform.escpos4k.core.BarcodeSpec.AztecCodeSpec.Companion.create
+import cz.multiplatform.escpos4k.core.BarcodeSpec.QRCodeSpec.Companion.create
 
 /**
  * A sealed hierarchy of supported barcodes. Each `BarcodeSpec` is instantiated via a factory
@@ -39,10 +41,6 @@ import arrow.core.right
  *     }
  * }
  * ```
- *
- * Barcode printing is **not affected** by styles such as `bold`, `underline`, `italics` etc.
- *
- * Barcode printing **is** affected by `textSize`, `upside-down mode`, `text rotation`.
  */
 public sealed class BarcodeSpec {
 
@@ -51,8 +49,9 @@ public sealed class BarcodeSpec {
   /**
    * Print a QR Code.
    *
-   * `text.length` must be in `<1..7089>`, but the upper limit of 7k can only be achieved with fully
-   * numeric `text`. The realistic limit for alphanumeric content is about **`2k`**.
+   * Please see [create] for full info.
+   *
+   * @see create
    */
   public class QRCodeSpec
   private constructor(
@@ -62,11 +61,6 @@ public sealed class BarcodeSpec {
 
     override fun asCommand(): Command.QrCode {
       return Command.QrCode(text, errorCorrection)
-    }
-
-    public sealed class QrCodeError {
-      public object EmptyContent : QrCodeError()
-      public object TooLong : QrCodeError()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -91,13 +85,18 @@ public sealed class BarcodeSpec {
       return "QRCodeSpec(text='$text', errorCorrection=$errorCorrection)"
     }
 
+    public sealed class QrCodeError {
+      public object EmptyContent : QrCodeError()
+      public object TooLong : QrCodeError()
+    }
+
     public companion object {
       private const val maxLength = 7089
 
       /**
        * Print a QR Code.
        *
-       * `text.length` must be in `<1..7089>`, but the upper limit of 7k can only be achieved with
+       * `text.length` must be in `1..7089`, but the upper limit of 7k can only be achieved with
        * fully numeric `text`. The realistic limit for random text content is about **`2k`**.
        */
       public fun create(
@@ -113,6 +112,60 @@ public sealed class BarcodeSpec {
         }
 
         return QRCodeSpec(text, errorCorrection).right()
+      }
+    }
+  }
+
+  /**
+   * Print an Aztec Code.
+   *
+   * Please see [create] for full info.
+   *
+   * @see create
+   */
+  public class AztecCodeSpec
+  private constructor(
+      public val text: String,
+      public val ecPercent: Int,
+  ) : BarcodeSpec() {
+    override fun asCommand(): Command {
+      return Command.AztecCode(text, ecPercent)
+    }
+
+    public sealed class AztecCodeError {
+      public object EmptyContent : AztecCodeError()
+      public object TooLong : AztecCodeError()
+    }
+    public companion object {
+      private const val maxLength = 3832
+
+      /**
+       * Print an Aztec Code.
+       *
+       * **IMPORTANT NOTICE**
+       *
+       * `Some printers will print a QR code instead of an Aztec Code. The behavior is unknown ahead
+       * of time.`
+       *
+       * `text.length` must be in `1..3832`, but the upper limit of 3.8k can only be achieved with
+       * fully numeric `text`. The realistic limit for random text is about **`1.9k`**.
+       *
+       * `ecPercent` must be in `5..95`. Values outside this range are coerced into it. The
+       * recommended value (which is also the default) is 23.
+       *
+       * **NOTE**: If the resulting symbol size exceeds the print area, the printer should feed the
+       * paper as much as the symbol's height, without printing the symbol. This is different from
+       * e.g. a QR Code which does not feed the paper.
+       */
+      public fun create(text: String, ecPercent: Int = 23): Either<AztecCodeError, AztecCodeSpec> {
+        if (text.isEmpty()) {
+          return AztecCodeError.EmptyContent.left()
+        }
+        if (text.length > maxLength) {
+          return AztecCodeError.TooLong.left()
+        }
+
+        return AztecCodeSpec(text, ecPercent.coerceIn(5..95)).right()
       }
     }
   }

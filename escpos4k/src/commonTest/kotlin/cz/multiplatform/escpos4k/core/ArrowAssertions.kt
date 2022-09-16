@@ -8,14 +8,14 @@ inline fun <A, B> Either<A, B>.shouldBeLeft(expected: A) {
   shouldBeInstanceOf<Either.Left<A>>().value shouldBe expected
 }
 
-inline fun <A, B> Either<A, B>.shouldBeLeft() {
-  shouldBeInstanceOf<Either.Left<A>>()
+inline fun <A, B> Either<A, B>.shouldBeLeft(): A {
+  return shouldBeInstanceOf<Either.Left<A>>().value
 }
 
 inline fun <A, B> Either<A, B>.shouldBeRight(expected: B) {
   shouldBeInstanceOf<Either.Right<B>>().value shouldBe expected
 }
 
-inline fun <A, B> Either<A, B>.shouldBeRight() {
-  shouldBeInstanceOf<Either.Right<B>>()
+inline fun <A, B> Either<A, B>.shouldBeRight(): B {
+  return shouldBeInstanceOf<Either.Right<B>>().value
 }
