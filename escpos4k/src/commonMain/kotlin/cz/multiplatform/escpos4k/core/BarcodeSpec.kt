@@ -21,8 +21,9 @@ import arrow.core.left
 import arrow.core.right
 import cz.multiplatform.escpos4k.core.BarcodeSpec.AztecCodeSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.DataMatrixSpec.Companion.create
+import cz.multiplatform.escpos4k.core.BarcodeSpec.EAN13Spec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.QRCodeSpec.Companion.create
-import cz.multiplatform.escpos4k.core.BarcodeSpec.UpcASpec.Companion.create
+import cz.multiplatform.escpos4k.core.BarcodeSpec.UPCASpec.Companion.create
 
 /**
  * A sealed hierarchy of supported barcodes. Each `BarcodeSpec` is instantiated via a factory
@@ -32,7 +33,7 @@ import cz.multiplatform.escpos4k.core.BarcodeSpec.UpcASpec.Companion.create
  * Example:
  * ```
  * printer.print {
- *   val qrCode: Either<QrCodeError, QRCodeSpec> = BarcodeSpec.QRCodeSpec("hello")
+ *   val qrCode: Either<QRCodeError, QRCodeSpec> = BarcodeSpec.QRCodeSpec("hello")
  *
  *   // Print the QR code or an error:
  *   qrCode
@@ -58,10 +59,10 @@ public sealed class BarcodeSpec {
   public class QRCodeSpec
   private constructor(
       public val text: String,
-      public val errorCorrection: QrCorrectionLevel,
+      public val errorCorrection: QRCorrectionLevel,
   ) : BarcodeSpec() {
 
-    override fun asCommand(): Command.QrCode = Command.QrCode(text, errorCorrection)
+    override fun asCommand(): Command.QRCode = Command.QRCode(text, errorCorrection)
 
     override fun equals(other: Any?): Boolean {
       if (this === other) return true
@@ -85,9 +86,9 @@ public sealed class BarcodeSpec {
       return "QRCodeSpec(text='$text', errorCorrection=$errorCorrection)"
     }
 
-    public sealed class QrCodeError {
-      public object EmptyContent : QrCodeError()
-      public object TooLong : QrCodeError()
+    public sealed class QRCodeError {
+      public object EmptyContent : QRCodeError()
+      public object TooLong : QRCodeError()
     }
 
     public companion object {
@@ -101,14 +102,14 @@ public sealed class BarcodeSpec {
        */
       public fun create(
           text: String,
-          errorCorrection: QrCorrectionLevel = QrCorrectionLevel.L
-      ): Either<QrCodeError, QRCodeSpec> {
+          errorCorrection: QRCorrectionLevel = QRCorrectionLevel.L
+      ): Either<QRCodeError, QRCodeSpec> {
         if (text.isEmpty()) {
-          return QrCodeError.EmptyContent.left()
+          return QRCodeError.EmptyContent.left()
         }
 
         if (text.length > maxLength) {
-          return QrCodeError.TooLong.left()
+          return QRCodeError.TooLong.left()
         }
 
         return QRCodeSpec(text, errorCorrection).right()
@@ -218,20 +219,20 @@ public sealed class BarcodeSpec {
    *
    * @see create
    */
-  public class UpcASpec private constructor(public val text: String, public val hri: HriPosition) :
+  public class UPCASpec private constructor(public val text: String, public val hri: HriPosition) :
       BarcodeSpec() {
-    override fun asCommand(): Command = Command.UPC_A(text, hri)
+    override fun asCommand(): Command = Command.UPCA(text, hri)
 
-    public sealed class UpcAError {
-      public data class IllegalCharacter(val index: Int, val character: Char) : UpcAError() {
+    public sealed class UPCAError {
+      public data class IllegalCharacter(val index: Int, val character: Char) : UPCAError() {
         public val message: String = "Illegal character '$character' at index $index"
 
         override fun toString(): String {
           return "IllegalCharacter(message='$message')"
         }
       }
-      public object IncorrectLength : UpcAError()
-      public data class InvalidCheckDigit(val expected: Int, val actual: Int) : UpcAError()
+      public object IncorrectLength : UPCAError()
+      public data class InvalidCheckDigit(val expected: Int, val actual: Int) : UPCAError()
     }
 
     public companion object {
@@ -249,29 +250,29 @@ public sealed class BarcodeSpec {
        * 2) 12-digit string. This function will check whether the 12th digit is a valid check digit,
        * returning an error if not.
        */
-      public fun create(text: String, hri: HriPosition): Either<UpcAError, UpcASpec> {
+      public fun create(text: String, hri: HriPosition): Either<UPCAError, UPCASpec> {
         text.forEachIndexed { index, c ->
           if (!c.isDigit()) {
-            return UpcAError.IllegalCharacter(index, c).left()
+            return UPCAError.IllegalCharacter(index, c).left()
           }
         }
 
         when (text.length) {
           11 -> {
             val codeWithCheckDigit = text + calculateCheckDigit(text)
-            return UpcASpec(codeWithCheckDigit, hri).right()
+            return UPCASpec(codeWithCheckDigit, hri).right()
           }
           12 -> {
             val checkDigit = calculateCheckDigit(text.take(11))
             val candidate = text.last().digitToInt()
             return if (candidate == checkDigit) {
-              UpcASpec(text, hri).right()
+              UPCASpec(text, hri).right()
             } else {
-              UpcAError.InvalidCheckDigit(checkDigit, candidate).left()
+              UPCAError.InvalidCheckDigit(checkDigit, candidate).left()
             }
           }
           else -> {
-            return UpcAError.IncorrectLength.left()
+            return UPCAError.IncorrectLength.left()
           }
         }
       }
@@ -279,6 +280,86 @@ public sealed class BarcodeSpec {
       private fun calculateCheckDigit(data: String): Int {
         val sum =
             data.foldIndexed(0) { index, acc, c ->
+              if (index % 2 == 0) {
+                acc + 3 * c.digitToInt()
+              } else {
+                acc + c.digitToInt()
+              }
+            }
+
+        val rem = sum % 10
+        return if (rem == 0) rem else 10 - rem
+      }
+    }
+  }
+
+  /**
+   * Print an EAN-13 barcode.
+   *
+   * Please see [create] for full information.
+   *
+   * @see create
+   */
+  public class EAN13Spec(public val text: String, public val hri: HriPosition) : BarcodeSpec() {
+    override fun asCommand(): Command = Command.EAN13(text, hri)
+
+    public sealed class EAN13Error {
+      public data class IllegalCharacter(val index: Int, val character: Char) : EAN13Error() {
+        public val message: String = "Illegal character '$character' at index $index"
+
+        override fun toString(): String {
+          return "IllegalCharacter(message='$message')"
+        }
+      }
+      public object IncorrectLength : EAN13Error()
+      public data class InvalidCheckDigit(val expected: Int, val actual: Int) : EAN13Error()
+    }
+
+    public companion object {
+
+      /**
+       * Print the 13-digit UPC-A barcode.
+       *
+       * The EAN-13 standard is enforced by this function. The argument to this function must only
+       * contain digits and the input must be of certain length.
+       *
+       * The following input is accepted:
+       *
+       * 1) 12-digit string. This function will calculate and add the 13th check digit.
+       *
+       * 2) 13-digit string. This function will check whether the 13th digit is a valid check digit,
+       * returning an error if not.
+       */
+      public fun create(text: String, hri: HriPosition): Either<EAN13Error, EAN13Spec> {
+        text.forEachIndexed { index, c ->
+          if (!c.isDigit()) {
+            return EAN13Error.IllegalCharacter(index, c).left()
+          }
+        }
+
+        when (text.length) {
+          12 -> {
+            val codeWithCheckDigit = text + calculateCheckDigit(text)
+            return EAN13Spec(codeWithCheckDigit, hri).right()
+          }
+          13 -> {
+            val checkDigit = calculateCheckDigit(text.take(12))
+            val candidate = text.last().digitToInt()
+            return if (candidate == checkDigit) {
+              EAN13Spec(text, hri).right()
+            } else {
+              EAN13Error.InvalidCheckDigit(checkDigit, candidate).left()
+            }
+          }
+          else -> {
+            return EAN13Error.IncorrectLength.left()
+          }
+        }
+      }
+
+      private fun calculateCheckDigit(data: String): Int {
+        val sum =
+            data.reversed().foldIndexed(0) { index, acc, c ->
               if (index % 2 == 0) {
                 acc + 3 * c.digitToInt()
               } else {
@@ -304,7 +385,7 @@ public enum class HriPosition(internal val position: Byte) {
   ABOVE_AND_BELOW(3),
 }
 
-public enum class QrCorrectionLevel(internal val level: Byte) {
+public enum class QRCorrectionLevel(internal val level: Byte) {
   /** 7 % (approx.) */
   L(48),
   /** 15 % (approx.) */

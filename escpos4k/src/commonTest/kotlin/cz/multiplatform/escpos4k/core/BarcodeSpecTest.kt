@@ -9,11 +9,11 @@ class BarcodeSpecTest : FunSpec() {
     context("QRCodeSpec") {
       test("factory enforces length limits") {
         BarcodeSpec.QRCodeSpec.create("")
-            .shouldBeLeft(BarcodeSpec.QRCodeSpec.QrCodeError.EmptyContent)
+            .shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.EmptyContent)
 
         val longText = buildString { repeat(10_000) { append("1") } }
         BarcodeSpec.QRCodeSpec.create(longText)
-            .shouldBeLeft(BarcodeSpec.QRCodeSpec.QrCodeError.TooLong)
+            .shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.TooLong)
       }
     }
 
@@ -46,27 +46,53 @@ class BarcodeSpecTest : FunSpec() {
 
     context("UPC-A") {
       test("factory enforces length limits") {
-        BarcodeSpec.UpcASpec.create("1234567890123", HriPosition.BELOW)
-            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.IncorrectLength)
-        BarcodeSpec.UpcASpec.create("123456789", HriPosition.BELOW)
-            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.IncorrectLength)
+        BarcodeSpec.UPCASpec.create("1234567890123", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UPCASpec.UPCAError.IncorrectLength)
+        BarcodeSpec.UPCASpec.create("123456789", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UPCASpec.UPCAError.IncorrectLength)
       }
 
       test("factory calculates correct check digit if length == 11") {
-        BarcodeSpec.UpcASpec.create("03600029145", HriPosition.BELOW)
+        BarcodeSpec.UPCASpec.create("03600029145", HriPosition.BELOW)
             .shouldBeRight()
             .text
             .shouldBe("036000291452")
       }
 
       test("factory enforces correct digit if length == 12") {
-        BarcodeSpec.UpcASpec.create("036000291453", HriPosition.BELOW)
-            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.InvalidCheckDigit(2, 3))
+        BarcodeSpec.UPCASpec.create("036000291453", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UPCASpec.UPCAError.InvalidCheckDigit(2, 3))
       }
 
       test("factory enforces digits only") {
-        BarcodeSpec.UpcASpec.create("03600029145x", HriPosition.BELOW)
-            .shouldBeLeft(BarcodeSpec.UpcASpec.UpcAError.IllegalCharacter(11, 'x'))
+        BarcodeSpec.UPCASpec.create("03600029145x", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.UPCASpec.UPCAError.IllegalCharacter(11, 'x'))
+      }
+    }
+
+    context("EAN-13") {
+      test("factory enforces length limits") {
+        BarcodeSpec.EAN13Spec.create("12345678901234", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN13Spec.EAN13Error.IncorrectLength)
+        BarcodeSpec.EAN13Spec.create("123456789", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN13Spec.EAN13Error.IncorrectLength)
+      }
+
+      test("factory calculates correct check digit if length == 12") {
+        BarcodeSpec.EAN13Spec.create("400638133393", HriPosition.BELOW)
+            .shouldBeRight()
+            .text
+            .shouldBe("4006381333931")
+      }
+
+      test("factory enforces correct digit if length == 13") {
+        BarcodeSpec.EAN13Spec.create("4006381333935", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN13Spec.EAN13Error.InvalidCheckDigit(1, 5))
+      }
+
+      test("factory enforces digits only") {
+        BarcodeSpec.EAN13Spec.create("40x6381333931", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN13Spec.EAN13Error.IllegalCharacter(2, 'x'))
       }
     }
   }
