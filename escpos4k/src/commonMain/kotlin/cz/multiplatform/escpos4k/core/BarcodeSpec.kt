@@ -22,6 +22,7 @@ import arrow.core.right
 import cz.multiplatform.escpos4k.core.BarcodeSpec.AztecCodeSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.DataMatrixSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.EAN13Spec.Companion.create
+import cz.multiplatform.escpos4k.core.BarcodeSpec.EAN8Spec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.QRCodeSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.UPCASpec.Companion.create
 
@@ -318,7 +319,7 @@ public sealed class BarcodeSpec {
     public companion object {
 
       /**
-       * Print the 13-digit UPC-A barcode.
+       * Print the 13-digit EAN-13 barcode.
        *
        * The EAN-13 standard is enforced by this function. The argument to this function must only
        * contain digits and the input must be of certain length.
@@ -339,11 +340,11 @@ public sealed class BarcodeSpec {
 
         when (text.length) {
           12 -> {
-            val codeWithCheckDigit = text + calculateCheckDigit(text)
+            val codeWithCheckDigit = text + calculateEANCheckDigit(text)
             return EAN13Spec(codeWithCheckDigit, hri).right()
           }
           13 -> {
-            val checkDigit = calculateCheckDigit(text.take(12))
+            val checkDigit = calculateEANCheckDigit(text.take(12))
             val candidate = text.last().digitToInt()
             return if (candidate == checkDigit) {
               EAN13Spec(text, hri).right()
@@ -356,19 +357,71 @@ public sealed class BarcodeSpec {
           }
         }
       }
+    }
+  }
 
-      private fun calculateCheckDigit(data: String): Int {
-        val sum =
-            data.reversed().foldIndexed(0) { index, acc, c ->
-              if (index % 2 == 0) {
-                acc + 3 * c.digitToInt()
-              } else {
-                acc + c.digitToInt()
-              }
+  /**
+   * Print an EAN-8 barcode.
+   *
+   * Please see [create] for full information.
+   *
+   * @see create
+   */
+  public class EAN8Spec(public val text: String, public val hri: HriPosition) : BarcodeSpec() {
+    override fun asCommand(): Command = Command.EAN8(text, hri)
+
+    public sealed class EAN8Error {
+      public data class IllegalCharacter(val index: Int, val character: Char) : EAN8Error() {
+        public val message: String = "Illegal character '$character' at index $index"
+
+        override fun toString(): String {
+          return "IllegalCharacter(message='$message')"
+        }
+      }
+      public object IncorrectLength : EAN8Error()
+      public data class InvalidCheckDigit(val expected: Int, val actual: Int) : EAN8Error()
+    }
+
+    public companion object {
+
+      /**
+       * Print the 8-digit EAN-8 barcode.
+       *
+       * The EAN-8 standard is enforced by this function. The argument to this function must only
+       * contain digits and the input must be of certain length.
+       *
+       * The following input is accepted:
+       *
+       * 1) 7-digit string. This function will calculate and add the 13th check digit.
+       *
+       * 2) 8-digit string. This function will check whether the 13th digit is a valid check digit,
+       * returning an error if not.
+       */
+      public fun create(text: String, hri: HriPosition): Either<EAN8Error, EAN8Spec> {
+        text.forEachIndexed { index, c ->
+          if (!c.isDigit()) {
+            return EAN8Error.IllegalCharacter(index, c).left()
+          }
+        }
+
+        when (text.length) {
+          7 -> {
+            val codeWithCheckDigit = text + calculateEANCheckDigit(text)
+            return EAN8Spec(codeWithCheckDigit, hri).right()
+          }
+          8 -> {
+            val checkDigit = calculateEANCheckDigit(text.take(7))
+            val candidate = text.last().digitToInt()
+            return if (candidate == checkDigit) {
+              EAN8Spec(text, hri).right()
+            } else {
+              EAN8Error.InvalidCheckDigit(checkDigit, candidate).left()
             }
-
-        val rem = sum % 10
-        return if (rem == 0) rem else 10 - rem
+          }
+          else -> {
+            return EAN8Error.IncorrectLength.left()
+          }
+        }
       }
     }
   }
@@ -394,4 +447,18 @@ public enum class QRCorrectionLevel(internal val level: Byte) {
   Q(50),
   /** 30 % (approx.) */
   H(51)
+}
+
+private inline fun calculateEANCheckDigit(data: String): Int {
+  val sum =
+      data.reversed().foldIndexed(0) { index, acc, c ->
+        if (index % 2 == 0) {
+          acc + 3 * c.digitToInt()
+        } else {
+          acc + c.digitToInt()
+        }
+      }
+
+  val rem = sum % 10
+  return if (rem == 0) rem else 10 - rem
 }

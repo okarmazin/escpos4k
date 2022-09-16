@@ -95,5 +95,31 @@ class BarcodeSpecTest : FunSpec() {
             .shouldBeLeft(BarcodeSpec.EAN13Spec.EAN13Error.IllegalCharacter(2, 'x'))
       }
     }
+
+    context("EAN-8") {
+      test("factory enforces length limits") {
+        BarcodeSpec.EAN8Spec.create("123456789", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN8Spec.EAN8Error.IncorrectLength)
+        BarcodeSpec.EAN8Spec.create("123456", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN8Spec.EAN8Error.IncorrectLength)
+      }
+
+      test("factory calculates correct check digit if length == 7") {
+        BarcodeSpec.EAN8Spec.create("7351353", HriPosition.BELOW)
+            .shouldBeRight()
+            .text
+            .shouldBe("73513537")
+      }
+
+      test("factory enforces correct digit if length == 8") {
+        BarcodeSpec.EAN8Spec.create("73513530", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN8Spec.EAN8Error.InvalidCheckDigit(7, 0))
+      }
+
+      test("factory enforces digits only") {
+        BarcodeSpec.EAN8Spec.create("73513x37", HriPosition.BELOW)
+            .shouldBeLeft(BarcodeSpec.EAN8Spec.EAN8Error.IllegalCharacter(5, 'x'))
+      }
+    }
   }
 }

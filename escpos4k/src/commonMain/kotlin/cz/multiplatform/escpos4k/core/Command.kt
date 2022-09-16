@@ -415,6 +415,7 @@ internal sealed class Command {
 
       this.content = data
     }
+
     override fun bytes(): ByteArray = content.copyOf()
 
     override fun equals(other: Any?): Boolean {
@@ -434,6 +435,48 @@ internal sealed class Command {
 
     override fun toString(): String {
       return "EAN13(content=${content.contentToString()})"
+    }
+  }
+
+  class EAN8(content: String, hri: HriPosition) : Command() {
+    private val content: ByteArray
+
+    init {
+      @Suppress("JoinDeclarationAndAssignment") //
+      var data: ByteArray
+
+      // 1. Set the HRI position and select the HRI font.
+      //    The last 0 is "Font A". We need to specify this because there is no default value for
+      //    the font. If we just set the position, there would be a space for the HRI, but it would
+      //    be blank
+      data = byteArrayOf(29, 72, hri.position, 29, 102, 0)
+
+      // 2. Print the barcode
+      val d = content.map { it.digitToInt().toByte() }.toByteArray()
+      data += byteArrayOf(29, 107, 68, 8, *d)
+
+      this.content = data
+    }
+
+    override fun bytes(): ByteArray = content.copyOf()
+
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other == null || this::class != other::class) return false
+
+      other as EAN8
+
+      if (!content.contentEquals(other.content)) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      return content.contentHashCode()
+    }
+
+    override fun toString(): String {
+      return "EAN8(content=${content.contentToString()})"
     }
   }
 }
