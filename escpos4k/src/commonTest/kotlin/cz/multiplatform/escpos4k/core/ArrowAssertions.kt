@@ -12,7 +12,7 @@ inline fun <A, B> Either<A, B>.shouldBeLeft() {
   shouldBeInstanceOf<Either.Left<A>>()
 }
 
-inline fun <A, B> Either<A, B>.shouldBeRight(expected: A) {
+inline fun <A, B> Either<A, B>.shouldBeRight(expected: B) {
   shouldBeInstanceOf<Either.Right<B>>().value shouldBe expected
 }
 
