@@ -20,7 +20,7 @@ package cz.multiplatform.escpos4k.core
 @Suppress("MemberVisibilityCanBePrivate")
 public class CommandBuilder
 internal constructor(
-    internal val charsPerLine: Int,
+    internal val config: PrinterConfiguration,
 ) {
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
@@ -114,7 +114,8 @@ internal constructor(
   ) {
     // TODO: Extract the character width from [commands] instead of forcing the caller to supply it.
     val numSpaces =
-        (charsPerLine - left.length * charWidth - right.length * charWidth).coerceAtLeast(minSpace)
+        (config.charactersPerLine - left.length * charWidth - right.length * charWidth)
+            .coerceAtLeast(minSpace)
     val spacer = buildString { repeat(numSpaces) { append(' ') } }
 
     textAlign(TextAlignment.LEFT)

@@ -50,17 +50,12 @@ public interface PrinterConnection {
    *   bold(false)
    * }
    * ```
-   *
-   * @param charsPerLine The line length of your printer. Used for calculating the column padding in
-   * `twoColumnText` and other similar commands. This number differs among different printer
-   * devices. For example: `Epson TM-P20` prints 42 characters per line while `Cashino PTP-II` only
-   * prints 32 characters per line on the same 57mm paper.
    */
   public suspend fun print(
-      charsPerLine: Int = Constants.charsPerLine60mm,
+      config: PrinterConfiguration,
       content: CommandBuilder.() -> Unit
   ): PrintError? {
-    val builder = CommandBuilder(Constants.charsPerLine60mm).apply(content)
+    val builder = CommandBuilder(config).apply(content)
     val bytes = builder.commands.flatMap { it.bytes().asSequence() }.toByteArray()
     return printRaw(bytes)
   }
