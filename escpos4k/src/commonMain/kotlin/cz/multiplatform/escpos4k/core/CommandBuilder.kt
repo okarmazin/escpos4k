@@ -374,17 +374,31 @@ internal constructor(
    * is too long to fit, so it breaks downwards.
    *
    * ```
-   * // Let the line length be 16. Each segment gets 8 spaces to work with.
+   * // Let the line length be 16. Each segment gets 8 single-width spaces to work with.
    * segmentedLine(
    *   LineSegment("seg1", TextAlignment.LEFT),
-   *   LineSegment("seg2 overflow", TextAlignment.RIGHT),
+   *   LineSegment("seg2_overflow", TextAlignment.RIGHT),
    * )
    *
-   * // Output:
-   * ___________________
-   * |seg1    |seg2 ove|
+   * textSize(2, 1) // Double character width
+   * segmentedLine(
+   *   LineSegment("seg3", TextAlignment.LEFT),
+   *   LineSegment("seg4_overflow", TextAlignment.RIGHT),
+   * )
+   *
+   * // Printed output (the paper/segment bounds are outlined with '|' and '_'):
+   *
+   * -------------------
+   * |seg1    |seg2_ove|
    * |        |   rflow|
-   * ___________________
+   * -------------------
+   *
+   * -----------
+   * |seg3|seg4|         <-- Only 8 total characters fit per line now
+   * |    |_ove|             since they are double width.
+   * |    |rflo|
+   * |    |   w|
+   * -----------
    * ```
    */
   public fun segmentedLine(segments: List<LineSegment>) {
