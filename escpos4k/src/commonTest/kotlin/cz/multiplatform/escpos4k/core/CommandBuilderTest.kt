@@ -4,12 +4,18 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 
 class CommandBuilderTest : FunSpec() {
-  private val charsPerLine = 32
+  private val defaultConfig = PrinterConfiguration(32)
   private val initSequence = listOf(Command.Initialize, Command.SelectCharset(Charset.default))
 
   init {
     test("fresh CommandBuilder initial sequence") {
-      CommandBuilder(charsPerLine).commands shouldContainExactly initSequence
+      CommandBuilder(defaultConfig).commands shouldContainExactly initSequence
+    }
+
+    context("text") {
+      test("empty string does nothing") {
+        CommandBuilder(defaultConfig).apply { text("") }.commands shouldContainExactly initSequence
+      }
     }
 
     // todo text
@@ -23,7 +29,7 @@ class CommandBuilderTest : FunSpec() {
     context("charset") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               charset(Charset.default)
               charset(Charset.CP850)
               charset(Charset.CP850)
@@ -39,7 +45,7 @@ class CommandBuilderTest : FunSpec() {
     context("withCharset") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               withCharset(Charset.default) {
                 withCharset(Charset.CP850) {
                   withCharset(Charset.CP850) {
@@ -64,7 +70,7 @@ class CommandBuilderTest : FunSpec() {
     context("textSize") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               textSize(1, 1)
               textSize(2, 2)
               textSize(2, 2)
@@ -78,7 +84,7 @@ class CommandBuilderTest : FunSpec() {
     context("withTextSize") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               withTextSize(1, 1) {
                 withTextSize(2, 2) {
                   withTextSize(2, 2) {
@@ -102,7 +108,7 @@ class CommandBuilderTest : FunSpec() {
     context("bold") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               bold(false)
               bold(true)
               bold(true)
@@ -117,7 +123,7 @@ class CommandBuilderTest : FunSpec() {
     context("withBold") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               withBold(false) {
                 withBold(true) {
                   withBold(true) {
@@ -142,7 +148,7 @@ class CommandBuilderTest : FunSpec() {
     context("underline") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               underline(false)
               underline(true)
               underline(true)
@@ -156,7 +162,7 @@ class CommandBuilderTest : FunSpec() {
     context("withUnderline") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               withUnderline(false) {
                 withUnderline(true) {
                   withUnderline(true) {
@@ -181,7 +187,7 @@ class CommandBuilderTest : FunSpec() {
     context("italics") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               italics(false)
               italics(true)
               italics(true)
@@ -195,7 +201,7 @@ class CommandBuilderTest : FunSpec() {
     context("withItalics") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               withItalics(false) {
                 withItalics(true) {
                   withItalics(true) {
@@ -220,7 +226,7 @@ class CommandBuilderTest : FunSpec() {
     context("textAlign") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(charsPerLine).apply {
+            CommandBuilder(defaultConfig).apply {
               textAlign(TextAlignment.LEFT)
               textAlign(TextAlignment.CENTER)
               textAlign(TextAlignment.CENTER)
@@ -230,6 +236,37 @@ class CommandBuilderTest : FunSpec() {
             initSequence +
                 Command.Justify(TextAlignment.CENTER) +
                 Command.Justify(TextAlignment.RIGHT)
+      }
+    }
+
+    context("segmentedLine") {
+      test("empty segments") {
+        val builder =
+            CommandBuilder(defaultConfig).apply {
+              segmentedLine()
+              segmentedLine()
+            }
+        builder.commands shouldContainExactly initSequence
+      }
+
+      test("prints at least 1 char per segment") {
+        val builder =
+            CommandBuilder(PrinterConfiguration(10)).apply {
+              textSize(8, 1)
+              segmentedLine(
+                  LineSegment("12", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
+            }
+        builder.commands shouldContainExactly
+            initSequence +
+                Command.TextSize(8, 1) +
+                Command.Text("1", Charset.default) +
+                Command.Text("3", Charset.default) +
+                Command.Text("\n", Charset.default) +
+                Command.Text("2", Charset.default) +
+                Command.TextSize(1, 1) +
+                Command.Text("     ", Charset.default) +
+                Command.TextSize(8, 1) +
+                Command.Text("\n", Charset.default)
       }
     }
   }
