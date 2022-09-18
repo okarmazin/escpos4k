@@ -86,51 +86,6 @@ internal constructor(
   }
 
   /**
-   * Print the two text fragments in two columns and terminate the line.
-   *
-   * The two text fragments are spaced out such that the `left` text is aligned to the start of the
-   * line and the `right` text is aligned to the end of the line.
-   *
-   * @param minSpace The minimum amount of spaces between the two columns, default 1.
-   * @see twoColumnText
-   */
-  public fun twoColumnLine(
-      left: String,
-      right: String,
-      charWidth: Int = 1,
-      minSpace: Int = 1,
-  ) {
-    twoColumnText(left, right + "\n", charWidth, minSpace)
-  }
-
-  /**
-   * Print the two text fragments in two columns without terminating the line.
-   *
-   * The two text fragments are spaced out such that the `left` text is aligned to the start of the
-   * line and the `right` text is aligned to the end of the line.
-   *
-   * @param minSpace The minimum amount of spaces between the two columns, default 1.
-   * @see twoColumnLine
-   */
-  public fun twoColumnText(
-      left: String,
-      right: String,
-      charWidth: Int = 1,
-      minSpace: Int = 1,
-  ) {
-    // TODO: Extract the character width from [commands] instead of forcing the caller to supply it.
-    val numSpaces =
-        (config.charactersPerLine - left.length * charWidth - right.length * charWidth)
-            .coerceAtLeast(minSpace)
-    val spacer = buildString { repeat(numSpaces) { append(' ') } }
-
-    textAlign(TextAlignment.LEFT)
-    text(left)
-    text(spacer)
-    text(right)
-  }
-
-  /**
    * Select a [Charset]. Text printed with [text] will be encoded to single-byte characters
    * according to this character set.
    *
