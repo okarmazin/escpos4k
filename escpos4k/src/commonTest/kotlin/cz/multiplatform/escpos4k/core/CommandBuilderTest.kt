@@ -238,5 +238,50 @@ class CommandBuilderTest : FunSpec() {
                 Command.Justify(TextAlignment.RIGHT)
       }
     }
+
+    context("segmentedLine") {
+      test("empty segments") {
+        val builder =
+            CommandBuilder(defaultConfig).apply {
+              segmentedLine()
+              segmentedLine()
+            }
+        builder.commands shouldContainExactly initSequence
+      }
+
+      test("prints at least 1 char per segment") {
+        val builder =
+            CommandBuilder(PrinterConfiguration(10)).apply {
+              textSize(8, 1)
+              segmentedLine(
+                  LineSegment("12", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
+            }
+        builder.commands shouldContainExactly
+            initSequence +
+                Command.TextSize(8, 1) +
+                Command.TextSize(1, 1) +
+                Command.TextSize(8, 1) +
+                Command.Text("1", Charset.default) +
+                Command.TextSize(1, 1) +
+                Command.TextSize(8, 1) +
+                Command.TextSize(1, 1) +
+                Command.TextSize(8, 1) +
+                Command.Text("3", Charset.default) +
+                Command.TextSize(1, 1) +
+                Command.TextSize(8, 1) +
+                Command.Text("\n", Charset.default) +
+                Command.TextSize(1, 1) +
+                Command.TextSize(8, 1) +
+                Command.Text("2", Charset.default) +
+                Command.TextSize(1, 1) +
+                Command.TextSize(8, 1) +
+                Command.TextSize(1, 1) +
+                Command.TextSize(8, 1) +
+                Command.TextSize(1, 1) +
+                Command.Text("     ", Charset.default) +
+                Command.TextSize(8, 1) +
+                Command.Text("\n", Charset.default)
+      }
+    }
   }
 }

@@ -16,6 +16,9 @@
 
 package cz.multiplatform.escpos4k.core
 
+import arrow.core.Nel
+import arrow.core.NonEmptyList
+
 /** @see [PrinterConnection.print] */
 @Suppress("MemberVisibilityCanBePrivate")
 public class CommandBuilder
@@ -399,4 +402,117 @@ internal constructor(
   public fun barcode(spec: BarcodeSpec) {
     commands.add(spec.asCommand()) //
   }
+
+  /** Please see the sibling `segmentedLine(segments: List<LineSegment>)` function for full info. */
+  public fun segmentedLine(vararg segments: LineSegment) {
+    segmentedLine(segments.asList())
+  }
+
+  /**
+   * Print multiple independent segments on a single line. The available space is distributed evenly
+   * among all segments.
+   *
+   * **Segment Overflow**: If a segment is too long for its allotted space, the text overflows onto
+   * the next line or lines. The overflown line keeps the text alignment.
+   *
+   * In the following example, each segment is given 8 characters to work with. The second segment
+   * is too long to fit, so it breaks downwards.
+   *
+   * ```
+   * // Let the line length be 16. Each segment gets 8 spaces to work with.
+   * segmentedLine(
+   *   LineSegment("seg1", TextAlignment.LEFT),
+   *   LineSegment("seg2 overflow", TextAlignment.RIGHT),
+   * )
+   *
+   * // Output:
+   * ___________________
+   * |seg1    |seg2 ove|
+   * |        |   rflow|
+   * ___________________
+   * ```
+   */
+  public fun segmentedLine(segments: List<LineSegment>) {
+    if (segments.isEmpty()) {
+      return
+    }
+    val segmentsWithSize: Nel<Pair<LineSegment, Int>> =
+        distributeLine(config.charactersPerLine, NonEmptyList.fromListUnsafe(segments))
+    val charWidth = commands.lastOfTypeOrNull<Command.TextSize>()?.width ?: 1
+    // Partition the segment text into parts that fit in the allotted space while taking the
+    // character width into consideration.
+    val splitSegments: Nel<Nel<Pair<LineSegment, Int>>> =
+        segmentsWithSize.map { (segment, space) ->
+          val partSize = (space / charWidth).coerceAtLeast(1)
+          segment.text
+              .chunked(partSize) { chunk ->
+                LineSegment(chunk.toString(), segment.alignment) to space
+              }
+              .let(NonEmptyList.Companion::fromListUnsafe)
+        }
+
+    // Each original segment in the list is now split into multiple segments if it was longer
+    // than its allotted space. Iterate row wise, each row in the 2D structure is a segmented
+    // line to be laid out.
+    val numRows = splitSegments.maxOf { it.size }
+    (0 until numRows)
+        .map { rowIdx ->
+          splitSegments.map { column ->
+            column.elementAtOrElse(rowIdx) {
+              LineSegment("", TextAlignment.LEFT) to column.head.second
+            }
+          }
+        }
+        .forEach(::renderSegmentedLine)
+  }
+
+  private fun distributeLine(
+      charsPerLine: Int,
+      segments: Nel<LineSegment>
+  ): Nel<Pair<LineSegment, Int>> {
+    val basicSize = charsPerLine / segments.size
+    val rem = charsPerLine % segments.size
+    val sizesByColumn = segments.mapTo(mutableListOf()) { it to basicSize }
+
+    for (i in 0 until rem) {
+      val elem = sizesByColumn[i]
+      sizesByColumn[i] = elem.copy(second = elem.second + 1)
+    }
+
+    return NonEmptyList.fromListUnsafe(sizesByColumn)
+  }
+
+  private fun renderSegmentedLine(segments: Nel<Pair<LineSegment, Int>>) {
+    val textSize = commands.lastOfTypeOrNull<Command.TextSize>() ?: Command.TextSize(1, 1)
+    for ((segment, availableSpace) in segments) {
+      val remainingSpaces = availableSpace - segment.text.length * textSize.width
+      var direction = segment.alignment == TextAlignment.RIGHT
+      var leftSpacer = 0
+      var rightSpacer = 0
+
+      for (i in 0 until remainingSpaces) {
+        if (direction) leftSpacer++ else rightSpacer++
+        if (segment.alignment == TextAlignment.CENTER) {
+          direction = !direction
+        }
+      }
+
+      withTextSize(1, textSize.height) {
+        val spacerString = buildString { repeat(leftSpacer) { append(" ") } }
+        text(spacerString)
+      }
+      text(segment.text)
+      withTextSize(1, textSize.height) {
+        val spacerString = buildString { repeat(rightSpacer) { append(" ") } }
+        text(spacerString)
+      }
+    }
+    text("\n")
+  }
 }
+
+public data class LineSegment(
+    val text: String,
+    /** Alignment of text within the segment. */
+    val alignment: TextAlignment
+)

@@ -108,3 +108,7 @@ android {
     }
   }
 }
+
+tasks.withType<Test> {
+  systemProperty("kotest.assertions.collection.print.size", 100)
+}
