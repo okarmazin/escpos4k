@@ -18,6 +18,7 @@ package cz.multiplatform.escpos4k.core
 
 import arrow.core.Nel
 import arrow.core.NonEmptyList
+import arrow.core.nonEmptyListOf
 
 /** @see [PrinterConnection.print] */
 @Suppress("MemberVisibilityCanBePrivate")
@@ -412,12 +413,21 @@ internal constructor(
     // character width into consideration.
     val splitSegments: Nel<Nel<Pair<LineSegment, Int>>> =
         segmentsWithSize.map { (segment, space) ->
-          val partSize = (space / charWidth).coerceAtLeast(1)
-          segment.text
-              .chunked(partSize) { chunk ->
-                LineSegment(chunk.toString(), segment.alignment) to space
-              }
-              .let(NonEmptyList.Companion::fromListUnsafe)
+          val chunkSize = (space / charWidth).coerceAtLeast(1)
+          if (segment.text.isEmpty()) {
+            // Empty segment text needs to be special cased, because `chunked`
+            // produces an empty list of chunks when faced with an empty string. This is
+            // because it treats the string as an empty iterable of characters.
+            // If we didn't special case this, the `Nel.fromListUnsafe` would throw due to an
+            // empty list.
+            nonEmptyListOf(segment to space)
+          } else {
+            segment.text
+                .chunked(chunkSize) { chunk ->
+                  LineSegment(chunk.toString(), segment.alignment) to space
+                }
+                .let(NonEmptyList.Companion::fromListUnsafe)
+          }
         }
 
     // Each original segment in the list is now split into multiple segments if it was longer

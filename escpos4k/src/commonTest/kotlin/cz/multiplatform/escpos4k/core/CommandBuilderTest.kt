@@ -249,6 +249,21 @@ class CommandBuilderTest : FunSpec() {
         builder.commands shouldContainExactly initSequence
       }
 
+      test("segment content empty") {
+        val builder =
+            CommandBuilder(defaultConfig).apply {
+              segmentedLine(
+                  LineSegment("", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
+            }
+
+        builder.commands shouldContainExactly
+            initSequence +
+                Command.Text("                ", Charset.default) +
+                Command.Text("3", Charset.default) +
+                Command.Text("               ", Charset.default) +
+                Command.Text("\n", Charset.default)
+      }
+
       test("prints at least 1 char per segment") {
         val builder =
             CommandBuilder(PrinterConfiguration(10)).apply {
