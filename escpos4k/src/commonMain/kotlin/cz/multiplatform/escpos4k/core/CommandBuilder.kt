@@ -452,14 +452,20 @@ internal constructor(
         }
       }
 
-      withTextSize(1, textSize.height) {
-        val spacerString = buildString { repeat(leftSpacer) { append(" ") } }
-        text(spacerString)
+      if (leftSpacer > 0) {
+        withTextSize(1, textSize.height) {
+          val spacerString = buildString { repeat(leftSpacer) { append(" ") } }
+          text(spacerString)
+        }
       }
+
       text(segment.text)
-      withTextSize(1, textSize.height) {
-        val spacerString = buildString { repeat(rightSpacer) { append(" ") } }
-        text(spacerString)
+
+      if (rightSpacer > 0) {
+        withTextSize(1, textSize.height) {
+          val spacerString = buildString { repeat(rightSpacer) { append(" ") } }
+          text(spacerString)
+        }
       }
     }
     text("\n")
