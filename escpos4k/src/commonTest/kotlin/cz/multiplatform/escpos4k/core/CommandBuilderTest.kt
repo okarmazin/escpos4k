@@ -12,6 +12,12 @@ class CommandBuilderTest : FunSpec() {
       CommandBuilder(defaultConfig).commands shouldContainExactly initSequence
     }
 
+    context("text") {
+      test("empty string does nothing") {
+        CommandBuilder(defaultConfig).apply { text("") }.commands shouldContainExactly initSequence
+      }
+    }
+
     // todo text
 
     // todo line

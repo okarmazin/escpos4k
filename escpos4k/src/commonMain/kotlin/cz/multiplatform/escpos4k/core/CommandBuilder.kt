@@ -48,6 +48,9 @@ internal constructor(
    * @see line
    */
   public fun text(text: String) {
+    if (text.isEmpty()) {
+      return
+    }
     val currentCharset =
         commands.lastOfTypeOrNull<Command.SelectCharset>()?.charset ?: Charset.default
     commands.add(Command.Text(text, currentCharset))
