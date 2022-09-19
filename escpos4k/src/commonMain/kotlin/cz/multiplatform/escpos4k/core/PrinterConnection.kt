@@ -21,53 +21,21 @@ public interface PrinterConnection {
   public val isOpen: Boolean
 
   /**
-   * Build and print the [content]. The builder contains a variety of command functions.
+   * Send raw bytes to the printer. It is expected that you use the [CommandBuilder] to generate the
+   * print bytes.
    *
    * If the printer is not connected, this function returns an error. If successful, returns `null`.
-   *
-   * Before sending the [content] to the printer, the printer will be set to initialized state and
-   * [Charset.CP437] (ESC/POS code page 0) will be selected.
-   *
-   * This is done for consistency since the factory-default charset can vary by region of purchase.
-   * E.g. ESC/POS code page 20 (Thai) can be the default charset for printers sold in Thailand.
-   *
-   * ```
-   * printer.print {
-   *   // Charsets
-   *   line("Famous bridges:")
-   *   charset(Charset.CP865) // Can encode Ø, but not ů
-   *   line("Øresundsbroen: 7845m")
-   *   charset(Charset.CP852) // Can encode ů, but not Ø
-   *   line("Karlův most: 515m")
-   *
-   *   // Text styles
-   *   textSize(width = 2, height = 3)
-   *   line("Me big!")
-   *   textSize() // Utilizing default arguments to reset size
-   *
-   *   bold(true)
-   *   line("Normal and bald. Wait.. I wanted BOLD!")
-   *   bold(false)
-   * }
-   * ```
-   */
-  public suspend fun print(
-      config: PrinterConfiguration,
-      content: CommandBuilder.() -> Unit
-  ): PrintError? {
-    val builder = CommandBuilder(config).apply(content)
-    val bytes = builder.commands.flatMap { it.bytes().asSequence() }.toByteArray()
-    return printRaw(bytes)
-  }
-
-  /**
-   * Send raw bytes to the printer. Use at your own risk, for example if you have your own ESC/POS
-   * command generator and want to print its output.
-   *
-   * If you want to print text, use the sibling [print] function.
-   * @see print
    */
   public suspend fun printRaw(bytes: ByteArray): PrintError?
+}
+
+/** Build and print the [content]. */
+public suspend fun PrinterConnection.print(
+    config: PrinterConfiguration,
+    content: CommandBuilder.() -> Unit
+): PrintError? {
+  val builder = CommandBuilder(config).apply(content)
+  return printRaw(builder.bytes())
 }
 
 public sealed class ConnectionError {

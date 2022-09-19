@@ -20,14 +20,75 @@ import arrow.core.Nel
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 
-/** @see [PrinterConnection.print] */
+/**
+ * The central class for building the content to send to the printer. The class provides a variety
+ * of functions called "builders" representing the common styling you need for defining the printed
+ * content. This includes settings such as text size, text alignment, bold, italics, underline etc.
+ *
+ * Most builders offer two "variants".
+ * 1. Standard setting - `textSize(2, 2)`, `bold(true)` - When you set these styles, they remain set
+ * until changed.
+ * 2. Temporary setting - `withTextSize(2, 2)`, `withBold(true)`. These have an additional `content`
+ * parameter of type `CommandBuilder.() -> Unit` and allow you to apply a certain style only to the
+ * content.
+ *
+ * The builder is also capable of building common barcodes, both 2D and 1D such as `QR`, `EAN`,
+ * `UPC`. It offers rudimentary safety mechanisms where applicable, mainly around the hard limits of
+ * barcode capacity or shape (content too long/short, content must be all-digits etc.).
+ *
+ * General usage:
+ * ```
+ *
+ * val builder = CommandBuilder(defaultConfig).apply {
+ *   // Charsets
+ *   line("Famous bridges:")
+ *   charset(Charset.CP865) // Can encode Ø, but not ů
+ *   line("Øresundsbroen: 7845m")
+ *   charset(Charset.CP852) // Can encode ů, but not Ø
+ *   line("Karlův most: 515m")
+ *
+ *   // Text style - temporary style builder
+ *   withTextSize(width = 2, height = 3) {
+ *     line("Me big!")
+ *   }
+ *   line("Me small again!")
+ *
+ *   bold(true)
+ *   line("Normal and bald. Wait.. I wanted BOLD!")
+ *   bold(false)
+ *
+ *   val qrCode: Either<QRCodeError, QRCodeSpec> = BarcodeSpec.QRCodeSpec("Hello from the QR Code!")
+ *   // Print the QR code or an error:
+ *   qrCode
+ *     .tap(::barcode)
+ *     .tapLeft { err ->
+ *       line("Could not construct QR code:")
+ *       line(err.toString())
+ *   }
+ * }
+ *
+ * // Obtain and print the commands we built:
+ * printer.printRaw(builder.bytes())
+ * ```
+ *
+ * **NOTE**: This class is **not** thread safe.
+ */
 @Suppress("MemberVisibilityCanBePrivate")
-public class CommandBuilder
-internal constructor(
-    internal val config: PrinterConfiguration,
+public class CommandBuilder(
+    public val config: PrinterConfiguration,
 ) {
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
+
+  /**
+   * Prepare the raw ESC/POS commands. The resulting ByteArray can be sent directly to a printer.
+   *
+   * Use this function to obtain the bytes for a printer after you build your content using the
+   * builders.
+   */
+  public fun bytes(): ByteArray {
+    return commands.flatMap { it.bytes().asSequence() }.toByteArray()
+  }
 
   private inline fun <reified T> List<Command>.lastOfTypeOrNull(): T? =
       asReversed().asSequence().filterIsInstance<T>().firstOrNull()
