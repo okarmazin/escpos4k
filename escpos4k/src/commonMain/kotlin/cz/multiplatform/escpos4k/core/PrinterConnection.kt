@@ -22,7 +22,7 @@ public interface PrinterConnection {
 
   /**
    * Send raw bytes to the printer. It is expected that you use the [CommandBuilder] to generate the
-   * print bytes.
+   * bytes.
    *
    * If the printer is not connected, this function returns an error. If successful, returns `null`.
    */
@@ -34,7 +34,7 @@ public suspend fun PrinterConnection.print(
     config: PrinterConfiguration,
     content: CommandBuilder.() -> Unit
 ): PrintError? {
-  val builder = CommandBuilder(config).apply(content)
+  val builder = CommandBuilder(config, content)
   return printRaw(builder.bytes())
 }
 

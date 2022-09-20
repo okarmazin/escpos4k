@@ -14,7 +14,7 @@ class CommandBuilderTest : FunSpec() {
 
     context("text") {
       test("empty string does nothing") {
-        CommandBuilder(defaultConfig).apply { text("") }.commands shouldContainExactly initSequence
+        CommandBuilder(defaultConfig) { text("") }.commands shouldContainExactly initSequence
       }
     }
 
@@ -29,7 +29,7 @@ class CommandBuilderTest : FunSpec() {
     context("charset") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               charset(Charset.default)
               charset(Charset.CP850)
               charset(Charset.CP850)
@@ -45,7 +45,7 @@ class CommandBuilderTest : FunSpec() {
     context("withCharset") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               withCharset(Charset.default) {
                 withCharset(Charset.CP850) {
                   withCharset(Charset.CP850) {
@@ -70,7 +70,7 @@ class CommandBuilderTest : FunSpec() {
     context("textSize") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               textSize(1, 1)
               textSize(2, 2)
               textSize(2, 2)
@@ -84,7 +84,7 @@ class CommandBuilderTest : FunSpec() {
     context("withTextSize") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               withTextSize(1, 1) {
                 withTextSize(2, 2) {
                   withTextSize(2, 2) {
@@ -108,7 +108,7 @@ class CommandBuilderTest : FunSpec() {
     context("bold") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               bold(false)
               bold(true)
               bold(true)
@@ -123,7 +123,7 @@ class CommandBuilderTest : FunSpec() {
     context("withBold") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               withBold(false) {
                 withBold(true) {
                   withBold(true) {
@@ -148,7 +148,7 @@ class CommandBuilderTest : FunSpec() {
     context("underline") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               underline(false)
               underline(true)
               underline(true)
@@ -162,7 +162,7 @@ class CommandBuilderTest : FunSpec() {
     context("withUnderline") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               withUnderline(false) {
                 withUnderline(true) {
                   withUnderline(true) {
@@ -187,7 +187,7 @@ class CommandBuilderTest : FunSpec() {
     context("italics") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               italics(false)
               italics(true)
               italics(true)
@@ -201,7 +201,7 @@ class CommandBuilderTest : FunSpec() {
     context("withItalics") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               withItalics(false) {
                 withItalics(true) {
                   withItalics(true) {
@@ -226,7 +226,7 @@ class CommandBuilderTest : FunSpec() {
     context("textAlign") {
       test("style is not applied if same as current") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               textAlign(TextAlignment.LEFT)
               textAlign(TextAlignment.CENTER)
               textAlign(TextAlignment.CENTER)
@@ -242,7 +242,7 @@ class CommandBuilderTest : FunSpec() {
     context("segmentedLine") {
       test("empty segments") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               segmentedLine()
               segmentedLine()
             }
@@ -251,7 +251,7 @@ class CommandBuilderTest : FunSpec() {
 
       test("segment content empty") {
         val builder =
-            CommandBuilder(defaultConfig).apply {
+            CommandBuilder(defaultConfig) {
               segmentedLine(
                   LineSegment("", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
             }
@@ -266,7 +266,7 @@ class CommandBuilderTest : FunSpec() {
 
       test("prints at least 1 char per segment") {
         val builder =
-            CommandBuilder(PrinterConfiguration(10)).apply {
+            CommandBuilder(PrinterConfiguration(10)) {
               textSize(8, 1)
               segmentedLine(
                   LineSegment("12", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))

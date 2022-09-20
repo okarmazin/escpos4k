@@ -39,7 +39,7 @@ import arrow.core.nonEmptyListOf
  * General usage:
  * ```
  *
- * val builder = CommandBuilder(defaultConfig).apply {
+ * val builder = CommandBuilder(defaultConfig) {
  *   // Charsets
  *   line("Famous bridges:")
  *   charset(Charset.CP865) // Can encode Ø, but not ů
@@ -76,9 +76,14 @@ import arrow.core.nonEmptyListOf
 @Suppress("MemberVisibilityCanBePrivate")
 public class CommandBuilder(
     public val config: PrinterConfiguration,
+    content: CommandBuilder.() -> Unit = {},
 ) {
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
+
+  init {
+    content()
+  }
 
   /**
    * Prepare the raw ESC/POS commands. The resulting ByteArray can be sent directly to a printer.
