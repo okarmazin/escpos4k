@@ -3,11 +3,76 @@
 <!-- TOC -->
 
 * [ESC/POS for Kotlin Multiplatform](#escpos-for-kotlin-multiplatform)
+    * [Setup](#setup)
+    * [TLDR Android Bluetooth example](#tldr-android-bluetooth-example)
     * [What is ESC/POS?](#what-is-escpos)
     * [What does this library do?](#what-does-this-library-do)
     * [Feature/Platform matrix](#featureplatform-matrix)
 
 <!-- TOC -->
+
+#### Setup
+The library is available at Maven Central.
+
+```kotlin
+implementation("cz.multiplatform.escpos4k:escpos4k:0.2.0")
+```
+
+#### TLDR Android Bluetooth example
+
+```kotlin
+suspend fun awaitPrint(): Error? {
+  val btManager = BluetoothPrinterManager(requireContext())
+  val device = btManager.pairedPrinters().firstOrNull() 
+      ?: return Error.NotFound
+  val connection = btManager.openConnection(device)?.takeIf { it.isOpen } // (1)
+      ?: return Error.Disconnected
+  
+  val config = PrinterConfiguration(charactersPerLine = 32)
+  val libraryError: PrintError? = connection.print(configuration) {       // (2)
+    // MULTIPLE TEXT ALIGNMENTS PER LINE
+    line("Famous bridges:")
+    charset(Charset.CP865) // Can encode Ø, but not ů
+    segmentedLine(
+      LineSegment("Øresundsbroen", TextAlignment.LEFT),
+      LineSegment("7845m", TextAlignment.RIGHT),
+    )
+    charset(Charset.CP852) // Can encode ů, but not Ø
+    segmentedLine(
+      LineSegment("Karlův most", TextAlignment.LEFT),
+      LineSegment("515m", TextAlignment.RIGHT),
+    )
+    
+    // STANDARD TEXT STYLING, CAN BE SCOPED USING
+    // with-STYLE BUILDERS
+    withTextSize(width = 2, height = 3) {
+      line("Me big!")
+    }
+    line("Me small again!")
+    
+    bold(true)
+    line("Normal and bald. Wait.. I wanted BOLD!")
+    bold(false)
+
+    // BARCODES - SUPPORTS A NUMBER OF 1D and 2D CODES
+    val qrCode: Either<QRCodeError, QRCodeSpec> = 
+        BarcodeSpec.QRCodeSpec("Hello from the QR Code!")
+    qrCode
+      .tap(::barcode)
+      .tapLeft { err ->
+        line("Could not construct QR code:")
+        line(err.toString())
+    }
+  }
+  
+  return mapToDomainError(libraryError)
+}
+```
+
+```kotlin
+(1) Use the PrinterManager to open a Bluetooth connection
+(2) Print using the CommandBuilder
+```
 
 #### What is ESC/POS?
 
