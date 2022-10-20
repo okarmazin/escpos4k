@@ -16,39 +16,19 @@
 
 package cz.multiplatform.escpos4k.bluetooth
 
+import arrow.core.Either
+
 public interface BluetoothPrinterManager {
   /**
-   * Open the device so requests can be made.
+   * Open the device so requests can be made. You are responsible for closing the connection when
+   * you're done with it.
    *
    * @return The open connection or `null` if an error occurred.
    */
-  public suspend fun openConnection(printer: BluetoothDevice): BluetoothPrinterConnection?
+  public suspend fun openConnection(
+      printer: BluetoothDevice
+  ): Either<BluetoothError, BluetoothPrinterConnection>
 
   /** Returns the list of paired Bluetooth devices with Printer device class. */
-  public fun pairedPrinters(): List<BluetoothDevice>
-
-}
-
-internal abstract class AbstractBluetoothPrinterManager : BluetoothPrinterManager {
-
-  override suspend fun openConnection(printer: BluetoothDevice): BluetoothPrinterConnection? {
-    val connection = openDeviceConnection(printer) ?: return null
-    return BluetoothPrinterConnection(connection)
-  }
-
-  protected abstract fun allPairedDevices(): List<BluetoothDevice>
-
-  /** Returns the list of paired Bluetooth devices with Printer device class. */
-  override fun pairedPrinters(): List<BluetoothDevice> {
-
-    return allPairedDevices()
-        .filter { device ->
-          val classImaging = 1536
-          val classPrinter = 1664
-          device.majorDeviceClass == classImaging &&
-              (device.deviceClass == classPrinter || device.deviceClass == classImaging)
-        }
-  }
-
-  protected abstract suspend fun openDeviceConnection(printer: BluetoothDevice): BluetoothDeviceConnection?
+  public fun pairedPrinters(): Either<BluetoothError, List<BluetoothDevice>>
 }
