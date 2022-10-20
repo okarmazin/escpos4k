@@ -35,6 +35,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
 public fun BluetoothPrinterManager(context: Context): BluetoothPrinterManager =
@@ -59,7 +60,20 @@ private class AndroidBluetoothPrinterManager(context: Context) : BluetoothPrinte
 
               currentCoroutineContext().ensureActive()
               socket.connect()
-              currentCoroutineContext().ensureActive()
+              val context = currentCoroutineContext()
+              if (!context.isActive) {
+                // We were cancelled while opening the connection. Clean up the open connection and
+                // bail out!
+                try {
+                  socket.close()
+                } catch (e: IOException) {
+                  // Close failure ignored.
+                }
+
+                // We use ensureActive instead of throwing CancellationException ourselves since
+                // ensureActive provides a better error message.
+                context.ensureActive()
+              }
 
               BluetoothPrinterConnection(AndroidBluetoothDeviceConnection(socket, printer))
             }
