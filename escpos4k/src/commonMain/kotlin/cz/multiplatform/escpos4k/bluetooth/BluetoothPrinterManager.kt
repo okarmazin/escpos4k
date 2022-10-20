@@ -22,8 +22,6 @@ public interface BluetoothPrinterManager {
   /**
    * Open the device so requests can be made. You are responsible for closing the connection when
    * you're done with it.
-   *
-   * @return The open connection or `null` if an error occurred.
    */
   public suspend fun openConnection(
       printer: BluetoothDevice

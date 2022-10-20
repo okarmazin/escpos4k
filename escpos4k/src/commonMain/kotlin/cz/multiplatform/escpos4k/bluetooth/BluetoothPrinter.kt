@@ -26,39 +26,4 @@ public class BluetoothPrinter(device: BluetoothDevice) {
 
   private val _isConnecting = MutableStateFlow(false)
   public val isConnecting: StateFlow<Boolean> = _isConnecting.asStateFlow()
-
-  //  override suspend fun printRaw(bytes: ByteArray): PrintError? {
-  //    val connection = connection
-  //    if (connection == null || !connection.isConnected()) {
-  //      return PrintError.NotConnected
-  //    }
-  //    return withContext(Dispatchers.Default) {
-  //      connection.write(bytes)
-  //      null
-  //    }
-  //  }
-
-  //  override suspend fun connect(): ConnectionError? {
-  //    return withContext(Dispatchers.Default) {
-  //      connectionCreateMutex.withLock {
-  //        try {
-  //          _isConnecting.value = true
-  //          if (isConnected()) {
-  //            return@withContext null
-  //          }
-  //          val conn = device.newConnection() ?: return@withContext
-  // ConnectionError.FailedToOpenDevice
-  //          val connectJob = async(Dispatchers.Default) { conn.connect() }
-  //          connection = conn
-  //          if (connectJob.await()) {
-  //            return@withContext null
-  //          } else {
-  //            return@withContext ConnectionError.FailedToOpenDevice
-  //          }
-  //        } finally {
-  //          _isConnecting.value = false
-  //        }
-  //      }
-  //    }
-  //  }
 }

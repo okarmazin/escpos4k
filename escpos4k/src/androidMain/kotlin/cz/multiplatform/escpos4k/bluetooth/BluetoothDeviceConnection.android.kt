@@ -37,14 +37,14 @@ internal class AndroidBluetoothDeviceConnection(
     }
   }
 
-  override suspend fun write(data: ByteArray) {
-    // TODO maybe we would like to report result?
-    withContext(Dispatchers.Default) {
+  override suspend fun write(data: ByteArray): BluetoothError? {
+    return withContext(Dispatchers.Default) {
       writeMutex.withLock {
         try {
           connection.outputStream.write(data)
+          null
         } catch (e: IOException) {
-          // Ignore
+          BluetoothError.Unknown(e)
         }
       }
     }

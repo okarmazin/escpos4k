@@ -27,5 +27,5 @@ public abstract class BluetoothDeviceConnection(public val device: BluetoothDevi
 
   protected abstract fun closeInternal()
 
-  public abstract suspend fun write(data: ByteArray)
+  public abstract suspend fun write(data: ByteArray): BluetoothError?
 }

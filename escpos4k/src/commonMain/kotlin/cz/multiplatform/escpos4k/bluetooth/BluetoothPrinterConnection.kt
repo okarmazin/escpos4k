@@ -37,9 +37,18 @@ public class BluetoothPrinterConnection(
         return@withContext PrintError.NotConnected
       }
 
-      deviceConnection.write(bytes)
+      deviceConnection.write(bytes)?.let(::mapBluetoothError)
+    }
+  }
 
-      null
+  private fun mapBluetoothError(error: BluetoothError): PrintError {
+    // TODO Do we have any other mappings than NotConnected?
+    return when (error) {
+      BluetoothError.AccessDenied,
+      BluetoothError.BluetoothNotAvailable,
+      BluetoothError.BluetoothOff,
+      is BluetoothError.DeviceNotFound,
+      is BluetoothError.Unknown -> PrintError.NotConnected
     }
   }
 }
