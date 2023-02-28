@@ -19,6 +19,7 @@ package cz.multiplatform.escpos4k.core
 import arrow.core.Nel
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
+import cz.multiplatform.escpos4k.core.LineDistributionStrategy.Companion.SpaceEvenly
 
 /**
  * The central class for building the content to send to the printer. The class provides a variety
@@ -27,10 +28,10 @@ import arrow.core.nonEmptyListOf
  *
  * Most builders offer two "variants".
  * 1. Standard setting - `textSize(2, 2)`, `bold(true)` - When you set these styles, they remain set
- * until changed.
+ *    until changed.
  * 2. Temporary setting - `withTextSize(2, 2)`, `withBold(true)`. These have an additional `content`
- * parameter of type `CommandBuilder.() -> Unit` and allow you to apply a certain style only to the
- * content.
+ *    parameter of type `CommandBuilder.() -> Unit` and allow you to apply a certain style only to
+ *    the content.
  *
  * The builder is also capable of building common barcodes, both 2D and 1D such as `QR`, `EAN`,
  * `UPC`. It offers rudimentary safety mechanisms where applicable, mainly around the hard limits of
@@ -201,6 +202,7 @@ public class CommandBuilder(
    *   line("I can encode Ø again!")
    * }
    * ```
+   *
    * @see charset
    * @see text
    */
@@ -340,6 +342,7 @@ public class CommandBuilder(
    *   line("I am underlined again.")
    * }
    * ```
+   *
    * @see underline
    */
   public fun withUnderline(enabled: Boolean, content: CommandBuilder.() -> Unit) {
@@ -425,14 +428,9 @@ public class CommandBuilder(
     commands.add(spec.asCommand()) //
   }
 
-  /** Please see the sibling `segmentedLine(segments: List<LineSegment>)` function for full info. */
-  public fun segmentedLine(vararg segments: LineSegment) {
-    segmentedLine(segments.asList())
-  }
-
   /**
-   * Print multiple independent segments on a single line. The available space is distributed evenly
-   * among all segments.
+   * Print multiple independent segments on a single line. The available space is distributed by the
+   * provided [distributionStrategy]. By default, available space is distributed evenly.
    *
    * **Segment Overflow**: If a segment is too long for its allotted space, the text overflows onto
    * the next line or lines. The overflown line keeps the text alignment.
@@ -468,17 +466,21 @@ public class CommandBuilder(
    * -----------
    * ```
    */
-  public fun segmentedLine(segments: List<LineSegment>) {
+  public fun segmentedLine(
+      segments: List<LineSegment>,
+      distributionStrategy: LineDistributionStrategy = SpaceEvenly,
+  ) {
     if (segments.isEmpty()) {
       return
     }
-    val segmentsWithSize: Nel<Pair<LineSegment, Int>> =
-        distributeLine(config.charactersPerLine, NonEmptyList.fromListUnsafe(segments))
     val charWidth = commands.lastOfTypeOrNull<Command.TextSize>()?.width ?: 1
+    val sizedSegments =
+        distributionStrategy.distributeLine(
+            config.charactersPerLine, charWidth, NonEmptyList.fromListUnsafe(segments))
     // Partition the segment text into parts that fit in the allotted space while taking the
     // character width into consideration.
     val splitSegments: Nel<Nel<Pair<LineSegment, Int>>> =
-        segmentsWithSize.map { (segment, space) ->
+        sizedSegments.map { (segment, space) ->
           val chunkSize = (space / charWidth).coerceAtLeast(1)
           if (segment.text.isEmpty()) {
             // Empty segment text needs to be special cased, because `chunked`
@@ -511,20 +513,12 @@ public class CommandBuilder(
         .forEach(::renderSegmentedLine)
   }
 
-  private fun distributeLine(
-      charsPerLine: Int,
-      segments: Nel<LineSegment>
-  ): Nel<Pair<LineSegment, Int>> {
-    val basicSize = charsPerLine / segments.size
-    val rem = charsPerLine % segments.size
-    val sizesByColumn = segments.mapTo(mutableListOf()) { it to basicSize }
-
-    for (i in 0 until rem) {
-      val elem = sizesByColumn[i]
-      sizesByColumn[i] = elem.copy(second = elem.second + 1)
-    }
-
-    return NonEmptyList.fromListUnsafe(sizesByColumn)
+  /** Please see the sibling `segmentedLine(segments)` function for full info. */
+  public fun segmentedLine(
+      vararg segments: LineSegment,
+      distributionStrategy: LineDistributionStrategy = SpaceEvenly,
+  ) {
+    segmentedLine(segments.asList(), distributionStrategy)
   }
 
   private fun renderSegmentedLine(segments: Nel<Pair<LineSegment, Int>>) {
@@ -567,3 +561,43 @@ public data class LineSegment(
     /** Alignment of text within the segment. */
     val alignment: TextAlignment
 )
+
+/** A named tuple of [LineSegment] and its `allottedSpace` by a [LineDistributionStrategy]. */
+public data class SizedSegment(val segment: LineSegment, val allottedSpace: Int)
+
+/**
+ * Distributes the available space among `LineSegment`s.
+ *
+ * Used by [CommandBuilder.segmentedLine].
+ *
+ * A default strategy [SpaceEvenly] is provided for uniform space distribution.
+ */
+public fun interface LineDistributionStrategy {
+  public fun distributeLine(
+      charsPerLine: Int,
+      charWidth: Int,
+      segments: Nel<LineSegment>
+  ): Nel<SizedSegment>
+
+  public companion object {
+    /**
+     * Available space is distributed evenly among the segments, with left bias. i.e. the remainder
+     * of `numChars / numSegments` is applied from left to right.
+     *
+     * Example: A line of size `8` is distributed among `3` segments as follows: `3-3-2`
+     */
+    public val SpaceEvenly: LineDistributionStrategy =
+        LineDistributionStrategy { charsPerLine, _, segments ->
+          val basicSize = charsPerLine / segments.size
+          val rem = charsPerLine % segments.size
+          val sizedSegments = segments.mapTo(mutableListOf()) { SizedSegment(it, basicSize) }
+
+          for (i in 0 until rem) {
+            val segment = sizedSegments[i]
+            sizedSegments[i] = segment.copy(allottedSpace = segment.allottedSpace + 1)
+          }
+
+          Nel.fromListUnsafe(sizedSegments)
+        }
+  }
+}
