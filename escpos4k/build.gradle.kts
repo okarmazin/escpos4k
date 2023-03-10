@@ -52,6 +52,7 @@ kotlin {
   android { publishLibraryVariants("release") }
 
   ios()
+  iosSimulatorArm64()
 
   sourceSets {
     val commonMain by getting {
@@ -77,7 +78,12 @@ kotlin {
         implementation(libs.kotest.runner.junit5)
       }
     }
-    val iosMain by getting
+
+    val iosSimulatorArm64Main by getting
+
+    val iosMain by getting {
+      iosSimulatorArm64Main.dependsOn(this)
+    }
   }
 }
 
