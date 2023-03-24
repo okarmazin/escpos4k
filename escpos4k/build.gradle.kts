@@ -53,6 +53,8 @@ kotlin {
 
   ios()
   iosSimulatorArm64()
+  macosArm64()
+  macosX64()
 
   sourceSets {
     val commonMain by getting {
@@ -80,9 +82,13 @@ kotlin {
     }
 
     val iosSimulatorArm64Main by getting
+    val macosArm64Main by getting
+    val macosX64Main by getting
 
     val iosMain by getting {
       iosSimulatorArm64Main.dependsOn(this)
+      macosArm64Main.dependsOn(this)
+      macosX64Main.dependsOn(this)
     }
   }
 }
