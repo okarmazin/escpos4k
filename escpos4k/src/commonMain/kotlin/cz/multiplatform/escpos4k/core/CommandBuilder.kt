@@ -17,8 +17,8 @@
 package cz.multiplatform.escpos4k.core
 
 import arrow.core.Nel
-import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
+import arrow.core.toNonEmptyListOrNull
 import cz.multiplatform.escpos4k.core.LineDistributionStrategy.Companion.SpaceEvenly
 
 /**
@@ -470,13 +470,11 @@ public class CommandBuilder(
       segments: List<LineSegment>,
       distributionStrategy: LineDistributionStrategy = SpaceEvenly,
   ) {
-    if (segments.isEmpty()) {
-      return
-    }
+    @Suppress("NAME_SHADOWING") // force br
+    val segments = segments.toNonEmptyListOrNull() ?: return
     val charWidth = commands.lastOfTypeOrNull<Command.TextSize>()?.width ?: 1
     val sizedSegments =
-        distributionStrategy.distributeLine(
-            config.charactersPerLine, charWidth, NonEmptyList.fromListUnsafe(segments))
+        distributionStrategy.distributeLine(config.charactersPerLine, charWidth, segments)
     // Partition the segment text into parts that fit in the allotted space while taking the
     // character width into consideration.
     val splitSegments: Nel<Nel<Pair<LineSegment, Int>>> =
@@ -494,7 +492,7 @@ public class CommandBuilder(
                 .chunked(chunkSize) { chunk ->
                   LineSegment(chunk.toString(), segment.alignment) to space
                 }
-                .let(NonEmptyList.Companion::fromListUnsafe)
+                .toNonEmptyListOrNull()!!
           }
         }
 
@@ -597,7 +595,7 @@ public fun interface LineDistributionStrategy {
             sizedSegments[i] = segment.copy(allottedSpace = segment.allottedSpace + 1)
           }
 
-          Nel.fromListUnsafe(sizedSegments)
+          sizedSegments.toNonEmptyListOrNull()!!
         }
   }
 }

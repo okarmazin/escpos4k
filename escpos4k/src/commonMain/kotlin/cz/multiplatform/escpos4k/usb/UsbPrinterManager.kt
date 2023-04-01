@@ -18,7 +18,7 @@ package cz.multiplatform.escpos4k.usb
 
 import arrow.core.Either
 import arrow.core.left
-import arrow.core.rightIfNotNull
+import arrow.core.right
 
 public interface UsbPrinterManager {
 
@@ -80,7 +80,7 @@ internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndp
         // Every Printer-class interface must have a BULK OUT endpoint, otherwise we couldn't
         // send print commands to it. So the bulkOutEp function SHOULD always return a not-null
         // result. If it returns null, something is seriously wrong with the device.
-        return printerIface.bulkOutEp().rightIfNotNull { EndpointSearchError.BulkOutNotFound }
+        return printerIface.bulkOutEp()?.right() ?: EndpointSearchError.BulkOutNotFound.left()
       }
 
   val validClasses = setOf(UsbClass.Printer, UsbClass.VendorSpecific)
@@ -106,7 +106,7 @@ internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndp
           ESC/POS printers often do not advertise themselves as printers, but rather as
           Vendor-specific devices with a single Vendor-specific interface.
         */
-        iface.bulkOutEp().rightIfNotNull { EndpointSearchError.BulkOutNotFound }
+        iface.bulkOutEp()?.right() ?: EndpointSearchError.BulkOutNotFound.left()
       }
     }
     else -> {
@@ -128,9 +128,8 @@ internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndp
         return EndpointSearchError.DisqualifyingInterfaceFound(it).left()
       }
 
-      return interfaces
-          .firstNotNullOfOrNull { it.bulkOutEp() }
-          .rightIfNotNull { EndpointSearchError.BulkOutNotFound }
+      return interfaces.firstNotNullOfOrNull { it.bulkOutEp() }?.right()
+          ?: EndpointSearchError.BulkOutNotFound.left()
     }
   }
 }

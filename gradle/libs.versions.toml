@@ -1,6 +1,6 @@
 [versions]
 androidGradlePlugin = "7.4.1"
-arrow = "1.1.2"
+arrow = "1.1.5"
 coroutines = "1.6.4"
 dependencyUpdates = "0.46.0"
 kotlin = "1.8.20"
