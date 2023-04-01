@@ -28,7 +28,7 @@ import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.identity
 import arrow.core.left
-import arrow.core.rightIfNotNull
+import arrow.core.right
 import java.io.IOException
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
@@ -137,7 +137,7 @@ private fun Int.toBtType(): BluetoothType =
 
 private fun Context.bluetoothManager(): Either<BluetoothError, BluetoothManager> {
   val manager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager?
-  return manager.rightIfNotNull { BluetoothError.BluetoothNotAvailable }
+  return manager?.right() ?: BluetoothError.BluetoothNotAvailable.left()
 }
 
 @SuppressLint("MissingPermission")

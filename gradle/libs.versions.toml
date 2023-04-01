@@ -1,12 +1,12 @@
 [versions]
-androidGradlePlugin = "7.2.2"
-arrow = "1.1.2"
+androidGradlePlugin = "7.4.1"
+arrow = "1.1.5"
 coroutines = "1.6.4"
-dependencyUpdates = "0.42.0"
-kotlin = "1.7.20"
-ktor = "2.1.1"
-vanniktechPublishing = "0.22.0"
-kotest = "5.5.1"
+dependencyUpdates = "0.46.0"
+kotlin = "1.8.20"
+ktor = "2.2.4"
+vanniktechPublishing = "0.25.1"
+kotest = "5.5.4"
 
 
 [libraries]
@@ -31,6 +31,7 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
 
 [bundles]
 

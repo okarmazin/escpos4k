@@ -449,7 +449,7 @@ public enum class QRCorrectionLevel(internal val level: Byte) {
   H(51)
 }
 
-private inline fun calculateEANCheckDigit(data: String): Int {
+private fun calculateEANCheckDigit(data: String): Int {
   val sum =
       data.reversed().foldIndexed(0) { index, acc, c ->
         if (index % 2 == 0) {

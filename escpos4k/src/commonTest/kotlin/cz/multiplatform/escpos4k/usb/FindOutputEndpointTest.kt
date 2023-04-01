@@ -23,7 +23,7 @@ class FindOutputEndpointTest {
             1,
             listOf(printerInterface))
 
-    assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().orNull()!!)
+    assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
 
   @Test
@@ -43,7 +43,7 @@ class FindOutputEndpointTest {
             1,
             listOf(printerInterface))
 
-    assertNull(device.findOutputEndpoint().orNull())
+    assertNull(device.findOutputEndpoint().getOrNull())
   }
 
   @Test
@@ -63,7 +63,7 @@ class FindOutputEndpointTest {
             1,
             listOf(printerInterface))
 
-    assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().orNull()!!)
+    assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
 
   @Test
@@ -83,7 +83,7 @@ class FindOutputEndpointTest {
             1,
             listOf(printerInterface))
 
-    assertNull(device.findOutputEndpoint().orNull())
+    assertNull(device.findOutputEndpoint().getOrNull())
   }
 
   @Test
@@ -104,7 +104,7 @@ class FindOutputEndpointTest {
     val device =
         UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
 
-    assertSame(printerInterfaces[1].endpoints[1], device.findOutputEndpoint().orNull()!!)
+    assertSame(printerInterfaces[1].endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
 
   @Test
@@ -126,7 +126,7 @@ class FindOutputEndpointTest {
     val device =
         UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
 
-    assertNull(device.findOutputEndpoint().orNull())
+    assertNull(device.findOutputEndpoint().getOrNull())
   }
 
   private fun bulkAndControl(): List<UsbEndpoint> =
