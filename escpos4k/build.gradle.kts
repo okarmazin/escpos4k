@@ -10,7 +10,7 @@ plugins {
 
 group = "cz.multiplatform.escpos4k"
 
-version = "0.3.0-SNAPSHOT"
+version = "0.3.0"
 
 @Suppress("UnstableApiUsage")
 mavenPublishing {
