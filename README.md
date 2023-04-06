@@ -15,18 +15,23 @@
 The library is available at Maven Central.
 
 ```kotlin
-implementation("cz.multiplatform.escpos4k:escpos4k:0.2.0")
+repositories {
+    mavenCentral()
+}
+```
+```kotlin
+implementation("cz.multiplatform.escpos4k:escpos4k:0.3.0")
 ```
 
 #### TLDR Android Bluetooth example
 
 ```kotlin
-suspend fun awaitPrint(): Error? {
+suspend fun awaitPrint(): MyError? {
   val btManager = BluetoothPrinterManager(requireContext())
   val device = btManager.pairedPrinters().firstOrNull() 
-      ?: return Error.NotFound
+      ?: return MyError.NotFound
   val connection = btManager.openConnection(device)?.takeIf { it.isOpen } // (1)
-      ?: return Error.Disconnected
+      ?: return MynError.Disconnected
   
   val config = PrinterConfiguration(charactersPerLine = 32)
   val libraryError: PrintError? = connection.print(configuration) {       // (2)
@@ -58,14 +63,18 @@ suspend fun awaitPrint(): Error? {
     val qrCode: Either<QRCodeError, QRCodeSpec> = 
         BarcodeSpec.QRCodeSpec("Hello from the QR Code!")
     qrCode
-      .tap(::barcode)
-      .tapLeft { err ->
+      .onRight(::barcode)
+      .onLeft { err ->
         line("Could not construct QR code:")
         line(err.toString())
     }
   }
   
-  return mapToDomainError(libraryError)
+  return libraryError?.let(::mapToMyError)
+}
+
+fun mapToMyError(libraryError: PrintError): MyError {
+    // ...
 }
 ```
 
