@@ -18,10 +18,8 @@ package cz.multiplatform.escpos4k.tcp
 
 import cz.multiplatform.escpos4k.core.PrintError
 import cz.multiplatform.escpos4k.core.PrinterConnection
-import io.ktor.network.sockets.Socket
+import io.ktor.network.sockets.Connection
 import io.ktor.network.sockets.isClosed
-import io.ktor.network.sockets.openWriteChannel
-import io.ktor.util.cio.use
 import io.ktor.utils.io.writeFully
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,14 +27,13 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalStdlibApi::class)
 public class TcpPrinterConnection
 internal constructor(
+    private val connection: Connection,
     override val name: String,
-    private val socket: Socket,
     public val address: String,
     public val port: Int,
 ) : PrinterConnection, AutoCloseable {
-
   override val isOpen: Boolean
-    get() = !socket.isClosed
+    get() = !connection.socket.isClosed
 
   override suspend fun printRaw(bytes: ByteArray): PrintError? {
     return withContext(Dispatchers.Default) {
@@ -45,8 +42,12 @@ internal constructor(
       }
 
       try {
-        socket.openWriteChannel(true).use { writeFully(bytes) }
+        with(connection.output) {
+          writeFully(bytes)
+          flush()
+        }
       } catch (t: Throwable) {
+        close()
         return@withContext PrintError.NotConnected
       }
 
@@ -56,9 +57,13 @@ internal constructor(
 
   override fun close() {
     try {
-      socket.close()
+      connection.socket.close()
     } catch (t: Throwable) {
       // Ignore close errors.
     }
+  }
+
+  override fun toString(): String {
+    return "TcpPrinterConnection(name='$name', address='$address', port=$port, isOpen=$isOpen)"
   }
 }

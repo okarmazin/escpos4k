@@ -65,7 +65,7 @@ private class TcpPrinterManagerImpl : TcpPrinterManager {
           socket = aSocket(SelectorManager(Dispatchers.Default)).tcp().connect(ipAddress, port)
         }
         currentCoroutineContext().ensureActive()
-        return@withContext TcpPrinterConnection(name, socket!!, ipAddress, port).right()
+        return@withContext TcpPrinterConnection(socket!!.connection(), name, ipAddress, port).right()
       } catch (cause: Throwable) {
         socket?.close()
 
