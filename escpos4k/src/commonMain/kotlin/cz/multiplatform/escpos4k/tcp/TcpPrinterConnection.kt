@@ -24,14 +24,13 @@ import io.ktor.utils.io.writeFully
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalStdlibApi::class)
 public class TcpPrinterConnection
 internal constructor(
     private val connection: Connection,
     override val name: String,
     public val address: String,
     public val port: Int,
-) : PrinterConnection, AutoCloseable {
+) : PrinterConnection {
   override val isOpen: Boolean
     get() = !connection.socket.isClosed
 
@@ -55,7 +54,7 @@ internal constructor(
     }
   }
 
-  override fun close() {
+  public fun close() {
     try {
       connection.socket.close()
     } catch (t: Throwable) {
