@@ -47,6 +47,7 @@ mavenPublishing {
 }
 
 kotlin {
+  jvmToolchain(19)
   explicitApi()
 
   android { publishLibraryVariants("release") }
@@ -111,8 +112,8 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_19
+    targetCompatibility = JavaVersion.VERSION_19
   }
 
   testOptions {
