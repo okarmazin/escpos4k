@@ -25,13 +25,15 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import arrow.core.Either
-import arrow.core.continuations.either
 import arrow.core.identity
 import arrow.core.left
-import arrow.core.right
+import arrow.core.raise.Raise
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import java.io.IOException
 import java.util.UUID
-import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -51,9 +53,11 @@ private class AndroidBluetoothPrinterManager(context: Context) : BluetoothPrinte
     return runCatching {
           withContext(Dispatchers.IO) {
             either {
+              val devices = allPlatformDevices(context)
               val device =
-                  context.allPlatformDevices().bind().firstOrNull { it.address == printer.address }
-                      ?: shift<Nothing>(BluetoothError.DeviceNotFound(printer))
+                  ensureNotNull(devices.firstOrNull { it.address == printer.address }) {
+                    BluetoothError.DeviceNotFound(printer)
+                  }
               val serviceUUID =
                   printer.uuids.firstOrNull()?.let(UUID::fromString) ?: UUID.randomUUID()
               val socket = device.createRfcommSocketToServiceRecord(serviceUUID)
@@ -96,33 +100,31 @@ private class AndroidBluetoothPrinterManager(context: Context) : BluetoothPrinte
         }
   }
 
-  override fun pairedPrinters(): Either<BluetoothError, List<BluetoothDevice>> =
-      allPairedDevices().map { allDevices ->
-        allDevices.filter { device ->
-          val classImaging = 1536
-          val classPrinter = 1664
-          device.majorDeviceClass == classImaging &&
-              (device.deviceClass == classPrinter || device.deviceClass == classImaging)
-        }
-      }
+  override fun pairedPrinters(): Either<BluetoothError, List<BluetoothDevice>> = either {
+    allPairedDevices().filter { device ->
+      val classImaging = 1536
+      val classPrinter = 1664
+      device.majorDeviceClass == classImaging &&
+          (device.deviceClass == classPrinter || device.deviceClass == classImaging)
+    }
+  }
 
   @SuppressLint("MissingPermission")
-  private fun allPairedDevices(): Either<BluetoothError, List<BluetoothDevice>> {
-    return runCatching {
-          either.eager {
-            val platformDevices = context.allPlatformDevices().bind()
-            platformDevices.map { platformDevice ->
-              BluetoothDevice(
-                  platformDevice.address,
-                  platformDevice.name,
-                  platformDevice.type.toBtType(),
-                  platformDevice.uuids.orEmpty().map { it.uuid.toString() },
-                  platformDevice.bluetoothClass.majorDeviceClass,
-                  platformDevice.bluetoothClass.deviceClass)
-            }
+  private fun Raise<BluetoothError>.allPairedDevices(): List<BluetoothDevice> {
+    return Either.catch {
+          val platformDevices = allPlatformDevices(context)
+          platformDevices.map { platformDevice ->
+            BluetoothDevice(
+                platformDevice.address,
+                platformDevice.name,
+                platformDevice.type.toBtType(),
+                platformDevice.uuids.orEmpty().map { it.uuid.toString() },
+                platformDevice.bluetoothClass.majorDeviceClass,
+                platformDevice.bluetoothClass.deviceClass)
           }
         }
-        .fold(::identity, { BluetoothError.Unknown(it).left() })
+        .mapLeft { BluetoothError.Unknown(it) }
+        .bind()
   }
 }
 
@@ -135,30 +137,20 @@ private fun Int.toBtType(): BluetoothType =
       else -> BluetoothType.Unknown
     }
 
-private fun Context.bluetoothManager(): Either<BluetoothError, BluetoothManager> {
-  val manager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager?
-  return manager?.right() ?: BluetoothError.BluetoothNotAvailable.left()
+private fun Raise<BluetoothError>.bluetoothManager(context: Context): BluetoothManager {
+  val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager?
+  return ensureNotNull(manager) { BluetoothError.BluetoothNotAvailable }
 }
 
 @SuppressLint("MissingPermission")
-private fun Context.allPlatformDevices(): Either<BluetoothError, List<PlatformBluetoothDevice>> {
-  return runCatching {
-        either.eager {
-          val manager = bluetoothManager().bind()
-          val adapter = manager.adapter
+private fun Raise<BluetoothError>.allPlatformDevices(
+    context: Context
+): List<PlatformBluetoothDevice> {
+  val adapter = bluetoothManager(context).adapter
+  ensure(adapter.state == BluetoothAdapter.STATE_ON) { BluetoothError.BluetoothOff }
+  ensure(context.hasBondedDevicesPermission()) { BluetoothError.AccessDenied }
 
-          if (adapter.state != BluetoothAdapter.STATE_ON) {
-            shift<Nothing>(BluetoothError.BluetoothOff)
-          }
-
-          if (!hasBondedDevicesPermission()) {
-            shift<Nothing>(BluetoothError.AccessDenied)
-          }
-
-          adapter.bondedDevices?.toList().orEmpty()
-        }
-      }
-      .fold(::identity, { BluetoothError.Unknown(it).left() })
+  return adapter.bondedDevices?.toList().orEmpty()
 }
 
 private fun Context.hasBondedDevicesPermission(): Boolean {
