@@ -18,6 +18,7 @@ package cz.multiplatform.escpos4k.core
 
 import cnames.structs.__CFString
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import platform.CoreFoundation.CFRelease
@@ -31,6 +32,7 @@ import platform.Foundation.NSString
 import platform.Foundation.dataUsingEncoding
 import platform.posix.memcpy
 
+@OptIn(ExperimentalForeignApi::class)
 internal actual fun encode(text: String, charset: Charset): ByteArray {
   var cfCharsetName: CPointer<__CFString>? = null
   try {

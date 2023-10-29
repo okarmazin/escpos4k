@@ -50,7 +50,7 @@ kotlin {
   jvmToolchain(19)
   explicitApi()
 
-  android { publishLibraryVariants("release") }
+  androidTarget { publishLibraryVariants("release") }
 
   ios()
   iosSimulatorArm64()
@@ -97,10 +97,10 @@ kotlin {
 
 @Suppress("UnstableApiUsage")
 android {
+  namespace = "cz.multiplatform.escpos4k"
   compileSdk = 31
   defaultConfig {
     minSdk = 23
-    targetSdk = 31
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 

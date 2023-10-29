@@ -1,12 +1,12 @@
 [versions]
-androidGradlePlugin = "7.4.1"
-arrow = "1.2.0-RC"
-coroutines = "1.6.4"
+androidGradlePlugin = "8.0.2"
+arrow = "1.2.1"
+coroutines = "1.7.3"
 dependencyUpdates = "0.46.0"
-kotlin = "1.8.21"
-ktor = "2.2.4"
-vanniktechPublishing = "0.25.1"
-kotest = "5.5.4"
+kotlin = "1.9.10"
+ktor = "2.3.5"
+vanniktechPublishing = "0.25.3"
+kotest = "5.7.2"
 
 
 [libraries]

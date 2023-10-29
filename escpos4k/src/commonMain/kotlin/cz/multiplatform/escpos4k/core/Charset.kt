@@ -216,6 +216,6 @@ public enum class Charset(
   //  public fun encode(text: String): ByteArray = encode(text, this)
 
   public companion object {
-    internal val default = values().first()
+    internal val default = entries.first()
   }
 }

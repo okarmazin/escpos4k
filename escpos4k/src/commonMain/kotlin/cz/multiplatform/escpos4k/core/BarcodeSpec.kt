@@ -88,8 +88,8 @@ public sealed class BarcodeSpec {
     }
 
     public sealed class QRCodeError {
-      public object EmptyContent : QRCodeError()
-      public object TooLong : QRCodeError()
+      public data object EmptyContent : QRCodeError()
+      public data object TooLong : QRCodeError()
     }
 
     public companion object {
@@ -133,8 +133,8 @@ public sealed class BarcodeSpec {
     override fun asCommand(): Command = Command.AztecCode(text, ecPercent)
 
     public sealed class AztecCodeError {
-      public object EmptyContent : AztecCodeError()
-      public object TooLong : AztecCodeError()
+      public data object EmptyContent : AztecCodeError()
+      public data object TooLong : AztecCodeError()
     }
 
     public companion object {
@@ -183,8 +183,8 @@ public sealed class BarcodeSpec {
     override fun asCommand(): Command = Command.DataMatrix(text)
 
     public sealed class DataMatrixError {
-      public object EmptyContent : DataMatrixError()
-      public object TooLong : DataMatrixError()
+      public data object EmptyContent : DataMatrixError()
+      public data object TooLong : DataMatrixError()
     }
 
     public companion object {
@@ -232,7 +232,7 @@ public sealed class BarcodeSpec {
           return "IllegalCharacter(message='$message')"
         }
       }
-      public object IncorrectLength : UPCAError()
+      public data object IncorrectLength : UPCAError()
       public data class InvalidCheckDigit(val expected: Int, val actual: Int) : UPCAError()
     }
 
@@ -312,7 +312,7 @@ public sealed class BarcodeSpec {
           return "IllegalCharacter(message='$message')"
         }
       }
-      public object IncorrectLength : EAN13Error()
+      public data object IncorrectLength : EAN13Error()
       public data class InvalidCheckDigit(val expected: Int, val actual: Int) : EAN13Error()
     }
 
@@ -378,7 +378,7 @@ public sealed class BarcodeSpec {
           return "IllegalCharacter(message='$message')"
         }
       }
-      public object IncorrectLength : EAN8Error()
+      public data object IncorrectLength : EAN8Error()
       public data class InvalidCheckDigit(val expected: Int, val actual: Int) : EAN8Error()
     }
 
