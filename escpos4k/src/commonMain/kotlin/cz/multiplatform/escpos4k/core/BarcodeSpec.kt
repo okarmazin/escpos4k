@@ -18,6 +18,9 @@ package cz.multiplatform.escpos4k.core
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.raise.Raise
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.core.right
 import cz.multiplatform.escpos4k.core.BarcodeSpec.AztecCodeSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.DataMatrixSpec.Companion.create
@@ -251,29 +254,28 @@ public sealed class BarcodeSpec {
        * 2) 12-digit string. This function will check whether the 12th digit is a valid check digit,
        * returning an error if not.
        */
-      public fun create(text: String, hri: HriPosition): Either<UPCAError, UPCASpec> {
-        text.forEachIndexed { index, c ->
-          if (!c.isDigit()) {
-            return UPCAError.IllegalCharacter(index, c).left()
-          }
-        }
-
+      public fun create(text: String, hri: HriPosition): Either<UPCAError, UPCASpec> = either {
         when (text.length) {
           11 -> {
+            ensureNumericContent(text, UPCAError::IllegalCharacter)
             val codeWithCheckDigit = text + calculateCheckDigit(text)
-            return UPCASpec(codeWithCheckDigit, hri).right()
+
+            UPCASpec(codeWithCheckDigit, hri)
           }
+
           12 -> {
+            ensureNumericContent(text, UPCAError::IllegalCharacter)
             val checkDigit = calculateCheckDigit(text.take(11))
             val candidate = text.last().digitToInt()
-            return if (candidate == checkDigit) {
-              UPCASpec(text, hri).right()
-            } else {
-              UPCAError.InvalidCheckDigit(checkDigit, candidate).left()
+            ensure(candidate == checkDigit) {
+              UPCAError.InvalidCheckDigit(checkDigit, candidate)
             }
+
+            UPCASpec(text, hri)
           }
+
           else -> {
-            return UPCAError.IncorrectLength.left()
+            raise(UPCAError.IncorrectLength)
           }
         }
       }
@@ -331,29 +333,28 @@ public sealed class BarcodeSpec {
        * 2) 13-digit string. This function will check whether the 13th digit is a valid check digit,
        * returning an error if not.
        */
-      public fun create(text: String, hri: HriPosition): Either<EAN13Error, EAN13Spec> {
-        text.forEachIndexed { index, c ->
-          if (!c.isDigit()) {
-            return EAN13Error.IllegalCharacter(index, c).left()
-          }
-        }
-
+      public fun create(text: String, hri: HriPosition): Either<EAN13Error, EAN13Spec> = either {
         when (text.length) {
           12 -> {
+            ensureNumericContent(text, EAN13Error::IllegalCharacter)
             val codeWithCheckDigit = text + calculateEANCheckDigit(text)
-            return EAN13Spec(codeWithCheckDigit, hri).right()
+
+            EAN13Spec(codeWithCheckDigit, hri)
           }
+
           13 -> {
+            ensureNumericContent(text, EAN13Error::IllegalCharacter)
             val checkDigit = calculateEANCheckDigit(text.take(12))
             val candidate = text.last().digitToInt()
-            return if (candidate == checkDigit) {
-              EAN13Spec(text, hri).right()
-            } else {
-              EAN13Error.InvalidCheckDigit(checkDigit, candidate).left()
+            ensure(candidate == checkDigit) {
+              EAN13Error.InvalidCheckDigit(checkDigit, candidate)
             }
+
+            EAN13Spec(text, hri)
           }
+
           else -> {
-            return EAN13Error.IncorrectLength.left()
+            raise(EAN13Error.IncorrectLength)
           }
         }
       }
@@ -397,29 +398,28 @@ public sealed class BarcodeSpec {
        * 2) 8-digit string. This function will check whether the 13th digit is a valid check digit,
        * returning an error if not.
        */
-      public fun create(text: String, hri: HriPosition): Either<EAN8Error, EAN8Spec> {
-        text.forEachIndexed { index, c ->
-          if (!c.isDigit()) {
-            return EAN8Error.IllegalCharacter(index, c).left()
-          }
-        }
-
+      public fun create(text: String, hri: HriPosition): Either<EAN8Error, EAN8Spec> = either {
         when (text.length) {
           7 -> {
+            ensureNumericContent(text, EAN8Error::IllegalCharacter)
             val codeWithCheckDigit = text + calculateEANCheckDigit(text)
-            return EAN8Spec(codeWithCheckDigit, hri).right()
+
+            EAN8Spec(codeWithCheckDigit, hri)
           }
+
           8 -> {
+            ensureNumericContent(text, EAN8Error::IllegalCharacter)
             val checkDigit = calculateEANCheckDigit(text.take(7))
             val candidate = text.last().digitToInt()
-            return if (candidate == checkDigit) {
-              EAN8Spec(text, hri).right()
-            } else {
-              EAN8Error.InvalidCheckDigit(checkDigit, candidate).left()
+            ensure(candidate == checkDigit) {
+              EAN8Error.InvalidCheckDigit(checkDigit, candidate)
             }
+
+            EAN8Spec(text, hri)
           }
+
           else -> {
-            return EAN8Error.IncorrectLength.left()
+            raise(EAN8Error.IncorrectLength)
           }
         }
       }
@@ -462,3 +462,10 @@ private fun calculateEANCheckDigit(data: String): Int {
   val rem = sum % 10
   return if (rem == 0) rem else 10 - rem
 }
+
+private fun <E> Raise<E>.ensureNumericContent(value: String, buildError: (Int, Char) -> E) =
+    value.forEachIndexed { index, c ->
+      ensure(c.isDigit()) {
+        buildError(index, c) //
+      }
+    }
