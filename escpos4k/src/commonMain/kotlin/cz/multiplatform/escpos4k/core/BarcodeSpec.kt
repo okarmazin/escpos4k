@@ -17,11 +17,9 @@
 package cz.multiplatform.escpos4k.core
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import arrow.core.right
 import cz.multiplatform.escpos4k.core.BarcodeSpec.AztecCodeSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.DataMatrixSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.EAN13Spec.Companion.create
@@ -107,16 +105,15 @@ public sealed class BarcodeSpec {
       public fun create(
           text: String,
           errorCorrection: QRCorrectionLevel = QRCorrectionLevel.L
-      ): Either<QRCodeError, QRCodeSpec> {
-        if (text.isEmpty()) {
-          return QRCodeError.EmptyContent.left()
+      ): Either<QRCodeError, QRCodeSpec> = either {
+        ensure(text.isNotEmpty()) {
+          QRCodeError.EmptyContent
+        }
+        ensure(text.length <= maxLength) {
+          QRCodeError.TooLong
         }
 
-        if (text.length > maxLength) {
-          return QRCodeError.TooLong.left()
-        }
-
-        return QRCodeSpec(text, errorCorrection).right()
+        QRCodeSpec(text, errorCorrection)
       }
     }
   }
@@ -161,16 +158,17 @@ public sealed class BarcodeSpec {
        * paper as much as the symbol's height, without printing the symbol. This is different from
        * e.g. a QR Code which does not feed the paper.
        */
-      public fun create(text: String, ecPercent: Int = 23): Either<AztecCodeError, AztecCodeSpec> {
-        if (text.isEmpty()) {
-          return AztecCodeError.EmptyContent.left()
-        }
-        if (text.length > maxLength) {
-          return AztecCodeError.TooLong.left()
-        }
+      public fun create(text: String, ecPercent: Int = 23): Either<AztecCodeError, AztecCodeSpec> =
+          either {
+            ensure(text.isNotEmpty()) {
+              AztecCodeError.EmptyContent
+            }
+            ensure(text.length <= maxLength) {
+              AztecCodeError.TooLong
+            }
 
-        return AztecCodeSpec(text, ecPercent.coerceIn(5..95)).right()
-      }
+            AztecCodeSpec(text, ecPercent.coerceIn(5..95))
+          }
     }
   }
 
@@ -203,15 +201,15 @@ public sealed class BarcodeSpec {
        * `text.length` must be in `1..3116`, but the upper limit can only be achieved with fully
        * numeric text. The realistic limit for random text is lower.
        */
-      public fun create(text: String): Either<DataMatrixError, DataMatrixSpec> {
-        if (text.isEmpty()) {
-          return DataMatrixError.EmptyContent.left()
+      public fun create(text: String): Either<DataMatrixError, DataMatrixSpec> = either {
+        ensure(text.isNotEmpty()) {
+          DataMatrixError.EmptyContent
         }
-        if (text.length > maxLength) {
-          return DataMatrixError.TooLong.left()
+        ensure(text.length <= maxLength) {
+          DataMatrixError.TooLong
         }
 
-        return DataMatrixSpec(text).right()
+        DataMatrixSpec(text)
       }
     }
   }
