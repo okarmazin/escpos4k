@@ -11,8 +11,7 @@ class BarcodeSpecTest : FunSpec() {
         BarcodeSpec.QRCodeSpec.create("")
             .shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.EmptyContent)
 
-        val longText = buildString { repeat(10_000) { append("1") } }
-        BarcodeSpec.QRCodeSpec.create(longText)
+        BarcodeSpec.QRCodeSpec.create("1".repeat(10_000))
             .shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.TooLong)
       }
     }
@@ -22,8 +21,7 @@ class BarcodeSpecTest : FunSpec() {
         BarcodeSpec.AztecCodeSpec.create("")
             .shouldBeLeft(BarcodeSpec.AztecCodeSpec.AztecCodeError.EmptyContent)
 
-        val longText = buildString { repeat(10_000) { append("1") } }
-        BarcodeSpec.AztecCodeSpec.create(longText)
+        BarcodeSpec.AztecCodeSpec.create("1".repeat(10_000))
             .shouldBeLeft(BarcodeSpec.AztecCodeSpec.AztecCodeError.TooLong)
       }
 
@@ -38,8 +36,7 @@ class BarcodeSpecTest : FunSpec() {
         BarcodeSpec.DataMatrixSpec.create("")
             .shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.EmptyContent)
 
-        val longText = buildString { repeat(10_000) { append("1") } }
-        BarcodeSpec.DataMatrixSpec.create(longText)
+        BarcodeSpec.DataMatrixSpec.create("1".repeat(10_000))
             .shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.TooLong)
       }
     }
