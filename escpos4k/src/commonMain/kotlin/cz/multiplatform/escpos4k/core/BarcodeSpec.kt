@@ -94,7 +94,7 @@ public sealed class BarcodeSpec {
     }
 
     public companion object {
-      private const val maxLength = 7089
+      public const val MAX_LENGTH: Int = 7089
 
       /**
        * Print a QR Code.
@@ -109,7 +109,7 @@ public sealed class BarcodeSpec {
         ensure(text.isNotEmpty()) {
           QRCodeError.EmptyContent
         }
-        ensure(text.length <= maxLength) {
+        ensure(text.length <= MAX_LENGTH) {
           QRCodeError.TooLong
         }
 
@@ -138,7 +138,7 @@ public sealed class BarcodeSpec {
     }
 
     public companion object {
-      private const val maxLength = 3832
+      public const val MAX_LENGTH: Int = 3832
 
       /**
        * Print an Aztec Code.
@@ -163,7 +163,7 @@ public sealed class BarcodeSpec {
             ensure(text.isNotEmpty()) {
               AztecCodeError.EmptyContent
             }
-            ensure(text.length <= maxLength) {
+            ensure(text.length <= MAX_LENGTH) {
               AztecCodeError.TooLong
             }
 
@@ -189,7 +189,7 @@ public sealed class BarcodeSpec {
     }
 
     public companion object {
-      private const val maxLength = 3116
+      public const val MAX_LENGTH: Int = 3116
       /**
        * Print a Data Matrix.
        *
@@ -205,7 +205,7 @@ public sealed class BarcodeSpec {
         ensure(text.isNotEmpty()) {
           DataMatrixError.EmptyContent
         }
-        ensure(text.length <= maxLength) {
+        ensure(text.length <= MAX_LENGTH) {
           DataMatrixError.TooLong
         }
 
