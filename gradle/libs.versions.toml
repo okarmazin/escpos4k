@@ -2,11 +2,11 @@
 androidGradlePlugin = "8.0.2"
 arrow = "1.2.1"
 coroutines = "1.7.3"
-dependencyUpdates = "0.46.0"
-kotlin = "1.9.10"
+dependencyUpdates = "0.50.0"
+kotlin = "1.9.21"
 ktor = "2.3.5"
 vanniktechPublishing = "0.25.3"
-kotest = "5.7.2"
+kotest = "5.8.0"
 
 
 [libraries]

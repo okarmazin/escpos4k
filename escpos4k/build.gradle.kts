@@ -52,7 +52,7 @@ kotlin {
 
   androidTarget { publishLibraryVariants("release") }
 
-  ios()
+  iosArm64()
   iosSimulatorArm64()
   macosArm64()
   macosX64()
@@ -81,16 +81,6 @@ kotlin {
         implementation(libs.kotlin.test.junit)
         implementation(libs.kotest.runner.junit5)
       }
-    }
-
-    val iosSimulatorArm64Main by getting
-    val macosArm64Main by getting
-    val macosX64Main by getting
-
-    val iosMain by getting {
-      iosSimulatorArm64Main.dependsOn(this)
-      macosArm64Main.dependsOn(this)
-      macosX64Main.dependsOn(this)
     }
   }
 }
