@@ -112,9 +112,9 @@ The following table summarizes connector implementation status on each platform.
 - :x: - Not yet implemented
 - `N/A` - Technology not available on that platform
 
-|                         | Android            | iOS                | macOS              |
-|-------------------------|--------------------|--------------------|--------------------|
-| **Command builder**     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| **Bluetooth connector** | :heavy_check_mark: | `N/A`              | :x:                |
-| **USB connector**       | :heavy_check_mark: | `N/A`              | :x:                |
-| **TCP connector**       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+|                         | Android            | Java               | iOS                | macOS              |
+|-------------------------|--------------------|--------------------|--------------------|--------------------|
+| **Command builder**     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| **Bluetooth connector** | :heavy_check_mark: | :x:                | `N/A`              | :x:                |
+| **USB connector**       | :heavy_check_mark: | :x:                | `N/A`              | :x:                |
+| **TCP connector**       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
