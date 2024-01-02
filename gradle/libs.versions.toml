@@ -1,5 +1,9 @@
 [versions]
+androidCoreDesugaring = "2.0.3"
 androidGradlePlugin = "8.0.2"
+androidCompileSdk = "31"
+androidMinSdk = "23"
+androidTargetSdk = "33"
 arrow = "1.2.1"
 coroutines = "1.7.3"
 dependencyUpdates = "0.50.0"
@@ -10,6 +14,7 @@ kotest = "5.8.0"
 
 
 [libraries]
+androidDesugaring = { module = "com.android.tools:desugar_jdk_libs", version.ref = "androidCoreDesugaring" }
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
@@ -40,5 +45,7 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 dependencyUpdates = { id = "com.github.ben-manes.versions", version.ref = "dependencyUpdates" }
 kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 vanniktechPublishingBase = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktechPublishing" }
