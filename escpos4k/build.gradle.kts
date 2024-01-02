@@ -85,6 +85,12 @@ kotlin {
         implementation(libs.kotest.runner.junit5)
       }
     }
+    val jvmTest by getting {
+      dependencies {
+        implementation(libs.kotlin.test.junit)
+        implementation(libs.kotest.runner.junit5)
+      }
+    }
   }
 }
 
