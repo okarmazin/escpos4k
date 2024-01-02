@@ -1,6 +1,6 @@
 [versions]
 androidCoreDesugaring = "2.0.3"
-androidGradlePlugin = "8.0.2"
+androidGradlePlugin = "8.2.0"
 androidCompileSdk = "31"
 androidMinSdk = "23"
 androidTargetSdk = "33"
