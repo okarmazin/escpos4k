@@ -26,14 +26,14 @@ public sealed interface BluetoothError {
    *
    * Android note: This happens when `getSystemService(BLUETOOTH) == null`.
    */
-  public object BluetoothNotAvailable : BluetoothError
+  public data object BluetoothNotAvailable : BluetoothError
 
   /**
    * The current device has Bluetooth capabilities but Bluetooth is turned off.
    *
    * Android note: This happens when `BluetoothAdapter.state != STATE_ON`
    */
-  public object BluetoothOff : BluetoothError
+  public data object BluetoothOff : BluetoothError
 
   /**
    * The operating system denied access to Bluetooth. The application should request this permission
@@ -43,7 +43,7 @@ public sealed interface BluetoothError {
    * permission was not granted. On lower API levels the access should be granted automatically by
    * the OS.
    */
-  public object AccessDenied : BluetoothError
+  public data object AccessDenied : BluetoothError
 
   /**
    * The device could not be found by the operating system. It may have been disconnected after

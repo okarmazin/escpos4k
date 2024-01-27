@@ -53,7 +53,7 @@ internal sealed class Command {
    * Print buffer is cleared Data buffer contents are preserved NV graphics (NV bit image)
    * information is maintained. User NV memory data is maintained.
    */
-  object Initialize : Command() {
+  data object Initialize : Command() {
     override fun bytes(): ByteArray = byteArrayOf(27, 64)
   }
 
@@ -214,7 +214,7 @@ internal sealed class Command {
     }
   }
 
-  object Cut : Command() {
+  data object Cut : Command() {
     override fun bytes(): ByteArray = byteArrayOf(29, 86, 1)
   }
 

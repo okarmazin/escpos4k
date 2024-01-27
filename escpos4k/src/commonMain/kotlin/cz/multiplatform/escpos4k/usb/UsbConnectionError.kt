@@ -20,5 +20,5 @@ public sealed class UsbConnectionError {
   /**
    * The connection has been closed and is no longer usable.
    */
-  public object ConnectionClosed : UsbConnectionError()
+  public data object ConnectionClosed : UsbConnectionError()
 }

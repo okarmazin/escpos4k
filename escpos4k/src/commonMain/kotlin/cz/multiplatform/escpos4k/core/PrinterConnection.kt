@@ -39,11 +39,11 @@ public suspend fun PrinterConnection.print(
 }
 
 public sealed class ConnectionError {
-  public object NotAPrinter : ConnectionError()
-  public object FailedToOpenDevice : ConnectionError()
+  public data object NotAPrinter : ConnectionError()
+  public data object FailedToOpenDevice : ConnectionError()
 }
 
 public sealed class PrintError {
-  public object NotConnected : PrintError()
-  public object NotAPrinter : PrintError()
+  public data object NotConnected : PrintError()
+  public data object NotAPrinter : PrintError()
 }

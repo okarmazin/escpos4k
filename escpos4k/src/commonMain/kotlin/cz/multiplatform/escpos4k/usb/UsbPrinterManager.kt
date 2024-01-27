@@ -135,8 +135,8 @@ internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndp
 }
 
 internal sealed class EndpointSearchError {
-  object InvalidDeviceClass : EndpointSearchError()
-  object BulkOutNotFound : EndpointSearchError()
+  data object InvalidDeviceClass : EndpointSearchError()
+  data object BulkOutNotFound : EndpointSearchError()
   class DisqualifyingInterfaceFound(val cause: UsbInterface) : EndpointSearchError()
 }
 
