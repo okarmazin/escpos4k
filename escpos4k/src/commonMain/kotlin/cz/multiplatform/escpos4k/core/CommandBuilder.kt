@@ -402,7 +402,7 @@ public class CommandBuilder(
    * appropriate number of spaces in between the fragments and then printing this spaced out text as
    * a single line.
    *
-   * @see twoColumnLine
+   * @see segmentedLine
    * @see TextAlignment
    */
   public fun textAlign(alignment: TextAlignment) {
