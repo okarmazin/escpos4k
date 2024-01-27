@@ -74,6 +74,7 @@ import cz.multiplatform.escpos4k.core.LineDistributionStrategy.Companion.SpaceEv
  *
  * **NOTE**: This class is **not** thread safe.
  */
+@ExperimentalEscPosApi
 @Suppress("MemberVisibilityCanBePrivate")
 public class CommandBuilder(
     public val config: PrinterConfiguration,

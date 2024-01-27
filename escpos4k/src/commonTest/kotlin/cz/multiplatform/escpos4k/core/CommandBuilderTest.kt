@@ -3,6 +3,7 @@ package cz.multiplatform.escpos4k.core
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 
+@OptIn(ExperimentalEscPosApi::class)
 class CommandBuilderTest : FunSpec() {
   private val defaultConfig = PrinterConfiguration(32)
   private val initSequence = listOf(Command.Initialize, Command.SelectCharset(Charset.default))

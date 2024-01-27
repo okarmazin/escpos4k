@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core
 
 /** A collection of attributes describing the basic properties of a printer. */
+@ExperimentalEscPosApi
 public data class PrinterConfiguration(
     //    /**
     //     * Dots Per Inch - resolution of this printer. The typical value is `203 DPI == 8 Dots Per

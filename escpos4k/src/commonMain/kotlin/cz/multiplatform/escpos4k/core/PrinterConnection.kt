@@ -30,6 +30,7 @@ public interface PrinterConnection {
 }
 
 /** Build and print the [content]. */
+@ExperimentalEscPosApi
 public suspend fun PrinterConnection.print(
     config: PrinterConfiguration,
     content: CommandBuilder.() -> Unit
