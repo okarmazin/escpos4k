@@ -19,6 +19,7 @@ package cz.multiplatform.escpos4k.tcp
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import cz.multiplatform.escpos4k.core.ExperimentalEscPosApi
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
@@ -31,6 +32,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
+@ExperimentalEscPosApi
 public interface TcpPrinterManager {
   /**
    * Open a TCP connection to the specified address. You are responsible for closing the connection
@@ -48,8 +50,10 @@ public interface TcpPrinterManager {
   ): Either<TcpError, TcpPrinterConnection>
 }
 
+@ExperimentalEscPosApi
 public fun TcpPrinterManager(): TcpPrinterManager = TcpPrinterManagerImpl()
 
+@OptIn(ExperimentalEscPosApi::class)
 private class TcpPrinterManagerImpl : TcpPrinterManager {
   override suspend fun openConnection(
       name: String,
