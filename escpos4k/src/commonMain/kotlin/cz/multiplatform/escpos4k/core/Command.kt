@@ -20,7 +20,7 @@ internal sealed class Command {
   abstract fun bytes(): ByteArray
 
   class Text(private val text: String, charset: Charset) : Command() {
-    private val encodedBytes: ByteArray by lazy { encode(text, charset) }
+    private val encodedBytes: ByteArray by lazy { text.encode(charset) }
 
     override fun bytes(): ByteArray = encodedBytes.copyOf()
 
