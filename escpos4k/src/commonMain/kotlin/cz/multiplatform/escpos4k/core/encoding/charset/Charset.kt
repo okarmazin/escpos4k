@@ -32,7 +32,7 @@ public sealed class Charset(
     public val ianaName: String
 ) {
   public companion object {
-    internal val default = CP437
+    internal val default = IBM437
   }
 
   internal abstract val mapping: Map<Char, Int>

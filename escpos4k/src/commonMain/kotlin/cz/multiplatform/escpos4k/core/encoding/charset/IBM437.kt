@@ -17,7 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 0 [CP437: USA, Standard Europe] */
-public data object CP437 : Charset(0, "IBM437") {
+public data object IBM437 : Charset(0, "IBM437") {
   override val mapping: Map<Char, Int> =
       mapOf(
           '\u00C7' to 0x80,
