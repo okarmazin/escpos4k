@@ -16,8 +16,6 @@
 
 package cz.multiplatform.escpos4k.core
 
-internal expect fun encode(text: String, charset: Charset): ByteArray
-
 private const val replacement = '?'
 private const val replacementByte = replacement.code.toByte()
 
