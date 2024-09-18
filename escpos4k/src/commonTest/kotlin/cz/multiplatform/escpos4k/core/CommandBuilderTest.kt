@@ -1,5 +1,6 @@
 package cz.multiplatform.escpos4k.core
 
+import cz.multiplatform.escpos4k.core.encoding.charset.CP850
 import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -33,14 +34,12 @@ class CommandBuilderTest : FunSpec() {
         val builder =
             CommandBuilder(defaultConfig) {
               charset(Charset.default)
-              charset(Charset.CP850)
-              charset(Charset.CP850)
+              charset(CP850)
+              charset(CP850)
               charset(Charset.Windows1251)
             }
         builder.commands shouldContainExactly
-            initSequence +
-                Command.SelectCharset(Charset.CP850) +
-                Command.SelectCharset(Charset.Windows1251)
+            initSequence + Command.SelectCharset(CP850) + Command.SelectCharset(Charset.Windows1251)
       }
     }
 
@@ -49,8 +48,8 @@ class CommandBuilderTest : FunSpec() {
         val builder =
             CommandBuilder(defaultConfig) {
               withCharset(Charset.default) {
-                withCharset(Charset.CP850) {
-                  withCharset(Charset.CP850) {
+                withCharset(CP850) {
+                  withCharset(CP850) {
                     withCharset(Charset.Windows1251) {
                       text("innermost") //
                     }
@@ -61,10 +60,10 @@ class CommandBuilderTest : FunSpec() {
 
         builder.commands shouldContainExactly
             initSequence +
-                Command.SelectCharset(Charset.CP850) +
+                Command.SelectCharset(CP850) +
                 Command.SelectCharset(Charset.Windows1251) +
                 Command.Text("innermost", Charset.Windows1251) +
-                Command.SelectCharset(Charset.CP850) +
+                Command.SelectCharset(CP850) +
                 Command.SelectCharset(Charset.default)
       }
     }
