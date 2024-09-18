@@ -17,7 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 2 [CP850: Multilingual] */
-public data object CP850 : Charset(2, "IBM850") {
+public data object IBM850 : Charset(2, "IBM850") {
   override val mapping: Map<Char, Int> =
       mapOf(
           '\u00C7' to 0x80,
