@@ -16,6 +16,8 @@
 
 package cz.multiplatform.escpos4k.core
 
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
+
 private const val replacement = '?'
 private const val replacementByte = replacement.code.toByte()
 

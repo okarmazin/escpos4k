@@ -1,5 +1,6 @@
 package cz.multiplatform.escpos4k.core
 
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 

@@ -16,6 +16,8 @@
 
 package cz.multiplatform.escpos4k.core
 
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
+
 internal sealed class Command {
   abstract fun bytes(): ByteArray
 

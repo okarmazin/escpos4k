@@ -20,6 +20,7 @@ import arrow.core.Nel
 import arrow.core.nonEmptyListOf
 import arrow.core.toNonEmptyListOrNull
 import cz.multiplatform.escpos4k.core.LineDistributionStrategy.Companion.SpaceEvenly
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 
 /**
  * The central class for building the content to send to the printer. The class provides a variety

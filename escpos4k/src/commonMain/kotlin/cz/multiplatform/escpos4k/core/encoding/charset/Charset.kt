@@ -1,5 +1,5 @@
 /*
- *    Copyright 2023 Ondřej Karmazín
+ *    Copyright 2024 Ondřej Karmazín
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package cz.multiplatform.escpos4k.core
+package cz.multiplatform.escpos4k.core.encoding.charset
 
 public sealed class Charset(
     /**
