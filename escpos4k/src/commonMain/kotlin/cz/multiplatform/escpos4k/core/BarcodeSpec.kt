@@ -39,8 +39,8 @@ import cz.multiplatform.escpos4k.core.BarcodeSpec.UPCASpec.Companion.create
  *
  *   // Print the QR code or an error:
  *   qrCode
- *     .tap(::barcode)
- *     .tapLeft { err ->
+ *     .onRight(::barcode)
+ *     .onLeft { err ->
  *       line("Could not construct QR code:")
  *       line(err.toString())
  *     }

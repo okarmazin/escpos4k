@@ -62,8 +62,8 @@ import cz.multiplatform.escpos4k.core.encoding.charset.Charset
  *   val qrCode: Either<QRCodeError, QRCodeSpec> = BarcodeSpec.QRCodeSpec("Hello from the QR Code!")
  *   // Print the QR code or an error:
  *   qrCode
- *     .tap(::barcode)
- *     .tapLeft { err ->
+ *     .onRight(::barcode)
+ *     .onLeft { err ->
  *       line("Could not construct QR code:")
  *       line(err.toString())
  *   }
