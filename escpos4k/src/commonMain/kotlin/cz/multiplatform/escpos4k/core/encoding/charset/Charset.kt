@@ -1,5 +1,5 @@
 /*
- *    Copyright 2023 Ondřej Karmazín
+ *    Copyright 2024 Ondřej Karmazín
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  *    limitations under the License.
  */
 
-package cz.multiplatform.escpos4k.core
+package cz.multiplatform.escpos4k.core.encoding.charset
 
-public enum class Charset(
-
+public sealed class Charset(
     /**
      * Code page number according to ESC/POS specification.
      *
@@ -30,25 +29,16 @@ public enum class Charset(
      *
      * https://www.iana.org/assignments/character-sets/character-sets.xhtml
      */
-    public val ianaName: String,
+    public val ianaName: String
 ) {
-  /** Page 0 [CP437: USA, Standard Europe] */
-  CP437(0, "IBM437"),
+  public companion object {
+    internal val default = IBM437
+  }
+
+  internal abstract val mapping: Map<Char, Int>
 
   //  /** Page 1 [Katakana] */
   //  Katakana(1, TODO()),
-
-  /** Page 2 [CP850: Multilingual] */
-  CP850(2, "IBM850"),
-
-  /** Page 3 [CP860: Portuguese] */
-  CP860(3, "IBM860"),
-
-  /** Page 4 [CP863: Canadian-French] */
-  CP863(4, "IBM863"),
-
-  /** Page 5 [CP865: Nordic] */
-  CP865(5, "IBM865"),
 
   //  /** Page 6 [Hiragana] */
   //  Hiragana(6, TODO()),
@@ -59,32 +49,14 @@ public enum class Charset(
   //  /** Page 8 [One-pass printing Kanji characters] */
   //  Kanji_2(8, TODO()),
 
-  /** Page 11 [CP851: Greek] */
-  CP851(11, "IBM851"),
+  //  /** Page 11 [CP851: Greek] */
+  //  CP851(11, "IBM851"),
 
-  /** Page 12 [CP853: Turkish] */
-  CP853(12, "IBM853"),
-
-  //  /** Page 13 [CP857: Turkish] */
-  //  CP857(13, TODO()),
+  //  /** Page 12 [CP853: Turkish] */
+  //  CP853(12, "IBM853"),
 
   //  /** Page 14 [CP737: Greek] */
   //  CP737(14, TODO()),
-
-  /** Page 15 [ISO8859-7: Greek] */
-  ISO_8859_7(15, "ISO-8859-7"),
-
-  /** Page 16 [Windows-1252] */
-  Windows1252(16, "windows-1252"),
-
-  /** Page 17 [CP866: Cyrillic #2] */
-  CP866(17, "IBM866"),
-
-  /** Page 18 [CP852: Latin 2] */
-  CP852(18, "IBM852"),
-
-  /** Page 19 [CP858: Euro] */
-  CP858(19, "IBM00858"), // Note: two leading zeros
 
   //  /** Page 20 [Thai Character Code 42] */
   //  Thai_42(20),
@@ -116,30 +88,6 @@ public enum class Charset(
   //  /** Page 32 [CP720: Arabic] */
   //  CP720(32),
 
-  /** Page 33 [CP775: Baltic Rim] */
-  CP775(33, "IBM775"),
-
-  /** Page 34 [CP855: Cyrillic] */
-  CP855(34, "IBM855"),
-
-  /** Page 35 [CP861: Icelandic] */
-  CP861(35, "IBM861"),
-
-  /** Page 36 [CP862: Hebrew] */
-  CP862(36, "IBM862"),
-
-  /** Page 37 [CP864: Arabic] */
-  CP864(37, "IBM864"),
-
-  /** Page 38 [CP869: Greek] */
-  CP869(38, "IBM869"),
-
-  /** Page 39 [ISO8859-2: Latin 2] */
-  ISO8859_2(39, "ISO-8859-2"),
-
-  /** Page 40 [ISO8859-15: Latin 9] */
-  ISO8859_15(40, "ISO-8859-15"),
-
   //  /** Page 41 [CP1098: Farsi] */
   //  CP1098(41, TODO()),
 
@@ -152,32 +100,8 @@ public enum class Charset(
   //  /** Page 44 [CP1125: Ukrainian] */
   //  CP1125(44),
 
-  /** Page 45 [Windows-1250] */
-  Windows1250(45, "windows-1250"),
-
-  /** Page 46 [Windows-1251] */
-  Windows1251(46, "windows-1251"),
-
-  /** Page 47 [Windows-1253] */
-  Windows1253(47, "windows-1253"),
-
-  /** Page 48 [Windows-1254] */
-  Windows1254(48, "windows-1254"),
-
-  /** Page 49 [Windows-1255] */
-  Windows1255(49, "windows-1255"),
-
-  /** Page 50 [Windows-1256] */
-  Windows1256(50, "windows-1256"),
-
-  /** Page 51 [Windows-1257] */
-  Windows1257(51, "windows-1257"),
-
-  /** Page 52 [Windows-1258] */
-  Windows1258(52, "windows-1258"),
-
-  /** Page 53 [KZ-1048: Kazakhstan] */
-  KZ1048(52, "KZ-1048");
+  //  /** Page 53 [KZ-1048: Kazakhstan] */
+  //  KZ1048(52, "KZ-1048");
 
   //  /** Page 66 [Devanagari] */
   //  Devanagari(66),
@@ -211,11 +135,4 @@ public enum class Charset(
   //
   //  /** Page 82 [Marathi] */
   //  Marathi(82)
-
-  //  TODO
-  //  public fun encode(text: String): ByteArray = encode(text, this)
-
-  public companion object {
-    internal val default = entries.first()
-  }
 }

@@ -20,6 +20,7 @@ import arrow.core.Nel
 import arrow.core.nonEmptyListOf
 import arrow.core.toNonEmptyListOrNull
 import cz.multiplatform.escpos4k.core.LineDistributionStrategy.Companion.SpaceEvenly
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 
 /**
  * The central class for building the content to send to the printer. The class provides a variety
@@ -43,9 +44,9 @@ import cz.multiplatform.escpos4k.core.LineDistributionStrategy.Companion.SpaceEv
  * val builder = CommandBuilder(defaultConfig) {
  *   // Charsets
  *   line("Famous bridges:")
- *   charset(Charset.CP865) // Can encode Ø, but not ů
+ *   charset(IBM865) // Can encode Ø, but not ů
  *   line("Øresundsbroen: 7845m")
- *   charset(Charset.CP852) // Can encode ů, but not Ø
+ *   charset(IBM852) // Can encode ů, but not Ø
  *   line("Karlův most: 515m")
  *
  *   // Text style - temporary style builder
@@ -162,10 +163,10 @@ public class CommandBuilder(
    * printer.print {
    *   line("Famous bridges:")
    *
-   *   charset(Charset.CP865) // Can encode Ø, but not ů
+   *   charset(IBM865) // Can encode Ø, but not ů
    *   line("Øresundsbroen: 7845m")
    *
-   *   charset(Charset.CP852) // Can encode ů, but not Ø
+   *   charset(IBM852) // Can encode ů, but not Ø
    *   line("Karlův most: 515m")
    * }
    * ```
@@ -192,10 +193,10 @@ public class CommandBuilder(
    *   line("Famous bridges")
    *
    *   // 865 can encode Ø, but not ů
-   *   charset(Charset.CP865)
+   *   charset(IBM865)
    *   line("Øresundsbroen: 7845m")
    *
-   *   withCharset(Charset.CP852) {
+   *   withCharset(IBM852) {
    *     // 852 can encode ů, but not Ø
    *     line("Karlův most: 515m")
    *   }

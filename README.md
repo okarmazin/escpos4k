@@ -38,12 +38,12 @@ suspend fun awaitPrint(): MyError? {
   val libraryError: PrintError? = connection.print(configuration) {       // (2)
     // MULTIPLE TEXT ALIGNMENTS PER LINE
     line("Famous bridges:")
-    charset(Charset.CP865) // Can encode Ø, but not ů
+    charset(IBM865) // Can encode Ø, but not ů
     segmentedLine(
       LineSegment("Øresundsbroen", TextAlignment.LEFT),
       LineSegment("7845m", TextAlignment.RIGHT),
     )
-    charset(Charset.CP852) // Can encode ů, but not Ø
+    charset(IBM852) // Can encode ů, but not Ø
     segmentedLine(
       LineSegment("Karlův most", TextAlignment.LEFT),
       LineSegment("515m", TextAlignment.RIGHT),

@@ -16,11 +16,14 @@
 
 package cz.multiplatform.escpos4k.core
 
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
+import cz.multiplatform.escpos4k.core.encoding.encode
+
 internal sealed class Command {
   abstract fun bytes(): ByteArray
 
   class Text(private val text: String, charset: Charset) : Command() {
-    private val encodedBytes: ByteArray by lazy { encode(text, charset) }
+    private val encodedBytes: ByteArray by lazy { text.encode(charset) }
 
     override fun bytes(): ByteArray = encodedBytes.copyOf()
 

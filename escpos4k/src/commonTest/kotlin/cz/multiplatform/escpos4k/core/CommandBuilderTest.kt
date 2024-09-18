@@ -1,5 +1,8 @@
 package cz.multiplatform.escpos4k.core
 
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
+import cz.multiplatform.escpos4k.core.encoding.charset.IBM850
+import cz.multiplatform.escpos4k.core.encoding.charset.Windows1251
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 
@@ -32,14 +35,12 @@ class CommandBuilderTest : FunSpec() {
         val builder =
             CommandBuilder(defaultConfig) {
               charset(Charset.default)
-              charset(Charset.CP850)
-              charset(Charset.CP850)
-              charset(Charset.Windows1251)
+              charset(IBM850)
+              charset(IBM850)
+              charset(Windows1251)
             }
         builder.commands shouldContainExactly
-            initSequence +
-                Command.SelectCharset(Charset.CP850) +
-                Command.SelectCharset(Charset.Windows1251)
+            initSequence + Command.SelectCharset(IBM850) + Command.SelectCharset(Windows1251)
       }
     }
 
@@ -48,9 +49,9 @@ class CommandBuilderTest : FunSpec() {
         val builder =
             CommandBuilder(defaultConfig) {
               withCharset(Charset.default) {
-                withCharset(Charset.CP850) {
-                  withCharset(Charset.CP850) {
-                    withCharset(Charset.Windows1251) {
+                withCharset(IBM850) {
+                  withCharset(IBM850) {
+                    withCharset(Windows1251) {
                       text("innermost") //
                     }
                   }
@@ -60,10 +61,10 @@ class CommandBuilderTest : FunSpec() {
 
         builder.commands shouldContainExactly
             initSequence +
-                Command.SelectCharset(Charset.CP850) +
-                Command.SelectCharset(Charset.Windows1251) +
-                Command.Text("innermost", Charset.Windows1251) +
-                Command.SelectCharset(Charset.CP850) +
+                Command.SelectCharset(IBM850) +
+                Command.SelectCharset(Windows1251) +
+                Command.Text("innermost", Windows1251) +
+                Command.SelectCharset(IBM850) +
                 Command.SelectCharset(Charset.default)
       }
     }
