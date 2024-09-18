@@ -17,7 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 38 [CP869: Greek] */
-public data object CP869 : Charset(38, "IBM869") {
+public data object IBM869 : Charset(38, "IBM869") {
   override val mapping: Map<Char, Int> =
       mapOf(
           '\uFFFD' to 0x80,

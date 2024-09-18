@@ -17,7 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 37 [CP864: Arabic] */
-public data object CP864 : Charset(37, "IBM864") {
+public data object IBM864 : Charset(37, "IBM864") {
   override val mapping: Map<Char, Int> =
       mapOf(
           '\u00B0' to 0x80,
