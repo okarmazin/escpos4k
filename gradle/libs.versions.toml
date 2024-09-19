@@ -1,23 +1,26 @@
 [versions]
+androidCompileSdk = "31"
 androidCoreDesugaring = "2.0.3"
 androidGradlePlugin = "8.2.0"
-androidCompileSdk = "31"
 androidMinSdk = "23"
 androidTargetSdk = "33"
 arrow = "1.2.1"
 coroutines = "1.7.3"
 dependencyUpdates = "0.50.0"
+kotest = "5.9.0"
+kotest-arrow = "1.4.0"
 kotlin = "1.9.25"
 ktor = "2.3.5"
 vanniktechPublishing = "0.25.3"
-kotest = "5.8.0"
 
 
 [libraries]
 androidDesugaring = { module = "com.android.tools:desugar_jdk_libs", version.ref = "androidCoreDesugaring" }
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 
+kotest-assertions-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotest-arrow" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-assertions-collections = { module = "io.kotest:kotest-assertions-collections", version.ref = "kotest" }
 kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }

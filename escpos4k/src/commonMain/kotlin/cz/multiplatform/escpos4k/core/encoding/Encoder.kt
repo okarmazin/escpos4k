@@ -38,6 +38,8 @@ internal fun String.encode(charset: Charset): ByteArray {
             char.code.toByte()
           }
 
+          char == '\uFFFD' -> replacementByte
+
           // Page-specific characters
           else -> {
             val byte = charset.mapping[char]?.toByte()

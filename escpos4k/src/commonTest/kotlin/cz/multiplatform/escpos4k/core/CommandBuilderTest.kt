@@ -26,10 +26,6 @@ class CommandBuilderTest : FunSpec() {
 
     // todo line
 
-    // todo twoColumnLine
-
-    // todo twoColumnText
-
     context("charset") {
       test("style is not applied if same as current") {
         val builder =
