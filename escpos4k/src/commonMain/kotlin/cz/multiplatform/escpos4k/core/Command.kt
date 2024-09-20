@@ -33,9 +33,7 @@ internal sealed class Command {
 
       other as Text
 
-      if (!encodedBytes.contentEquals(other.encodedBytes)) return false
-
-      return true
+      return encodedBytes.contentEquals(other.encodedBytes)
     }
 
     override fun hashCode(): Int {
@@ -71,9 +69,7 @@ internal sealed class Command {
 
       other as Underline
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -96,9 +92,7 @@ internal sealed class Command {
 
       other as Italics
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -121,9 +115,7 @@ internal sealed class Command {
 
       other as Bold
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -146,9 +138,7 @@ internal sealed class Command {
 
       other as SelectCharset
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -171,9 +161,7 @@ internal sealed class Command {
 
       other as Justify
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -203,9 +191,7 @@ internal sealed class Command {
 
       other as TextSize
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -251,9 +237,7 @@ internal sealed class Command {
 
       other as QRCode
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -295,9 +279,7 @@ internal sealed class Command {
 
       other as AztecCode
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -337,9 +319,7 @@ internal sealed class Command {
 
       other as DataMatrix
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -379,9 +359,7 @@ internal sealed class Command {
 
       other as UPCA
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -421,9 +399,7 @@ internal sealed class Command {
 
       other as EAN13
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
@@ -463,9 +439,7 @@ internal sealed class Command {
 
       other as EAN8
 
-      if (!content.contentEquals(other.content)) return false
-
-      return true
+      return content.contentEquals(other.content)
     }
 
     override fun hashCode(): Int {
