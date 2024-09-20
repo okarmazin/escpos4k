@@ -74,7 +74,7 @@ import cz.multiplatform.escpos4k.core.encoding.charset.Charset
  * **NOTE**: This class is **not** thread safe.
  */
 @ExperimentalEscPosApi
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "TooManyFunctions")
 public class CommandBuilder(public val config: PrinterConfiguration, content: CommandBuilder.() -> Unit = {}) {
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
@@ -479,13 +479,13 @@ public class CommandBuilder(public val config: PrinterConfiguration, content: Co
     // than its allotted space. Iterate row wise, each row in the 2D structure is a segmented
     // line to be laid out.
     val numRows = splitSegments.maxOf { it.size }
-    (0 until numRows)
-        .map { rowIdx ->
+    for (i in 0..<numRows) {
+      val line =
           splitSegments.map { column ->
-            column.elementAtOrElse(rowIdx) { LineSegment("", TextAlignment.LEFT) to column.head.second }
+            column.elementAtOrElse(i) { LineSegment("", TextAlignment.LEFT) to column.head.second }
           }
-        }
-        .forEach(::renderSegmentedLine)
+      renderSegmentedLine(line)
+    }
   }
 
   /** Please see the sibling `segmentedLine(segments)` function for full info. */

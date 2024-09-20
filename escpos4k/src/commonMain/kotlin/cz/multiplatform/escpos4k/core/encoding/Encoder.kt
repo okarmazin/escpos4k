@@ -18,8 +18,8 @@ package cz.multiplatform.escpos4k.core.encoding
 
 import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 
-private const val replacement = '?'
-private const val replacementByte = replacement.code.toByte()
+private const val REPLACEMENT_CHAR = '?'
+private const val REPLACEMENT_BYTE = REPLACEMENT_CHAR.code.toByte()
 
 internal fun String.encode(charset: Charset): ByteArray {
   val output = ByteArray(length)
@@ -30,8 +30,8 @@ internal fun String.encode(charset: Charset): ByteArray {
         when {
           // 0..31 are control characters, always replaced
           char.code < 32 -> {
-            log("Replacing control character '${char.code}' at index $index with '$replacement'.")
-            replacementByte
+            log("Replacing control character '${char.code}' at index $index with '$REPLACEMENT_CHAR'.")
+            REPLACEMENT_BYTE
           }
 
           // Printable ASCII up to 127
@@ -39,17 +39,18 @@ internal fun String.encode(charset: Charset): ByteArray {
             char.code.toByte()
           }
 
-          char == '\uFFFD' -> replacementByte
+          char == '\uFFFD' -> REPLACEMENT_BYTE
 
           // Page-specific characters
           else -> {
             val byte = charset.mapping[char]?.toByte()
             if (byte == null) {
-              log(
-                  "[${charset.ianaName}] Replacing unmappable code unit '${char.code}' at index $index with '$replacement'"
-              )
+              val msg =
+                  "[${charset.ianaName}] Replacing unmappable code unit '${char.code}' " +
+                      "at index $index with '$REPLACEMENT_CHAR'"
+              log(msg)
             }
-            byte ?: replacementByte
+            byte ?: REPLACEMENT_BYTE
           }
         }
 

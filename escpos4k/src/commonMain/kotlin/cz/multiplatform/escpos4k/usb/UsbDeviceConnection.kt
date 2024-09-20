@@ -22,6 +22,7 @@ import arrow.core.right
 import kotlin.experimental.and
 import kotlin.jvm.JvmName
 
+@Suppress("TooManyFunctions")
 public abstract class UsbDeviceConnection(public val device: UsbDevice) {
   public var isOpen: Boolean = true
     private set

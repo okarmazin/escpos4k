@@ -17,7 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 40 [ISO8859-15: Latin 9] */
-@Suppress("MagicNumber")
+@Suppress("MagicNumber", "ClassName")
 public data object ISO_8859_15 : Charset(40, "ISO-8859-15") {
   override val mapping: Map<Char, Int> =
       mapOf(

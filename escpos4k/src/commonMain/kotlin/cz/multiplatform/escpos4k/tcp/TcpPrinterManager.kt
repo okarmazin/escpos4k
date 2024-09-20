@@ -43,6 +43,7 @@ public interface TcpPrinterManager {
 // public fun TcpPrinterManager(): TcpPrinterManager = TcpPrinterManagerImpl()
 
 @OptIn(ExperimentalEscPosApi::class)
+@Suppress("UnusedPrivateClass")
 private class TcpPrinterManagerImpl : TcpPrinterManager {
   override suspend fun openConnection(
       name: String,

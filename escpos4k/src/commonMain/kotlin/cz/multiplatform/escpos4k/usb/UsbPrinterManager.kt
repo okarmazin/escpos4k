@@ -67,6 +67,7 @@ internal abstract class AbstractUsbPrinterManager : UsbPrinterManager {
  * Note: If this function returns `null`, it does not mean that the device is not a printer. It only means that our
  * detection algorithm didn't figure it out.
  */
+@Suppress("ReturnCount")
 internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndpoint> {
   if (deviceClass !in setOf(UsbClass.DefinedByInterface, UsbClass.VendorSpecific)) {
     return EndpointSearchError.InvalidDeviceClass.left()

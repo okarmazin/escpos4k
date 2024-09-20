@@ -19,7 +19,7 @@ package cz.multiplatform.escpos4k.core
 import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 import cz.multiplatform.escpos4k.core.encoding.encode
 
-@Suppress("MagicNumber")
+@Suppress("MagicNumber", "SpreadOperator")
 internal sealed class Command {
   abstract fun bytes(): ByteArray
 
