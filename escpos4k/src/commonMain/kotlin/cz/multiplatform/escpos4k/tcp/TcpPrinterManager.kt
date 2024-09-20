@@ -17,20 +17,9 @@
 package cz.multiplatform.escpos4k.tcp
 
 import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
 import cz.multiplatform.escpos4k.core.ExperimentalEscPosApi
-import io.ktor.network.selector.*
-import io.ktor.network.sockets.*
-import io.ktor.utils.io.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 
 @ExperimentalEscPosApi
 public interface TcpPrinterManager {
@@ -50,8 +39,8 @@ public interface TcpPrinterManager {
   ): Either<TcpError, TcpPrinterConnection>
 }
 
-@ExperimentalEscPosApi //
-public fun TcpPrinterManager(): TcpPrinterManager = TcpPrinterManagerImpl()
+// @ExperimentalEscPosApi //
+// public fun TcpPrinterManager(): TcpPrinterManager = TcpPrinterManagerImpl()
 
 @OptIn(ExperimentalEscPosApi::class)
 private class TcpPrinterManagerImpl : TcpPrinterManager {
@@ -62,29 +51,32 @@ private class TcpPrinterManagerImpl : TcpPrinterManager {
       connectTimeout: Duration,
       readWriteTimeout: Duration,
   ): Either<TcpError, TcpPrinterConnection> {
-    return withContext(Dispatchers.Default) {
-      var socket: Socket? = null
-      try {
-        withTimeout(connectTimeout) {
-          socket = aSocket(SelectorManager(Dispatchers.Default)).tcp().connect(ipAddress, port)
-        }
-        currentCoroutineContext().ensureActive()
-        return@withContext TcpPrinterConnection(socket!!.connection(), name, ipAddress, port).right()
-      } catch (cause: Throwable) {
-        socket?.close()
-
-        when (cause) {
-          is TimeoutCancellationException -> {
-            return@withContext TcpError.ConnectionTimeout.left()
-          }
-          is CancellationException -> {
-            throw cause
-          }
-          else -> {
-            return@withContext TcpError.Unknown(cause).left()
-          }
-        }
-      }
-    }
+    TODO()
+    //    return withContext(Dispatchers.Default) {
+    //      var socket: Socket? = null
+    //      try {
+    //        withTimeout(connectTimeout) {
+    //          socket = aSocket(SelectorManager(Dispatchers.Default)).tcp().connect(ipAddress,
+    // port)
+    //        }
+    //        currentCoroutineContext().ensureActive()
+    //        return@withContext TcpPrinterConnection(socket!!.connection(), name, ipAddress,
+    // port).right()
+    //      } catch (cause: Throwable) {
+    //        socket?.close()
+    //
+    //        when (cause) {
+    //          is TimeoutCancellationException -> {
+    //            return@withContext TcpError.ConnectionTimeout.left()
+    //          }
+    //          is CancellationException -> {
+    //            throw cause
+    //          }
+    //          else -> {
+    //            return@withContext TcpError.Unknown(cause).left()
+    //          }
+    //        }
+    //      }
+    //    }
   }
 }

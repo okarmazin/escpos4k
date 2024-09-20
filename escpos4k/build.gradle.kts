@@ -65,7 +65,7 @@ kotlin {
       dependencies {
         api(libs.arrow.core)
         implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.ktor.network)
+//        implementation(libs.ktor.network)
       }
     }
     val commonTest by getting {

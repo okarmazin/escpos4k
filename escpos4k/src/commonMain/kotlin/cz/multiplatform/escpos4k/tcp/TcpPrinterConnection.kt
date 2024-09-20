@@ -18,48 +18,45 @@ package cz.multiplatform.escpos4k.tcp
 
 import cz.multiplatform.escpos4k.core.PrintError
 import cz.multiplatform.escpos4k.core.PrinterConnection
-import io.ktor.network.sockets.Connection
-import io.ktor.network.sockets.isClosed
-import io.ktor.utils.io.writeFully
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 public class TcpPrinterConnection
 internal constructor(
-    private val connection: Connection,
+    //    private val connection: Connection,
     override val name: String,
     public val address: String,
     public val port: Int,
 ) : PrinterConnection {
   override val isOpen: Boolean
-    get() = !connection.socket.isClosed
+    get() = TODO() // !connection.socket.isClosed
 
   override suspend fun printRaw(bytes: ByteArray): PrintError? {
-    return withContext(Dispatchers.Default) {
-      if (!isOpen) {
-        return@withContext PrintError.NotConnected
-      }
-
-      try {
-        with(connection.output) {
-          writeFully(bytes)
-          flush()
-        }
-      } catch (t: Throwable) {
-        close()
-        return@withContext PrintError.NotConnected
-      }
-
-      return@withContext null
-    }
+    TODO()
+    //    return withContext(Dispatchers.Default) {
+    //      if (!isOpen) {
+    //        return@withContext PrintError.NotConnected
+    //      }
+    //
+    //      try {
+    //        with(connection.output) {
+    //          writeFully(bytes)
+    //          flush()
+    //        }
+    //      } catch (t: Throwable) {
+    //        close()
+    //        return@withContext PrintError.NotConnected
+    //      }
+    //
+    //      return@withContext null
+    //    }
   }
 
   public fun close() {
-    try {
-      connection.socket.close()
-    } catch (t: Throwable) {
-      // Ignore close errors.
-    }
+    TODO()
+    //    try {
+    //      connection.socket.close()
+    //    } catch (t: Throwable) {
+    //      // Ignore close errors.
+    //    }
   }
 
   override fun toString(): String {
