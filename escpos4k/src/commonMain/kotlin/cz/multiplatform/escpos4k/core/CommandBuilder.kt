@@ -83,17 +83,15 @@ public class CommandBuilder(public val config: PrinterConfiguration, content: Co
     content()
   }
 
-  /**
-   * Prepare the raw ESC/POS commands. The resulting ByteArray can be sent directly to a printer.
-   *
-   * Use this function to obtain the bytes for a printer after you build your content using the builders.
-   */
+  /** Prepare the raw ESC/POS commands. The resulting ByteArray can be sent directly to an ESC/POS printer. */
   public fun bytes(): ByteArray {
     return commands.flatMap { it.bytes().asSequence() }.toByteArray()
   }
 
   private inline fun <reified T> List<Command>.lastOfTypeOrNull(): T? =
       asReversed().asSequence().filterIsInstance<T>().firstOrNull()
+
+  private fun newline() = commands.add(Command.Newline)
 
   /**
    * Print a piece of text without terminating the line. The supplied Kotlin `String` will be encoded to single-byte
@@ -145,7 +143,8 @@ public class CommandBuilder(public val config: PrinterConfiguration, content: Co
    * @see text
    */
   public fun line(text: String) {
-    text(text + "\n")
+    text(text)
+    newline()
   }
 
   /**
@@ -524,7 +523,7 @@ public class CommandBuilder(public val config: PrinterConfiguration, content: Co
         }
       }
     }
-    text("\n")
+    newline()
   }
 }
 

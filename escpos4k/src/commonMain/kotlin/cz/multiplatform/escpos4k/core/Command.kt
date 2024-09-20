@@ -22,6 +22,10 @@ import cz.multiplatform.escpos4k.core.encoding.encode
 internal sealed class Command {
   abstract fun bytes(): ByteArray
 
+  internal data object Newline : Command() {
+    override fun bytes(): ByteArray = byteArrayOf(10)
+  }
+
   class Text(private val text: String, charset: Charset) : Command() {
     private val encodedBytes: ByteArray by lazy { text.encode(charset) }
 

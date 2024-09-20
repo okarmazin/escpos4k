@@ -21,3 +21,5 @@ fun <A, B> Either<A, B>.shouldBeRight(expected: B) {
 fun <A, B> Either<A, B>.shouldBeRight(): B {
   return shouldBeInstanceOf<Either.Right<B>>().value
 }
+
+fun String.asciiToBytes(): ByteArray = toCharArray().map { it.code.toByte() }.toByteArray()

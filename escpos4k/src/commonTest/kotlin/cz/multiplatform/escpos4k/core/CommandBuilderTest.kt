@@ -4,12 +4,16 @@ import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 import cz.multiplatform.escpos4k.core.encoding.charset.IBM850
 import cz.multiplatform.escpos4k.core.encoding.charset.Windows1251
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 
 @OptIn(ExperimentalEscPosApi::class)
 class CommandBuilderTest : FunSpec() {
   private val defaultConfig = PrinterConfiguration(32)
   private val initSequence = listOf(Command.Initialize, Command.SelectCharset(Charset.default))
+
+  /** Bytes without the InitSequence */
+  private fun CommandBuilder.contentBytes() = bytes().drop(initSequence.sumOf { it.bytes().size })
 
   init {
     test("fresh CommandBuilder initial sequence") {
@@ -18,13 +22,40 @@ class CommandBuilderTest : FunSpec() {
 
     context("text") {
       test("empty string does nothing") {
-        CommandBuilder(defaultConfig) { text("") }.commands shouldContainExactly initSequence
+        val builder = CommandBuilder(defaultConfig) { text("") }
+        builder.commands shouldContainExactly initSequence
+        builder.contentBytes().shouldBeEmpty()
+      }
+      test("output never contains newlines") {
+        val builder = CommandBuilder(defaultConfig) { text("\na\nbcd\n") }
+        builder.commands shouldContainExactly initSequence + Command.Text("\na\nbcd\n", Charset.default)
+        builder.contentBytes() shouldContainExactly "?a?bcd?".asciiToBytes().toList()
       }
     }
 
-    // todo text
+    context("line") {
+      test("empty line contains exactly newline") {
+        val builder = CommandBuilder(defaultConfig) { line("") }
+        builder.commands shouldContainExactly initSequence + Command.Newline
+        builder.contentBytes() shouldContainExactly "\n".asciiToBytes().toList()
+      }
 
-    // todo line
+      test("line contains exactly 1 newline, at the end") {
+        val builder =
+            CommandBuilder(defaultConfig) {
+              line("\nab\ncd")
+              line("\n")
+            }
+        builder.commands shouldContainExactly
+            initSequence +
+                Command.Text("\nab\ncd", Charset.default) +
+                Command.Newline +
+                Command.Text("\n", Charset.default) +
+                Command.Newline
+
+        builder.contentBytes() shouldContainExactly "?ab?cd\n?\n".asciiToBytes().toList()
+      }
+    }
 
     context("charset") {
       test("style is not applied if same as current") {
@@ -252,7 +283,7 @@ class CommandBuilderTest : FunSpec() {
                 Command.Text("                ", Charset.default) +
                 Command.Text("3", Charset.default) +
                 Command.Text("               ", Charset.default) +
-                Command.Text("\n", Charset.default)
+                Command.Newline
       }
 
       test("prints at least 1 char per segment") {
@@ -266,12 +297,12 @@ class CommandBuilderTest : FunSpec() {
                 Command.TextSize(8, 1) +
                 Command.Text("1", Charset.default) +
                 Command.Text("3", Charset.default) +
-                Command.Text("\n", Charset.default) +
+                Command.Newline +
                 Command.Text("2", Charset.default) +
                 Command.TextSize(1, 1) +
                 Command.Text("     ", Charset.default) +
                 Command.TextSize(8, 1) +
-                Command.Text("\n", Charset.default)
+                Command.Newline
       }
     }
   }

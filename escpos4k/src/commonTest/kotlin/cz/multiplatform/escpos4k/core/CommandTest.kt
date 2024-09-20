@@ -14,25 +14,18 @@
  *    limitations under the License.
  */
 
-package cz.multiplatform.escpos4k.core.encoding
+package cz.multiplatform.escpos4k.core
 
-import cz.multiplatform.escpos4k.core.asciiToBytes
-import cz.multiplatform.escpos4k.core.encoding.charset.Windows1252
+import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class EncoderTest :
+class CommandTest :
     FunSpec({
-      context("handling of unicode replacement character") {
-        test("unicode replacement char gets mapped to our replacement char") {
-          "abc\uFFFD".encode(Windows1252) shouldBe "abc?".asciiToBytes()
-          "abc?".encode(Windows1252) shouldBe "abc?".asciiToBytes()
-        }
-      }
-
-      context("handling of unknown characters") {
-        test("unknown char gets mapped to our replacement char") { //
-          "abcě".encode(Windows1252) shouldBe "abc?".asciiToBytes()
+      context("Text") {
+        test("output never contains control characters") {
+          val ctrl = buildString { (0.toChar()..32.toChar()).forEach(::append) }
+          Command.Text(ctrl, Charset.default).bytes() shouldBe ("?".repeat(32) + " ").asciiToBytes()
         }
       }
     })
