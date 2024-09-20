@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 4 [CP863: Canadian-French] */
+@Suppress("MagicNumber")
 public data object IBM863 : Charset(4, "IBM863") {
   override val mapping: Map<Char, Int> =
       mapOf(

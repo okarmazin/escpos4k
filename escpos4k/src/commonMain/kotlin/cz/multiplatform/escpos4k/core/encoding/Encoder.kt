@@ -25,6 +25,7 @@ internal fun String.encode(charset: Charset): ByteArray {
   val output = ByteArray(length)
 
   for ((index, char) in this.withIndex()) {
+    @Suppress("MagicNumber")
     val byte: Byte =
         when {
           // 0..31 are control characters, always replaced

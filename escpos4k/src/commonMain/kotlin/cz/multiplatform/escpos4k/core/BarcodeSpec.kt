@@ -130,6 +130,8 @@ public sealed class BarcodeSpec {
 
     public companion object {
       public const val MAX_LENGTH: Int = 3832
+      private const val EC_MIN = 5
+      private const val EC_MAX = 95
 
       /**
        * Print an Aztec Code.
@@ -152,7 +154,7 @@ public sealed class BarcodeSpec {
         ensure(text.isNotEmpty()) { AztecCodeError.EmptyContent }
         ensure(text.length <= MAX_LENGTH) { AztecCodeError.TooLong }
 
-        AztecCodeSpec(text, ecPercent.coerceIn(5..95))
+        AztecCodeSpec(text, ecPercent.coerceIn(EC_MIN..EC_MAX))
       }
     }
   }
@@ -234,6 +236,7 @@ public sealed class BarcodeSpec {
        *    if not.
        */
       public fun create(text: String, hri: HriPosition): Either<UPCAError, UPCASpec> = either {
+        @Suppress("MagicNumber")
         when (text.length) {
           11 -> {
             ensureNumericContent(text, UPCAError::IllegalCharacter)
@@ -257,6 +260,7 @@ public sealed class BarcodeSpec {
         }
       }
 
+      @Suppress("MagicNumber")
       private fun calculateCheckDigit(data: String): Int {
         val sum =
             data.foldIndexed(0) { index, acc, c ->
@@ -311,6 +315,7 @@ public sealed class BarcodeSpec {
        *    if not.
        */
       public fun create(text: String, hri: HriPosition): Either<EAN13Error, EAN13Spec> = either {
+        @Suppress("MagicNumber")
         when (text.length) {
           12 -> {
             ensureNumericContent(text, EAN13Error::IllegalCharacter)
@@ -374,6 +379,7 @@ public sealed class BarcodeSpec {
        *    if not.
        */
       public fun create(text: String, hri: HriPosition): Either<EAN8Error, EAN8Spec> = either {
+        @Suppress("MagicNumber")
         when (text.length) {
           7 -> {
             ensureNumericContent(text, EAN8Error::IllegalCharacter)
@@ -408,9 +414,11 @@ public enum class HriPosition(internal val position: Byte) {
   NONE(0),
   ABOVE(1),
   BELOW(2),
+  @Suppress("MagicNumber") //
   ABOVE_AND_BELOW(3),
 }
 
+@Suppress("MagicNumber")
 public enum class QRCorrectionLevel(internal val level: Byte) {
   /** 7 % (approx.) */
   L(48),
@@ -422,6 +430,7 @@ public enum class QRCorrectionLevel(internal val level: Byte) {
   H(51),
 }
 
+@Suppress("MagicNumber")
 private fun calculateEANCheckDigit(data: String): Int {
   val sum =
       data.reversed().foldIndexed(0) { index, acc, c ->

@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 35 [CP861: Icelandic] */
+@Suppress("MagicNumber")
 public data object IBM861 : Charset(35, "IBM861") {
   override val mapping: Map<Char, Int> =
       mapOf(

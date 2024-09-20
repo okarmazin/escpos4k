@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 52 [Windows-1258] */
+@Suppress("MagicNumber")
 public data object Windows1258 : Charset(52, "windows-1258") {
   override val mapping: Map<Char, Int> =
       mapOf(

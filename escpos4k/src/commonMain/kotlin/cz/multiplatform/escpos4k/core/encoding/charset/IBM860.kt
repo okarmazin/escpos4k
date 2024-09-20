@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 3 [CP860: Portuguese] */
+@Suppress("MagicNumber")
 public data object IBM860 : Charset(3, "IBM860") {
   override val mapping: Map<Char, Int> =
       mapOf(

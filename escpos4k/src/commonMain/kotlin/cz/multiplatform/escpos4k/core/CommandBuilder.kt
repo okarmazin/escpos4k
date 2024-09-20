@@ -229,6 +229,7 @@ public class CommandBuilder(public val config: PrinterConfiguration, content: Co
    */
   public fun textSize(width: Int = 1, height: Int = 1) {
     val prev = commands.lastOfTypeOrNull<Command.TextSize>() ?: Command.TextSize(1, 1)
+    @Suppress("MagicNumber") //
     val new = Command.TextSize(width.coerceIn(1..8), height.coerceIn(1..8))
 
     if (prev != new) {

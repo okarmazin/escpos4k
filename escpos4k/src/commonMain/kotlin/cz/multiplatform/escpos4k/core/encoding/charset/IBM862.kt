@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 36 [CP862: Hebrew] */
+@Suppress("MagicNumber")
 public data object IBM862 : Charset(36, "IBM862") {
   override val mapping: Map<Char, Int> =
       mapOf(

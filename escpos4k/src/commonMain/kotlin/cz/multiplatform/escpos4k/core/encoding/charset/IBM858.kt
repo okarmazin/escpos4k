@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 19 [CP858: Euro] */
+@Suppress("MagicNumber")
 public data object IBM858 : Charset(19, "IBM00858") { // Note: two leading zeros
   override val mapping: Map<Char, Int> =
       mapOf(

@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 2 [CP850: Multilingual] */
+@Suppress("MagicNumber")
 public data object IBM850 : Charset(2, "IBM850") {
   override val mapping: Map<Char, Int> =
       mapOf(

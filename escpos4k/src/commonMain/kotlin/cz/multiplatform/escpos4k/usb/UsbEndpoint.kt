@@ -38,6 +38,7 @@ public data class UsbEndpoint(
   }
 
   public enum class Direction(internal val intValue: Int) {
+    @Suppress("MagicNumber")
     In(128),
     Out(0),
   }

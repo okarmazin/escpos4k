@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 13 [CP857: Turkish] */
+@Suppress("MagicNumber")
 public data object IBM857 : Charset(13, "IBM857") {
   override val mapping: Map<Char, Int> =
       mapOf(

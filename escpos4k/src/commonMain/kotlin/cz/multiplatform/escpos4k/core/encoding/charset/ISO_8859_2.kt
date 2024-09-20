@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 39 [ISO8859-2: Latin 2] */
+@Suppress("MagicNumber")
 public data object ISO_8859_2 : Charset(39, "ISO-8859-2") {
   override val mapping: Map<Char, Int> =
       mapOf(

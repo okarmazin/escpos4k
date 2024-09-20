@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 0 [CP437: USA, Standard Europe] */
+@Suppress("MagicNumber")
 public data object IBM437 : Charset(0, "IBM437") {
   override val mapping: Map<Char, Int> =
       mapOf(

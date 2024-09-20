@@ -17,6 +17,7 @@
 package cz.multiplatform.escpos4k.core.encoding.charset
 
 /** Page 33 [CP775: Baltic Rim] */
+@Suppress("MagicNumber")
 public data object IBM775 : Charset(33, "IBM775") {
   override val mapping: Map<Char, Int> =
       mapOf(
