@@ -74,8 +74,7 @@ class CommandBuilderTest : FunSpec() {
               textSize(2, 2)
               textSize(3, 3)
             }
-        builder.commands shouldContainExactly
-            initSequence + Command.TextSize(2, 2) + Command.TextSize(3, 3)
+        builder.commands shouldContainExactly initSequence + Command.TextSize(2, 2) + Command.TextSize(3, 3)
       }
     }
 
@@ -113,8 +112,7 @@ class CommandBuilderTest : FunSpec() {
               bold(false)
             }
 
-        builder.commands shouldContainExactly
-            initSequence + Command.Bold(true) + Command.Bold(false)
+        builder.commands shouldContainExactly initSequence + Command.Bold(true) + Command.Bold(false)
       }
     }
 
@@ -152,8 +150,7 @@ class CommandBuilderTest : FunSpec() {
               underline(true)
               underline(false)
             }
-        builder.commands shouldContainExactly
-            initSequence + Command.Underline(true) + Command.Underline(false)
+        builder.commands shouldContainExactly initSequence + Command.Underline(true) + Command.Underline(false)
       }
     }
 
@@ -191,8 +188,7 @@ class CommandBuilderTest : FunSpec() {
               italics(true)
               italics(false)
             }
-        builder.commands shouldContainExactly
-            initSequence + Command.Italics(true) + Command.Italics(false)
+        builder.commands shouldContainExactly initSequence + Command.Italics(true) + Command.Italics(false)
       }
     }
 
@@ -231,9 +227,7 @@ class CommandBuilderTest : FunSpec() {
               textAlign(TextAlignment.RIGHT)
             }
         builder.commands shouldContainExactly
-            initSequence +
-                Command.Justify(TextAlignment.CENTER) +
-                Command.Justify(TextAlignment.RIGHT)
+            initSequence + Command.Justify(TextAlignment.CENTER) + Command.Justify(TextAlignment.RIGHT)
       }
     }
 
@@ -250,10 +244,7 @@ class CommandBuilderTest : FunSpec() {
       test("segment content empty") {
         val builder =
             CommandBuilder(defaultConfig) {
-              segmentedLine(
-                  LineSegment("", TextAlignment.LEFT),
-                  LineSegment("3", TextAlignment.LEFT),
-              )
+              segmentedLine(LineSegment("", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
             }
 
         builder.commands shouldContainExactly
@@ -268,10 +259,7 @@ class CommandBuilderTest : FunSpec() {
         val builder =
             CommandBuilder(PrinterConfiguration(10)) {
               textSize(8, 1)
-              segmentedLine(
-                  LineSegment("12", TextAlignment.LEFT),
-                  LineSegment("3", TextAlignment.LEFT),
-              )
+              segmentedLine(LineSegment("12", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
             }
         builder.commands shouldContainExactly
             initSequence +

@@ -28,9 +28,9 @@ import cz.multiplatform.escpos4k.core.BarcodeSpec.QRCodeSpec.Companion.create
 import cz.multiplatform.escpos4k.core.BarcodeSpec.UPCASpec.Companion.create
 
 /**
- * A sealed hierarchy of supported barcodes. Each `BarcodeSpec` is instantiated via a factory
- * function that validates the input arguments and returns an `Either<SpecificError, BarcodeSpec>`.
- * The factory function ensures that only valid instances can be created.
+ * A sealed hierarchy of supported barcodes. Each `BarcodeSpec` is instantiated via a factory function that validates
+ * the input arguments and returns an `Either<SpecificError, BarcodeSpec>`. The factory function ensures that only valid
+ * instances can be created.
  *
  * Example:
  * ```
@@ -58,8 +58,7 @@ public sealed class BarcodeSpec {
    *
    * @see create
    */
-  public class QRCodeSpec
-  private constructor(public val text: String, public val errorCorrection: QRCorrectionLevel) :
+  public class QRCodeSpec private constructor(public val text: String, public val errorCorrection: QRCorrectionLevel) :
       BarcodeSpec() {
 
     override fun asCommand(): Command.QRCode = Command.QRCode(text, errorCorrection)
@@ -98,8 +97,8 @@ public sealed class BarcodeSpec {
       /**
        * Print a QR Code.
        *
-       * `text.length` must be in `1..7089`, but the upper limit of can only be achieved with fully
-       * numeric `text`. The realistic limit for random text content is about **`2k`**.
+       * `text.length` must be in `1..7089`, but the upper limit of can only be achieved with fully numeric `text`. The
+       * realistic limit for random text content is about **`2k`**.
        */
       public fun create(
           text: String,
@@ -120,8 +119,7 @@ public sealed class BarcodeSpec {
    *
    * @see create
    */
-  public class AztecCodeSpec
-  private constructor(public val text: String, public val ecPercent: Int) : BarcodeSpec() {
+  public class AztecCodeSpec private constructor(public val text: String, public val ecPercent: Int) : BarcodeSpec() {
     override fun asCommand(): Command = Command.AztecCode(text, ecPercent)
 
     public sealed class AztecCodeError {
@@ -138,26 +136,24 @@ public sealed class BarcodeSpec {
        *
        * **IMPORTANT NOTICE**
        *
-       * `Some printers will print a QR code instead of an Aztec Code. The behavior is unknown ahead
-       * of time.`
+       * `Some printers will print a QR code instead of an Aztec Code. The behavior is unknown ahead of time.`
        *
-       * `text.length` must be in `1..3832`, but the upper limit can only be achieved with fully
-       * numeric `text`. The realistic limit for random text is about **`1.9k`**.
+       * `text.length` must be in `1..3832`, but the upper limit can only be achieved with fully numeric `text`. The
+       * realistic limit for random text is about **`1.9k`**.
        *
-       * `ecPercent` must be in `5..95`. Values outside this range are coerced into it. The
-       * recommended value (which is also the default) is 23.
+       * `ecPercent` must be in `5..95`. Values outside this range are coerced into it. The recommended value (which is
+       * also the default) is 23.
        *
-       * **NOTE**: If the resulting symbol size exceeds the print area, the printer should feed the
-       * paper as much as the symbol's height, without printing the symbol. This is different from
-       * e.g. a QR Code which does not feed the paper.
+       * **NOTE**: If the resulting symbol size exceeds the print area, the printer should feed the paper as much as the
+       * symbol's height, without printing the symbol. This is different from e.g. a QR Code which does not feed the
+       * paper.
        */
-      public fun create(text: String, ecPercent: Int = 23): Either<AztecCodeError, AztecCodeSpec> =
-          either {
-            ensure(text.isNotEmpty()) { AztecCodeError.EmptyContent }
-            ensure(text.length <= MAX_LENGTH) { AztecCodeError.TooLong }
+      public fun create(text: String, ecPercent: Int = 23): Either<AztecCodeError, AztecCodeSpec> = either {
+        ensure(text.isNotEmpty()) { AztecCodeError.EmptyContent }
+        ensure(text.length <= MAX_LENGTH) { AztecCodeError.TooLong }
 
-            AztecCodeSpec(text, ecPercent.coerceIn(5..95))
-          }
+        AztecCodeSpec(text, ecPercent.coerceIn(5..95))
+      }
     }
   }
 
@@ -186,11 +182,10 @@ public sealed class BarcodeSpec {
        *
        * **IMPORTANT NOTICE**
        *
-       * `Some printers will print a QR code instead of an Aztec Code. The behavior is unknown ahead
-       * of time.`
+       * `Some printers will print a QR code instead of an Aztec Code. The behavior is unknown ahead of time.`
        *
-       * `text.length` must be in `1..3116`, but the upper limit can only be achieved with fully
-       * numeric text. The realistic limit for random text is lower.
+       * `text.length` must be in `1..3116`, but the upper limit can only be achieved with fully numeric text. The
+       * realistic limit for random text is lower.
        */
       public fun create(text: String): Either<DataMatrixError, DataMatrixSpec> = either {
         ensure(text.isNotEmpty()) { DataMatrixError.EmptyContent }
@@ -208,8 +203,7 @@ public sealed class BarcodeSpec {
    *
    * @see create
    */
-  public class UPCASpec private constructor(public val text: String, public val hri: HriPosition) :
-      BarcodeSpec() {
+  public class UPCASpec private constructor(public val text: String, public val hri: HriPosition) : BarcodeSpec() {
     override fun asCommand(): Command = Command.UPCA(text, hri)
 
     public sealed class UPCAError {
@@ -231,13 +225,13 @@ public sealed class BarcodeSpec {
       /**
        * Print the 12-digit UPC-A barcode.
        *
-       * The UPC-A standard is enforced by this function. The argument to this function must only
-       * contain digits and the input must be of certain length.
+       * The UPC-A standard is enforced by this function. The argument to this function must only contain digits and the
+       * input must be of certain length.
        *
        * The following input is accepted:
        * 1) 11-digit string. This function will calculate and add the 12th check digit.
-       * 2) 12-digit string. This function will check whether the 12th digit is a valid check digit,
-       *    returning an error if not.
+       * 2) 12-digit string. This function will check whether the 12th digit is a valid check digit, returning an error
+       *    if not.
        */
       public fun create(text: String, hri: HriPosition): Either<UPCAError, UPCASpec> = either {
         when (text.length) {
@@ -308,13 +302,13 @@ public sealed class BarcodeSpec {
       /**
        * Print the 13-digit EAN-13 barcode.
        *
-       * The EAN-13 standard is enforced by this function. The argument to this function must only
-       * contain digits and the input must be of certain length.
+       * The EAN-13 standard is enforced by this function. The argument to this function must only contain digits and
+       * the input must be of certain length.
        *
        * The following input is accepted:
        * 1) 12-digit string. This function will calculate and add the 13th check digit.
-       * 2) 13-digit string. This function will check whether the 13th digit is a valid check digit,
-       *    returning an error if not.
+       * 2) 13-digit string. This function will check whether the 13th digit is a valid check digit, returning an error
+       *    if not.
        */
       public fun create(text: String, hri: HriPosition): Either<EAN13Error, EAN13Spec> = either {
         when (text.length) {
@@ -371,13 +365,13 @@ public sealed class BarcodeSpec {
       /**
        * Print the 8-digit EAN-8 barcode.
        *
-       * The EAN-8 standard is enforced by this function. The argument to this function must only
-       * contain digits and the input must be of certain length.
+       * The EAN-8 standard is enforced by this function. The argument to this function must only contain digits and the
+       * input must be of certain length.
        *
        * The following input is accepted:
        * 1) 7-digit string. This function will calculate and add the 13th check digit.
-       * 2) 8-digit string. This function will check whether the 13th digit is a valid check digit,
-       *    returning an error if not.
+       * 2) 8-digit string. This function will check whether the 13th digit is a valid check digit, returning an error
+       *    if not.
        */
       public fun create(text: String, hri: HriPosition): Either<EAN8Error, EAN8Spec> = either {
         when (text.length) {
@@ -407,8 +401,8 @@ public sealed class BarcodeSpec {
 }
 
 /**
- * The HRI (Human Readable Interpretation) position when printing barcodes. These are the readable
- * digits you can find on barcodes in the shop.
+ * The HRI (Human Readable Interpretation) position when printing barcodes. These are the readable digits you can find
+ * on barcodes in the shop.
  */
 public enum class HriPosition(internal val position: Byte) {
   NONE(0),

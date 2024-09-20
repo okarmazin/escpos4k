@@ -13,27 +13,17 @@ kotlin {
   androidTarget { publishLibraryVariants("release") }
   val xcfName = "EscPos4kShared"
   val xcf = XCFramework(xcfName)
-  listOf(
-      iosX64(),
-      iosArm64(),
-      iosSimulatorArm64(),
-      macosArm64(),
-      macosX64(),
-  ).forEach {
+  listOf(iosX64(), iosArm64(), iosSimulatorArm64(), macosArm64(), macosX64()).forEach {
     it.binaries.framework {
-//      export(libs.moko.graphics)
-//      export(libs.moko.resources)
+      //      export(libs.moko.graphics)
+      //      export(libs.moko.resources)
       baseName = xcfName
       xcf.add(this)
     }
   }
 
   sourceSets {
-    val commonMain by getting {
-      dependencies {
-        implementation(project(":escpos4k"))
-      }
-    }
+    val commonMain by getting { dependencies { implementation(project(":escpos4k")) } }
   }
 }
 

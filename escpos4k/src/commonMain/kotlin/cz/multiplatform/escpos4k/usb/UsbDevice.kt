@@ -20,8 +20,8 @@ public data class UsbDevice(
     /**
      * The **transient** device name assigned by the operating system.
      *
-     * Android description: "`In the standard implementation, this is the path of the device file
-     * for the device in the usbfs file system.`". Something like `/dev/some/path/usb3`
+     * Android description: "`In the standard implementation, this is the path of the device file for the device in the
+     * usbfs file system.`". Something like `/dev/some/path/usb3`
      */
     val osAssignedName: String,
     val productName: String?,

@@ -48,13 +48,13 @@ internal sealed class Command {
   }
 
   /**
-   * Clears the data in the print buffer and resets the printer modes to the modes that were in
-   * effect when the power was turned on.
+   * Clears the data in the print buffer and resets the printer modes to the modes that were in effect when the power
+   * was turned on.
    *
    * Notes:
    *
-   * Print buffer is cleared Data buffer contents are preserved NV graphics (NV bit image)
-   * information is maintained. User NV memory data is maintained.
+   * Print buffer is cleared Data buffer contents are preserved NV graphics (NV bit image) information is maintained.
+   * User NV memory data is maintained.
    */
   data object Initialize : Command() {
     override fun bytes(): ByteArray = byteArrayOf(27, 64)

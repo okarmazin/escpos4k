@@ -50,8 +50,7 @@ internal fun toCommonInterface(platformInterface: android.hardware.usb.UsbInterf
             UsbEndpoint(
                 ifaceNumber = platformInterface.id,
                 type = UsbEndpoint.Type.values().first { it.ordinal == platformEp.type },
-                direction =
-                    UsbEndpoint.Direction.values().first { it.intValue == platformEp.direction },
+                direction = UsbEndpoint.Direction.values().first { it.intValue == platformEp.direction },
                 bEndpointAddress = platformEp.address,
                 bmAttributes = platformEp.attributes,
                 endpointNumber = platformEp.endpointNumber,

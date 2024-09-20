@@ -20,8 +20,7 @@ public sealed class Charset(
     /**
      * Code page number according to ESC/POS specification.
      *
-     * ESC/POS specifies a number of different code pages from different vendors, including pages
-     * from IBM, Windows etc.
+     * ESC/POS specifies a number of different code pages from different vendors, including pages from IBM, Windows etc.
      */
     public val escposPageNumber: Byte,
     /**

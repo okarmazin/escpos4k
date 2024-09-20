@@ -35,8 +35,8 @@ import kotlinx.coroutines.withTimeout
 @ExperimentalEscPosApi
 public interface TcpPrinterManager {
   /**
-   * Open a TCP connection to the specified address. You are responsible for closing the connection
-   * when you're done with it.
+   * Open a TCP connection to the specified address. You are responsible for closing the connection when you're done
+   * with it.
    *
    * @param connectTimeout Connection open timeout.
    * @param readWriteTimeout Write timeout.
@@ -69,8 +69,7 @@ private class TcpPrinterManagerImpl : TcpPrinterManager {
           socket = aSocket(SelectorManager(Dispatchers.Default)).tcp().connect(ipAddress, port)
         }
         currentCoroutineContext().ensureActive()
-        return@withContext TcpPrinterConnection(socket!!.connection(), name, ipAddress, port)
-            .right()
+        return@withContext TcpPrinterConnection(socket!!.connection(), name, ipAddress, port).right()
       } catch (cause: Throwable) {
         socket?.close()
 

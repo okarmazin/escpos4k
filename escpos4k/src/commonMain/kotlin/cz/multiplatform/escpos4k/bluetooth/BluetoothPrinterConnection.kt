@@ -21,8 +21,7 @@ import cz.multiplatform.escpos4k.core.PrinterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-public class BluetoothPrinterConnection(private val deviceConnection: BluetoothDeviceConnection) :
-    PrinterConnection {
+public class BluetoothPrinterConnection(private val deviceConnection: BluetoothDeviceConnection) : PrinterConnection {
   override val name: String = with(deviceConnection.device) { name ?: address }
 
   public override val isOpen: Boolean

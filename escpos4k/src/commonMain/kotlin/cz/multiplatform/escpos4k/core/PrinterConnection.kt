@@ -21,8 +21,7 @@ public interface PrinterConnection {
   public val isOpen: Boolean
 
   /**
-   * Send raw bytes to the printer. It is expected that you use the [CommandBuilder] to generate the
-   * bytes.
+   * Send raw bytes to the printer. It is expected that you use the [CommandBuilder] to generate the bytes.
    *
    * If the printer is not connected, this function returns an error. If successful, returns `null`.
    */

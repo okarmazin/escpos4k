@@ -28,12 +28,8 @@ internal class AndroidUsbDeviceConnection(
 ) : UsbDeviceConnection(toCommonDevice(platformDevice)) {
   private var platformConnection: android.hardware.usb.UsbDeviceConnection? = platformConnection
 
-  override fun claimInterfaceInternal(
-      iface: UsbInterface,
-      force: Boolean,
-  ): Either<UsbConnectionError, Unit> {
-    val isClaimed =
-        platformConnection?.claimInterface(platformDevice.findPlatformInterface(iface), force)
+  override fun claimInterfaceInternal(iface: UsbInterface, force: Boolean): Either<UsbConnectionError, Unit> {
+    val isClaimed = platformConnection?.claimInterface(platformDevice.findPlatformInterface(iface), force)
     return if (isClaimed == true) {
       Unit.right()
     } else {
@@ -42,8 +38,7 @@ internal class AndroidUsbDeviceConnection(
   }
 
   override fun releaseInterfaceInternal(iface: UsbInterface): Either<UsbConnectionError, Unit> {
-    val isReleased =
-        platformConnection?.releaseInterface(platformDevice.findPlatformInterface(iface))
+    val isReleased = platformConnection?.releaseInterface(platformDevice.findPlatformInterface(iface))
     return if (isReleased == true) {
       Unit.right()
     } else {
@@ -72,8 +67,7 @@ internal class AndroidUsbDeviceConnection(
       val platformEp = platformDevice.findPlatformEndpoint(endpoint)
       // Earlier Android versions had a bulk transfer limit
       val chunkSize = minOf(16384, platformEp.maxPacketSize)
-      val chunks: List<ByteArray> =
-          buffer.asSequence().chunked(chunkSize).map { it.toByteArray() }.toList()
+      val chunks: List<ByteArray> = buffer.asSequence().chunked(chunkSize).map { it.toByteArray() }.toList()
       for (chunk in chunks) {
         platformConnection?.bulkTransfer(platformEp, chunk, chunk.size, 100)
       }

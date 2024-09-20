@@ -5,13 +5,16 @@ Basic ESC/POS command generator and device connection support for various connec
 This library is not a wrapper around established ESC/POS libraries, but rather a green field implementation.
 
 <!-- TOC -->
+
 * [ESC/POS for Kotlin Multiplatform](#escpos-for-kotlin-multiplatform)
-  * [Setup](#setup)
-  * [What is ESC/POS?](#what-is-escpos)
-  * [Feature/Platform matrix](#featureplatform-matrix)
+    * [Setup](#setup)
+    * [What is ESC/POS?](#what-is-escpos)
+    * [Feature/Platform matrix](#featureplatform-matrix)
+
 <!-- TOC -->
 
 ## Setup
+
 The library is available at Maven Central.
 
 ```kotlin
@@ -19,6 +22,7 @@ repositories {
     mavenCentral()
 }
 ```
+
 ```kotlin
 implementation("cz.multiplatform.escpos4k:escpos4k:0.3.0")
 ```
@@ -83,6 +87,7 @@ fun mapToMyError(libraryError: PrintError): MyError {
 (1) Use the PrinterManager to open a Bluetooth connection
 (2) Print using the CommandBuilder
 ```
+
 </details>
 
 ## What is ESC/POS?
@@ -94,7 +99,7 @@ ESC/POS is similar in this regard to the QR code - QR codes
 were [invented by Denso Wave](https://en.wikipedia.org/wiki/QR_code)
 for use in their automotive manufacturing plants, but are now used just about everywhere.
 
-Most thermal printers work with a subset of ESC/POS. The set of _actually supported_ ESC/POS commands varies 
+Most thermal printers work with a subset of ESC/POS. The set of _actually supported_ ESC/POS commands varies
 among OEMs and printer models.
 
 ## Feature/Platform matrix

@@ -28,8 +28,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 private const val ACTION_USB_PERMISSION = "cz.multiplatform.escpos4k.USB_PERMISSION"
 
-public fun UsbPrinterManager(context: Context): UsbPrinterManager =
-    AndroidUsbPrinterManager(context)
+public fun UsbPrinterManager(context: Context): UsbPrinterManager = AndroidUsbPrinterManager(context)
 
 internal class AndroidUsbPrinterManager(context: Context) : AbstractUsbPrinterManager() {
   private val context = context.applicationContext
@@ -72,12 +71,7 @@ internal class AndroidUsbPrinterManager(context: Context) : AbstractUsbPrinterMa
       context.registerReceiver(permissionReceiver, IntentFilter(ACTION_USB_PERMISSION))
 
       val permissionIntent =
-          PendingIntent.getBroadcast(
-              context,
-              0,
-              Intent(ACTION_USB_PERMISSION),
-              PendingIntent.FLAG_IMMUTABLE,
-          )
+          PendingIntent.getBroadcast(context, 0, Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE)
 
       context.usbManager().requestPermission(context.platformDevice(printer), permissionIntent)
     }
@@ -91,9 +85,7 @@ internal class AndroidUsbPrinterManager(context: Context) : AbstractUsbPrinterMa
     val platformDevice = context.platformDevice(printer) ?: return null
 
     return if (awaitPermission(printer)) {
-      context.usbManager().openDevice(platformDevice)?.let { conn ->
-        AndroidUsbDeviceConnection(platformDevice, conn)
-      }
+      context.usbManager().openDevice(platformDevice)?.let { conn -> AndroidUsbDeviceConnection(platformDevice, conn) }
     } else {
       null
     }

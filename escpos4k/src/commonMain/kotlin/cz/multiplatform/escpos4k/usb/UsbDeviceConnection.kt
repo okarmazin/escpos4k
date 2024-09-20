@@ -26,33 +26,25 @@ public abstract class UsbDeviceConnection(public val device: UsbDevice) {
   public var isOpen: Boolean = true
     private set
 
-  public fun claimInterface(iface: UsbInterface, force: Boolean): Either<UsbConnectionError, Unit> =
-      withStateCheck {
-        claimInterfaceInternal(iface, force)
-      }
+  public fun claimInterface(iface: UsbInterface, force: Boolean): Either<UsbConnectionError, Unit> = withStateCheck {
+    claimInterfaceInternal(iface, force)
+  }
 
-  protected abstract fun claimInterfaceInternal(
-      iface: UsbInterface,
-      force: Boolean,
-  ): Either<UsbConnectionError, Unit>
+  protected abstract fun claimInterfaceInternal(iface: UsbInterface, force: Boolean): Either<UsbConnectionError, Unit>
 
-  public fun releaseInterface(iface: UsbInterface): Either<UsbConnectionError, Unit> =
-      withStateCheck {
-        releaseInterfaceInternal(iface)
-      }
+  public fun releaseInterface(iface: UsbInterface): Either<UsbConnectionError, Unit> = withStateCheck {
+    releaseInterfaceInternal(iface)
+  }
 
-  protected abstract fun releaseInterfaceInternal(
-      iface: UsbInterface
-  ): Either<UsbConnectionError, Unit>
+  protected abstract fun releaseInterfaceInternal(iface: UsbInterface): Either<UsbConnectionError, Unit>
 
   /**
    * Perform a Control Transfer request.
    *
    * @param setupPacket The Control Transfer Setup Packet. Some predefined packets can be found in
    *   [StandardControlRequests].
-   *
-   * @param dataBuffer Depending on the request direction, this is either the outgoing data provided
-   *   by the caller, OR the empty buffer where incoming response data will be stored.
+   * @param dataBuffer Depending on the request direction, this is either the outgoing data provided by the caller, OR
+   *   the empty buffer where incoming response data will be stored.
    */
   public abstract suspend fun controlTransfer(setupPacket: SetupPacket, dataBuffer: ByteArray): Int
 
@@ -71,9 +63,7 @@ public abstract class UsbDeviceConnection(public val device: UsbDevice) {
   protected abstract fun closeInternal()
 
   @JvmName("withStateCheckEither")
-  private inline fun <B> withStateCheck(
-      block: () -> Either<UsbConnectionError, B>
-  ): Either<UsbConnectionError, B> {
+  private inline fun <B> withStateCheck(block: () -> Either<UsbConnectionError, B>): Either<UsbConnectionError, B> {
     checkState()?.let {
       return it.left()
     }
@@ -81,10 +71,9 @@ public abstract class UsbDeviceConnection(public val device: UsbDevice) {
     return block()
   }
 
-  private inline fun <B> withStateCheck(block: () -> B): Either<UsbConnectionError, B> =
-      withStateCheck {
-        block().right()
-      }
+  private inline fun <B> withStateCheck(block: () -> B): Either<UsbConnectionError, B> = withStateCheck {
+    block().right()
+  }
 
   private fun checkState(): UsbConnectionError? {
     if (!isOpen) return UsbConnectionError.ConnectionClosed

@@ -28,14 +28,13 @@ public data class PrinterConfiguration(
     //    val dpi: Int,
 
     /**
-     * How many single-width characters can the printer put on a single line when using the
-     * factory-default font.
+     * How many single-width characters can the printer put on a single line when using the factory-default font.
      *
      * For printers using the 57mm paper width, this is usually 32 or 42.
      *
      * Used in:
-     * - The layout algorithm of column-based command builder. The algorithm needs to know the total
-     *   length of a line to be able to distribute the space among the columns.
+     * - The layout algorithm of column-based command builder. The algorithm needs to know the total length of a line to
+     *   be able to distribute the space among the columns.
      */
     val charactersPerLine: Int
 

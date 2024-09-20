@@ -8,18 +8,15 @@ class BarcodeSpecTest : FunSpec() {
   init {
     context("QRCodeSpec") {
       test("factory enforces length limits") {
-        BarcodeSpec.QRCodeSpec.create("")
-            .shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.EmptyContent)
+        BarcodeSpec.QRCodeSpec.create("").shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.EmptyContent)
 
-        BarcodeSpec.QRCodeSpec.create("1".repeat(10_000))
-            .shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.TooLong)
+        BarcodeSpec.QRCodeSpec.create("1".repeat(10_000)).shouldBeLeft(BarcodeSpec.QRCodeSpec.QRCodeError.TooLong)
       }
     }
 
     context("AztecCodeSpec") {
       test("factory enforces text length limits") {
-        BarcodeSpec.AztecCodeSpec.create("")
-            .shouldBeLeft(BarcodeSpec.AztecCodeSpec.AztecCodeError.EmptyContent)
+        BarcodeSpec.AztecCodeSpec.create("").shouldBeLeft(BarcodeSpec.AztecCodeSpec.AztecCodeError.EmptyContent)
 
         BarcodeSpec.AztecCodeSpec.create("1".repeat(10_000))
             .shouldBeLeft(BarcodeSpec.AztecCodeSpec.AztecCodeError.TooLong)
@@ -33,8 +30,7 @@ class BarcodeSpecTest : FunSpec() {
 
     context("DataMatrixSpec") {
       test("factory enforces text length limits") {
-        BarcodeSpec.DataMatrixSpec.create("")
-            .shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.EmptyContent)
+        BarcodeSpec.DataMatrixSpec.create("").shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.EmptyContent)
 
         BarcodeSpec.DataMatrixSpec.create("1".repeat(10_000))
             .shouldBeLeft(BarcodeSpec.DataMatrixSpec.DataMatrixError.TooLong)
@@ -50,10 +46,7 @@ class BarcodeSpecTest : FunSpec() {
       }
 
       test("factory calculates correct check digit if length == 11") {
-        BarcodeSpec.UPCASpec.create("03600029145", HriPosition.BELOW)
-            .shouldBeRight()
-            .text
-            .shouldBe("036000291452")
+        BarcodeSpec.UPCASpec.create("03600029145", HriPosition.BELOW).shouldBeRight().text.shouldBe("036000291452")
       }
 
       test("factory enforces correct digit if length == 12") {
@@ -76,10 +69,7 @@ class BarcodeSpecTest : FunSpec() {
       }
 
       test("factory calculates correct check digit if length == 12") {
-        BarcodeSpec.EAN13Spec.create("400638133393", HriPosition.BELOW)
-            .shouldBeRight()
-            .text
-            .shouldBe("4006381333931")
+        BarcodeSpec.EAN13Spec.create("400638133393", HriPosition.BELOW).shouldBeRight().text.shouldBe("4006381333931")
       }
 
       test("factory enforces correct digit if length == 13") {
@@ -102,10 +92,7 @@ class BarcodeSpecTest : FunSpec() {
       }
 
       test("factory calculates correct check digit if length == 7") {
-        BarcodeSpec.EAN8Spec.create("7351353", HriPosition.BELOW)
-            .shouldBeRight()
-            .text
-            .shouldBe("73513537")
+        BarcodeSpec.EAN8Spec.create("7351353", HriPosition.BELOW).shouldBeRight().text.shouldBe("73513537")
       }
 
       test("factory enforces correct digit if length == 8") {

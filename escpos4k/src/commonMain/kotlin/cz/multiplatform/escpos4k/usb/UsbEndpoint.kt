@@ -18,9 +18,8 @@ package cz.multiplatform.escpos4k.usb
 
 public data class UsbEndpoint(
     /**
-     * The interface which owns this endpoint. This integer can be used for looking up this
-     * endpoint's owner from UsbDevice. The endpoint does not have a direct reference to the owner
-     * interface.
+     * The interface which owns this endpoint. This integer can be used for looking up this endpoint's owner from
+     * UsbDevice. The endpoint does not have a direct reference to the owner interface.
      */
     val ifaceNumber: Int,
     val type: Type,

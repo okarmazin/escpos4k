@@ -23,20 +23,18 @@ import cz.multiplatform.escpos4k.core.LineDistributionStrategy.Companion.SpaceEv
 import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 
 /**
- * The central class for building the content to send to the printer. The class provides a variety
- * of functions called "builders" representing the common styling you need for defining the printed
- * content. This includes settings such as text size, text alignment, bold, italics, underline etc.
+ * The central class for building the content to send to the printer. The class provides a variety of functions called
+ * "builders" representing the common styling you need for defining the printed content. This includes settings such as
+ * text size, text alignment, bold, italics, underline etc.
  *
  * Most builders offer two "variants".
- * 1. Standard setting - `textSize(2, 2)`, `bold(true)` - When you set these styles, they remain set
- *    until changed.
- * 2. Temporary setting - `withTextSize(2, 2)`, `withBold(true)`. These have an additional `content`
- *    parameter of type `CommandBuilder.() -> Unit` and allow you to apply a certain style only to
- *    the content.
+ * 1. Standard setting - `textSize(2, 2)`, `bold(true)` - When you set these styles, they remain set until changed.
+ * 2. Temporary setting - `withTextSize(2, 2)`, `withBold(true)`. These have an additional `content` parameter of type
+ *    `CommandBuilder.() -> Unit` and allow you to apply a certain style only to the content.
  *
- * The builder is also capable of building common barcodes, both 2D and 1D such as `QR`, `EAN`,
- * `UPC`. It offers rudimentary safety mechanisms where applicable, mainly around the hard limits of
- * barcode capacity or shape (content too long/short, content must be all-digits etc.).
+ * The builder is also capable of building common barcodes, both 2D and 1D such as `QR`, `EAN`, `UPC`. It offers
+ * rudimentary safety mechanisms where applicable, mainly around the hard limits of barcode capacity or shape (content
+ * too long/short, content must be all-digits etc.).
  *
  * General usage:
  * ```
@@ -77,10 +75,7 @@ import cz.multiplatform.escpos4k.core.encoding.charset.Charset
  */
 @ExperimentalEscPosApi
 @Suppress("MemberVisibilityCanBePrivate")
-public class CommandBuilder(
-    public val config: PrinterConfiguration,
-    content: CommandBuilder.() -> Unit = {},
-) {
+public class CommandBuilder(public val config: PrinterConfiguration, content: CommandBuilder.() -> Unit = {}) {
   internal val commands: MutableList<Command> =
       mutableListOf(Command.Initialize, Command.SelectCharset(Charset.default))
 
@@ -91,8 +86,7 @@ public class CommandBuilder(
   /**
    * Prepare the raw ESC/POS commands. The resulting ByteArray can be sent directly to a printer.
    *
-   * Use this function to obtain the bytes for a printer after you build your content using the
-   * builders.
+   * Use this function to obtain the bytes for a printer after you build your content using the builders.
    */
   public fun bytes(): ByteArray {
     return commands.flatMap { it.bytes().asSequence() }.toByteArray()
@@ -102,11 +96,11 @@ public class CommandBuilder(
       asReversed().asSequence().filterIsInstance<T>().firstOrNull()
 
   /**
-   * Print a piece of text without terminating the line. The supplied Kotlin `String` will be
-   * encoded to single-byte characters according to the currently selected [charset].
+   * Print a piece of text without terminating the line. The supplied Kotlin `String` will be encoded to single-byte
+   * characters according to the currently selected [charset].
    *
-   * Control characters (including newline) in the supplied text and characters not belonging to the
-   * currently selected charset will be replaced by the replacement character.
+   * Control characters (including newline) in the supplied text and characters not belonging to the currently selected
+   * charset will be replaced by the replacement character.
    *
    * ```
    * printer.print {
@@ -125,18 +119,17 @@ public class CommandBuilder(
     if (text.isEmpty()) {
       return
     }
-    val currentCharset =
-        commands.lastOfTypeOrNull<Command.SelectCharset>()?.charset ?: Charset.default
+    val currentCharset = commands.lastOfTypeOrNull<Command.SelectCharset>()?.charset ?: Charset.default
     commands.add(Command.Text(text, currentCharset))
   }
 
   /**
-   * Print text on a single line and move to the next line. The supplied Kotlin `String` will be
-   * encoded to single-byte characters according to the currently selected [charset].
+   * Print text on a single line and move to the next line. The supplied Kotlin `String` will be encoded to single-byte
+   * characters according to the currently selected [charset].
    *
-   * Control characters (including newline) in the supplied text and characters not belonging to the
-   * currently selected charset will be replaced by the replacement character. This means you cannot
-   * print multiple lines with a single invocation of this function.
+   * Control characters (including newline) in the supplied text and characters not belonging to the currently selected
+   * charset will be replaced by the replacement character. This means you cannot print multiple lines with a single
+   * invocation of this function.
    *
    * ```
    * printer.print {
@@ -156,8 +149,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Select a [Charset]. Text printed with [text] will be encoded to single-byte characters
-   * according to this character set.
+   * Select a [Charset]. Text printed with [text] will be encoded to single-byte characters according to this character
+   * set.
    *
    * ```
    * printer.print {
@@ -175,8 +168,7 @@ public class CommandBuilder(
    * @see [withCharset]
    */
   public fun charset(charset: Charset) {
-    val prev =
-        commands.lastOfTypeOrNull<Command.SelectCharset>() ?: Command.SelectCharset(Charset.default)
+    val prev = commands.lastOfTypeOrNull<Command.SelectCharset>() ?: Command.SelectCharset(Charset.default)
     val new = Command.SelectCharset(charset)
 
     if (prev != new) {
@@ -185,8 +177,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Selects the [charset] and executes [content]. After the content is executed, the selected
-   * charset is restored to the value it had before calling this function.
+   * Selects the [charset] and executes [content]. After the content is executed, the selected charset is restored to
+   * the value it had before calling this function.
    *
    * ```
    * printer.print {
@@ -246,8 +238,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Sets the text size to [width] and [height] and executes [content]. After the content is
-   * executed, the text size setting is restored to the value it had before calling this function.
+   * Sets the text size to [width] and [height] and executes [content]. After the content is executed, the text size
+   * setting is restored to the value it had before calling this function.
    *
    * ```
    * printer.print {
@@ -286,8 +278,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Sets `bold` mode and executes [content]. After the content is executed, the `bold` setting is
-   * restored to the value it had before calling this function.
+   * Sets `bold` mode and executes [content]. After the content is executed, the `bold` setting is restored to the value
+   * it had before calling this function.
    *
    * ```
    * printer.print {
@@ -327,8 +319,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Sets `underlined` mode and executes [content]. After the content is executed, the `underline`
-   * setting is restored to the value it had before calling this function.
+   * Sets `underlined` mode and executes [content]. After the content is executed, the `underline` setting is restored
+   * to the value it had before calling this function.
    *
    * ```
    * printer.print {
@@ -368,8 +360,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Sets `italics` mode and executes [content]. After the content is executed, the `italics`
-   * setting is restored to the value it had before calling this function.
+   * Sets `italics` mode and executes [content]. After the content is executed, the `italics` setting is restored to the
+   * value it had before calling this function.
    *
    * ```
    * printer.print {
@@ -395,9 +387,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Set the text alignment for the entire line. Only takes effect if the printer is in the
-   * start-of-line state. Therefore, this cannot be used to align multiple pieces of text on the
-   * same line.
+   * Set the text alignment for the entire line. Only takes effect if the printer is in the start-of-line state.
+   * Therefore, this cannot be used to align multiple pieces of text on the same line.
    *
    * See [segmentedLine] for aligning multiple pieces of text on a single line.
    *
@@ -418,8 +409,8 @@ public class CommandBuilder(
   }
 
   /**
-   * Print a barcode. Multiple barcodes are supported, both 1D and 2D. Please see the sealed
-   * [BarcodeSpec] class for information on the supported barcode types.
+   * Print a barcode. Multiple barcodes are supported, both 1D and 2D. Please see the sealed [BarcodeSpec] class for
+   * information on the supported barcode types.
    *
    * @see BarcodeSpec
    */
@@ -428,11 +419,11 @@ public class CommandBuilder(
   }
 
   /**
-   * Print multiple independent segments on a single line. The available space is distributed by the
-   * provided [distributionStrategy]. By default, available space is distributed evenly.
+   * Print multiple independent segments on a single line. The available space is distributed by the provided
+   * [distributionStrategy]. By default, available space is distributed evenly.
    *
-   * **Segment Overflow**: If a segment is too long for its allotted space, the text overflows onto
-   * the next line or lines. The overflown line keeps the text alignment.
+   * **Segment Overflow**: If a segment is too long for its allotted space, the text overflows onto the next line or
+   * lines. The overflown line keeps the text alignment.
    *
    * ```
    * // Let the line length be 16. Each segment gets 8 single-width spaces to work with.
@@ -460,15 +451,11 @@ public class CommandBuilder(
    * └────┴────┘
    * ```
    */
-  public fun segmentedLine(
-      segments: List<LineSegment>,
-      distributionStrategy: LineDistributionStrategy = SpaceEvenly,
-  ) {
+  public fun segmentedLine(segments: List<LineSegment>, distributionStrategy: LineDistributionStrategy = SpaceEvenly) {
     @Suppress("NAME_SHADOWING") // force br
     val segments = segments.toNonEmptyListOrNull() ?: return
     val charWidth = commands.lastOfTypeOrNull<Command.TextSize>()?.width ?: 1
-    val sizedSegments =
-        distributionStrategy.distributeLine(config.charactersPerLine, charWidth, segments)
+    val sizedSegments = distributionStrategy.distributeLine(config.charactersPerLine, charWidth, segments)
     // Partition the segment text into parts that fit in the allotted space while taking the
     // character width into consideration.
     val splitSegments: Nel<Nel<Pair<LineSegment, Int>>> =
@@ -483,9 +470,7 @@ public class CommandBuilder(
             nonEmptyListOf(segment to space)
           } else {
             segment.text
-                .chunked(chunkSize) { chunk ->
-                  LineSegment(chunk.toString(), segment.alignment) to space
-                }
+                .chunked(chunkSize) { chunk -> LineSegment(chunk.toString(), segment.alignment) to space }
                 .toNonEmptyListOrNull()!!
           }
         }
@@ -497,19 +482,14 @@ public class CommandBuilder(
     (0 until numRows)
         .map { rowIdx ->
           splitSegments.map { column ->
-            column.elementAtOrElse(rowIdx) {
-              LineSegment("", TextAlignment.LEFT) to column.head.second
-            }
+            column.elementAtOrElse(rowIdx) { LineSegment("", TextAlignment.LEFT) to column.head.second }
           }
         }
         .forEach(::renderSegmentedLine)
   }
 
   /** Please see the sibling `segmentedLine(segments)` function for full info. */
-  public fun segmentedLine(
-      vararg segments: LineSegment,
-      distributionStrategy: LineDistributionStrategy = SpaceEvenly,
-  ) {
+  public fun segmentedLine(vararg segments: LineSegment, distributionStrategy: LineDistributionStrategy = SpaceEvenly) {
     segmentedLine(segments.asList(), distributionStrategy)
   }
 
@@ -565,31 +545,26 @@ public data class SizedSegment(val segment: LineSegment, val allottedSpace: Int)
  * A default strategy [SpaceEvenly] is provided for uniform space distribution.
  */
 public fun interface LineDistributionStrategy {
-  public fun distributeLine(
-      charsPerLine: Int,
-      charWidth: Int,
-      segments: Nel<LineSegment>,
-  ): Nel<SizedSegment>
+  public fun distributeLine(charsPerLine: Int, charWidth: Int, segments: Nel<LineSegment>): Nel<SizedSegment>
 
   public companion object {
     /**
-     * Available space is distributed evenly among the segments, with left bias. i.e. the remainder
-     * of `numChars / numSegments` is applied from left to right.
+     * Available space is distributed evenly among the segments, with left bias. i.e. the remainder of `numChars /
+     * numSegments` is applied from left to right.
      *
      * Example: A line of size `8` is distributed among `3` segments as follows: `3-3-2`
      */
-    public val SpaceEvenly: LineDistributionStrategy =
-        LineDistributionStrategy { charsPerLine, _, segments ->
-          val basicSize = charsPerLine / segments.size
-          val rem = charsPerLine % segments.size
-          val sizedSegments = segments.mapTo(mutableListOf()) { SizedSegment(it, basicSize) }
+    public val SpaceEvenly: LineDistributionStrategy = LineDistributionStrategy { charsPerLine, _, segments ->
+      val basicSize = charsPerLine / segments.size
+      val rem = charsPerLine % segments.size
+      val sizedSegments = segments.mapTo(mutableListOf()) { SizedSegment(it, basicSize) }
 
-          for (i in 0 until rem) {
-            val segment = sizedSegments[i]
-            sizedSegments[i] = segment.copy(allottedSpace = segment.allottedSpace + 1)
-          }
+      for (i in 0 until rem) {
+        val segment = sizedSegments[i]
+        sizedSegments[i] = segment.copy(allottedSpace = segment.allottedSpace + 1)
+      }
 
-          sizedSegments.toNonEmptyListOrNull()!!
-        }
+      sizedSegments.toNonEmptyListOrNull()!!
+    }
   }
 }

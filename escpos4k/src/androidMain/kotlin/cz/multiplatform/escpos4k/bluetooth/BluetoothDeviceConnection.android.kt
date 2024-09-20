@@ -23,10 +23,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-internal class AndroidBluetoothDeviceConnection(
-    private val connection: BluetoothSocket,
-    device: BluetoothDevice,
-) : BluetoothDeviceConnection(device) {
+internal class AndroidBluetoothDeviceConnection(private val connection: BluetoothSocket, device: BluetoothDevice) :
+    BluetoothDeviceConnection(device) {
   private val writeMutex = Mutex()
 
   override fun closeInternal() {

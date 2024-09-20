@@ -40,16 +40,13 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-public fun BluetoothPrinterManager(context: Context): BluetoothPrinterManager =
-    AndroidBluetoothPrinterManager(context)
+public fun BluetoothPrinterManager(context: Context): BluetoothPrinterManager = AndroidBluetoothPrinterManager(context)
 
 private class AndroidBluetoothPrinterManager(context: Context) : BluetoothPrinterManager {
   private val context: Context = context.applicationContext
 
   @SuppressLint("MissingPermission")
-  override suspend fun openConnection(
-      printer: BluetoothDevice
-  ): Either<BluetoothError, BluetoothPrinterConnection> {
+  override suspend fun openConnection(printer: BluetoothDevice): Either<BluetoothError, BluetoothPrinterConnection> {
     return runCatching {
           withContext(Dispatchers.IO) {
             either {
@@ -58,8 +55,7 @@ private class AndroidBluetoothPrinterManager(context: Context) : BluetoothPrinte
                   ensureNotNull(devices.firstOrNull { it.address == printer.address }) {
                     BluetoothError.DeviceNotFound(printer)
                   }
-              val serviceUUID =
-                  printer.uuids.firstOrNull()?.let(UUID::fromString) ?: UUID.randomUUID()
+              val serviceUUID = printer.uuids.firstOrNull()?.let(UUID::fromString) ?: UUID.randomUUID()
               val socket = device.createRfcommSocketToServiceRecord(serviceUUID)
 
               currentCoroutineContext().ensureActive()
@@ -144,9 +140,7 @@ private fun Raise<BluetoothError>.bluetoothManager(context: Context): BluetoothM
 }
 
 @SuppressLint("MissingPermission")
-private fun Raise<BluetoothError>.allPlatformDevices(
-    context: Context
-): List<PlatformBluetoothDevice> {
+private fun Raise<BluetoothError>.allPlatformDevices(context: Context): List<PlatformBluetoothDevice> {
   val adapter = bluetoothManager(context).adapter
   ensure(adapter.state == BluetoothAdapter.STATE_ON) { BluetoothError.BluetoothOff }
   ensure(context.hasBondedDevicesPermission()) { BluetoothError.AccessDenied }

@@ -36,9 +36,9 @@ public interface UsbPrinterManager {
   /**
    * The list of all connected USB devices that have been determined to likely be a printer.
    *
-   * Due to the fact that many, if not most, ESC/POS printers do not advertise their USB class as
-   * `Printer` (which is one of the base USB classes defined by the USB standard), the library must
-   * apply heuristics to try and determine if a device is a printer.
+   * Due to the fact that many, if not most, ESC/POS printers do not advertise their USB class as `Printer` (which is
+   * one of the base USB classes defined by the USB standard), the library must apply heuristics to try and determine if
+   * a device is a printer.
    *
    * Therefore, some USB devices listed by this function might be completely unrelated.
    */
@@ -52,8 +52,7 @@ internal abstract class AbstractUsbPrinterManager : UsbPrinterManager {
     return UsbPrinterConnection(deviceConnection)
   }
 
-  override fun visiblePrinters(): List<UsbDevice> =
-      allVisibleDevices().filter { it.findOutputEndpoint().isRight() }
+  override fun visiblePrinters(): List<UsbDevice> = allVisibleDevices().filter { it.findOutputEndpoint().isRight() }
 
   protected abstract fun allVisibleDevices(): List<UsbDevice>
 
@@ -65,8 +64,8 @@ internal abstract class AbstractUsbPrinterManager : UsbPrinterManager {
  *
  * Otherwise, return `null`.
  *
- * Note: If this function returns `null`, it does not mean that the device is not a printer. It only
- * means that our detection algorithm didn't figure it out.
+ * Note: If this function returns `null`, it does not mean that the device is not a printer. It only means that our
+ * detection algorithm didn't figure it out.
  */
 internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndpoint> {
   if (deviceClass !in setOf(UsbClass.DefinedByInterface, UsbClass.VendorSpecific)) {
@@ -128,8 +127,7 @@ internal fun UsbDevice.findOutputEndpoint(): Either<EndpointSearchError, UsbEndp
         return EndpointSearchError.DisqualifyingInterfaceFound(it).left()
       }
 
-      return interfaces.firstNotNullOfOrNull { it.bulkOutEp() }?.right()
-          ?: EndpointSearchError.BulkOutNotFound.left()
+      return interfaces.firstNotNullOfOrNull { it.bulkOutEp() }?.right() ?: EndpointSearchError.BulkOutNotFound.left()
     }
   }
 }
@@ -145,6 +143,4 @@ internal sealed class EndpointSearchError {
 private fun UsbInterface.isPrinter() = interfaceClass == UsbClass.Printer
 
 private fun UsbInterface.bulkOutEp(): UsbEndpoint? =
-    endpoints.firstOrNull {
-      it.type == UsbEndpoint.Type.Bulk && it.direction == UsbEndpoint.Direction.Out
-    }
+    endpoints.firstOrNull { it.type == UsbEndpoint.Type.Bulk && it.direction == UsbEndpoint.Direction.Out }

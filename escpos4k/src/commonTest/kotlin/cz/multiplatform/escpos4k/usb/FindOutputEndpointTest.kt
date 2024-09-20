@@ -9,21 +9,8 @@ class FindOutputEndpointTest {
   @Test
   fun likelyPrinterEndpoint_printerInterface_withBulkOut() {
     val printerInterface =
-        UsbInterface(
-            interfaceClass = UsbClass.Printer,
-            name = null,
-            bInterfaceNumber = 1,
-            endpoints = bulkAndControl(),
-        )
-    val device =
-        UsbDevice(
-            "device1",
-            "Printer1",
-            "Epson",
-            UsbClass.DefinedByInterface,
-            1,
-            listOf(printerInterface),
-        )
+        UsbInterface(interfaceClass = UsbClass.Printer, name = null, bInterfaceNumber = 1, endpoints = bulkAndControl())
+    val device = UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, listOf(printerInterface))
 
     assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
@@ -31,21 +18,8 @@ class FindOutputEndpointTest {
   @Test
   fun likelyPrinterEndpoint_printerInterface_withoutBulkOut() {
     val printerInterface =
-        UsbInterface(
-            interfaceClass = UsbClass.Printer,
-            name = null,
-            bInterfaceNumber = 1,
-            endpoints = control(),
-        )
-    val device =
-        UsbDevice(
-            "device1",
-            "Printer1",
-            "Epson",
-            UsbClass.DefinedByInterface,
-            1,
-            listOf(printerInterface),
-        )
+        UsbInterface(interfaceClass = UsbClass.Printer, name = null, bInterfaceNumber = 1, endpoints = control())
+    val device = UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, listOf(printerInterface))
 
     assertNull(device.findOutputEndpoint().getOrNull())
   }
@@ -59,15 +33,7 @@ class FindOutputEndpointTest {
             bInterfaceNumber = 1,
             endpoints = bulkAndControl(),
         )
-    val device =
-        UsbDevice(
-            "device1",
-            "Printer1",
-            "Epson",
-            UsbClass.DefinedByInterface,
-            1,
-            listOf(printerInterface),
-        )
+    val device = UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, listOf(printerInterface))
 
     assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
@@ -75,21 +41,8 @@ class FindOutputEndpointTest {
   @Test
   fun likelyPrinterEndpoint_singleVendorSpecificInterface_withoutBulkOut() {
     val printerInterface =
-        UsbInterface(
-            interfaceClass = UsbClass.VendorSpecific,
-            name = null,
-            bInterfaceNumber = 1,
-            endpoints = control(),
-        )
-    val device =
-        UsbDevice(
-            "device1",
-            "Printer1",
-            "Epson",
-            UsbClass.DefinedByInterface,
-            1,
-            listOf(printerInterface),
-        )
+        UsbInterface(interfaceClass = UsbClass.VendorSpecific, name = null, bInterfaceNumber = 1, endpoints = control())
+    val device = UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, listOf(printerInterface))
 
     assertNull(device.findOutputEndpoint().getOrNull())
   }
@@ -111,8 +64,7 @@ class FindOutputEndpointTest {
                 endpoints = bulkAndControl(),
             ),
         )
-    val device =
-        UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
+    val device = UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
 
     assertSame(printerInterfaces[1].endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
@@ -122,8 +74,7 @@ class FindOutputEndpointTest {
     val printerInterfaces =
         listOf(
             UsbInterface(
-                interfaceClass =
-                    UsbClass.Image, // TODO check all of the other disqualifying classes
+                interfaceClass = UsbClass.Image, // TODO check all of the other disqualifying classes
                 name = null,
                 bInterfaceNumber = 1,
                 endpoints = control(),
@@ -135,8 +86,7 @@ class FindOutputEndpointTest {
                 endpoints = bulkAndControl(),
             ),
         )
-    val device =
-        UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
+    val device = UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
 
     assertNull(device.findOutputEndpoint().getOrNull())
   }

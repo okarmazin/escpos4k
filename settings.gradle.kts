@@ -7,7 +7,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-//  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  //  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
   repositories {
     mavenCentral()
     google()
@@ -17,6 +17,7 @@ dependencyResolutionManagement {
 include(":escpos4k")
 
 include(":sample:app-android")
+
 include(":sample:common")
 
 rootProject.name = "EscPos4k"

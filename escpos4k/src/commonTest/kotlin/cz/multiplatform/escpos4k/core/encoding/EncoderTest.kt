@@ -32,7 +32,7 @@ class EncoderTest :
       }
 
       context("handling of unknown characters") {
-        test("unknown char gets mapped to our replacement char") {
+        test("unknown char gets mapped to our replacement char") { //
           "abcě".encode(Windows1252) shouldBe "abc?".ascii()
         }
       }

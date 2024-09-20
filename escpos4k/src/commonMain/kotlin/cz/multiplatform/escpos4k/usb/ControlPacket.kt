@@ -46,20 +46,19 @@ package cz.multiplatform.escpos4k.usb
  *
  * 2. REQUEST (1 byte)
  *
- *    The request being made. The meaning of this value is based on the declared recipient from
- *    request type.
+ *    The request being made. The meaning of this value is based on the declared recipient from request type.
  *
  * 3. ARGUMENT: VALUE (2 bytes)
  *
- *    Requests can have two arguments: Value and Index (used both independently and together, based
- *    on the request definition.)
+ *    Requests can have two arguments: Value and Index (used both independently and together, based on the request
+ *    definition.)
  *
  *    E.g. Feature Selector for a SET_FEATURE request; Device Address for a SET_ADDRESS etc.
  *
  * 4. ARGUMENT: INDEX (2 bytes)
  *
- *    Requests can have two arguments: Value and Index (used both independently and together, based
- *    on the request definition.)
+ *    Requests can have two arguments: Value and Index (used both independently and together, based on the request
+ *    definition.)
  *
  *    E.g. Interface index for requests directed at an Interface.
  *
@@ -94,17 +93,14 @@ public class SetupPacket(
      */
     public val requestType: UByte,
 
-    /**
-     * The request being made. The meaning of this value is based on the declared recipient from
-     * [requestType].
-     */
+    /** The request being made. The meaning of this value is based on the declared recipient from [requestType]. */
     public val request: UByte,
 
     /**
      * Request argument: Value
      *
-     * Requests can have two arguments: Value and Index (used both independently and together, based
-     * on the request definition.)
+     * Requests can have two arguments: Value and Index (used both independently and together, based on the request
+     * definition.)
      *
      * E.g. Feature Selector for a SET_FEATURE request; Device Address for a SET_ADDRESS etc.
      *
@@ -115,8 +111,8 @@ public class SetupPacket(
     /**
      * Request argument: Index
      *
-     * Requests can have two arguments: Value and Index (used both independently and together, based
-     * on the request definition.)
+     * Requests can have two arguments: Value and Index (used both independently and together, based on the request
+     * definition.)
      *
      * E.g. Interface index for requests directed at an Interface.
      *
