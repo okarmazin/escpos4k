@@ -60,12 +60,16 @@ kotlin {
   macosArm64()
   macosX64()
 
+  linuxArm64()
+  linuxX64()
+  mingwX64()
+
   sourceSets {
     val commonMain by getting {
       dependencies {
         api(libs.arrow.core)
         implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.ktor.network)
+//        implementation(libs.ktor.network)
       }
     }
     val commonTest by getting {
@@ -81,13 +85,13 @@ kotlin {
     val androidMain by getting
     val androidUnitTest by getting {
       dependencies {
-        implementation(libs.kotlin.test.junit)
+        implementation(libs.kotlin.test.junit5)
         implementation(libs.kotest.runner.junit5)
       }
     }
     val jvmTest by getting {
       dependencies {
-        implementation(libs.kotlin.test.junit)
+        implementation(libs.kotlin.test.junit5)
         implementation(libs.kotest.runner.junit5)
       }
     }

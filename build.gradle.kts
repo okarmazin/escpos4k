@@ -12,6 +12,6 @@ plugins {
 }
 
 tasks.named<Delete>("clean") {
-  val buildDirs = allprojects.map(Project::getBuildDir)
+  val buildDirs = allprojects.map { it.layout.buildDirectory }
   delete(buildDirs)
 }

@@ -1,6 +1,6 @@
 # ESC/POS for Kotlin Multiplatform
 
-Basic ESC/POS command generator and device connection support for various connection types: Bluetooth, USB, TCP.
+Basic ESC/POS command generator and device connection support for various connection types: Bluetooth, USB.
 
 This library is not a wrapper around established ESC/POS libraries, but rather a green field implementation.
 
@@ -115,4 +115,3 @@ The following table summarizes connector implementation status on each platform.
 | **Command builder**     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | **Bluetooth connector** | :heavy_check_mark: | :x:                | `N/A`              | :x:                |
 | **USB connector**       | :heavy_check_mark: | :x:                | `N/A`              | :x:                |
-| **TCP connector**       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
