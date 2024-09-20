@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.vanniktechPublishingBase)
   alias(libs.plugins.kotest.multiplatform)
+  alias(libs.plugins.detekt)
 }
 
 group = "cz.multiplatform.escpos4k"
@@ -125,4 +126,8 @@ android {
 tasks.withType<Test> {
   systemProperty("kotest.assertions.collection.print.size", 100)
   useJUnitPlatform()
+}
+
+detekt {
+  source.setFrom("src/commonMain/kotlin")
 }

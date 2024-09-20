@@ -7,6 +7,7 @@ androidTargetSdk = "33"
 arrow = "1.2.4"
 coroutines = "1.7.3"
 dependencyUpdates = "0.50.0"
+detekt = "1.23.6"
 kotest = "5.9.0"
 kotest-arrow = "1.4.0"
 kotlin = "1.9.25"
@@ -48,6 +49,7 @@ ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 dependencyUpdates = { id = "com.github.ben-manes.versions", version.ref = "dependencyUpdates" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
