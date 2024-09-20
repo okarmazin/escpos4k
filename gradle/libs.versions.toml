@@ -1,16 +1,16 @@
 [versions]
 androidCompileSdk = "31"
-androidCoreDesugaring = "2.0.3"
-androidGradlePlugin = "8.2.0"
+androidCoreDesugaring = "2.1.2"
+androidGradlePlugin = "8.2.2"
 androidMinSdk = "23"
 androidTargetSdk = "33"
 arrow = "1.2.4"
-coroutines = "1.7.3"
+coroutines = "1.8.1"
 dependencyUpdates = "0.50.0"
 detekt = "1.23.6"
-kotest = "5.9.0"
+kotest = "5.9.1"
 kotest-arrow = "1.4.0"
-kotlin = "1.9.25"
+kotlin = "2.0.10"
 ktor = "2.3.5"
 vanniktechPublishing = "0.25.3"
 
@@ -33,14 +33,12 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 kotlin-test-js = { module = "org.jetbrains.kotlin:kotlin-test-js", version.ref = "kotlin" }
 
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
 
 [bundles]
@@ -52,6 +50,5 @@ dependencyUpdates = { id = "com.github.ben-manes.versions", version.ref = "depen
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 vanniktechPublishingBase = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktechPublishing" }
