@@ -559,7 +559,7 @@ public class CommandBuilder(
 public data class LineSegment(
     val text: String,
     /** Alignment of text within the segment. */
-    val alignment: TextAlignment
+    val alignment: TextAlignment,
 )
 
 /** A named tuple of [LineSegment] and its `allottedSpace` by a [LineDistributionStrategy]. */
@@ -576,7 +576,7 @@ public fun interface LineDistributionStrategy {
   public fun distributeLine(
       charsPerLine: Int,
       charWidth: Int,
-      segments: Nel<LineSegment>
+      segments: Nel<LineSegment>,
   ): Nel<SizedSegment>
 
   public companion object {

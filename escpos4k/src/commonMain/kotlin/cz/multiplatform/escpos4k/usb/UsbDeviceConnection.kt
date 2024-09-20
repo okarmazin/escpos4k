@@ -33,7 +33,7 @@ public abstract class UsbDeviceConnection(public val device: UsbDevice) {
 
   protected abstract fun claimInterfaceInternal(
       iface: UsbInterface,
-      force: Boolean
+      force: Boolean,
   ): Either<UsbConnectionError, Unit>
 
   public fun releaseInterface(iface: UsbInterface): Either<UsbConnectionError, Unit> =
@@ -49,10 +49,10 @@ public abstract class UsbDeviceConnection(public val device: UsbDevice) {
    * Perform a Control Transfer request.
    *
    * @param setupPacket The Control Transfer Setup Packet. Some predefined packets can be found in
-   * [StandardControlRequests].
+   *   [StandardControlRequests].
    *
    * @param dataBuffer Depending on the request direction, this is either the outgoing data provided
-   * by the caller, OR the empty buffer where incoming response data will be stored.
+   *   by the caller, OR the empty buffer where incoming response data will be stored.
    */
   public abstract suspend fun controlTransfer(setupPacket: SetupPacket, dataBuffer: ByteArray): Int
 
@@ -106,7 +106,7 @@ internal class DeviceStatus(
      *
      * If `false`, the device is powered by the bus.
      */
-    val isSelfPowered: Boolean
+    val isSelfPowered: Boolean,
 )
 
 /** Access the device status, returns `null` if an error occurred. */

@@ -54,7 +54,8 @@ internal fun toCommonInterface(platformInterface: android.hardware.usb.UsbInterf
                     UsbEndpoint.Direction.values().first { it.intValue == platformEp.direction },
                 bEndpointAddress = platformEp.address,
                 bmAttributes = platformEp.attributes,
-                endpointNumber = platformEp.endpointNumber)
+                endpointNumber = platformEp.endpointNumber,
+            )
           }
           .sortedBy { it.endpointNumber }
   return UsbInterface(
@@ -72,4 +73,5 @@ internal fun toCommonDevice(platformDevice: android.hardware.usb.UsbDevice): Usb
         manufacturerName = platformDevice.manufacturerName,
         deviceClass = UsbClass.fromInt(platformDevice.deviceClass) as DeviceClass,
         productId = platformDevice.productId,
-        interfaces = platformDevice.interfaces().map(::toCommonInterface))
+        interfaces = platformDevice.interfaces().map(::toCommonInterface),
+    )

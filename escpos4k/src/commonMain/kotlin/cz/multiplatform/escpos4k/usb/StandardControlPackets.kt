@@ -33,7 +33,8 @@ internal object StandardControlRequests {
             request = getStatus,
             argValue = 0u,
             argIndex = 0u,
-            dataLength = 2u) // Returns the 2-byte Device Status
+            dataLength = 2u,
+        ) // Returns the 2-byte Device Status
 
     fun clearFeature(feature: UShort): SetupPacket =
         SetupPacket(
@@ -41,7 +42,8 @@ internal object StandardControlRequests {
             request = clearFeature,
             argValue = feature,
             argIndex = 0u,
-            dataLength = 0u)
+            dataLength = 0u,
+        )
 
     fun setFeature(feature: UShort): SetupPacket =
         SetupPacket(
@@ -49,7 +51,8 @@ internal object StandardControlRequests {
             request = setFeature,
             argValue = feature,
             argIndex = 0u,
-            dataLength = 0u)
+            dataLength = 0u,
+        )
 
     /** The address is coerced into the valid range `0..127` */
     fun setAddress(address: UByte): SetupPacket {
@@ -59,7 +62,8 @@ internal object StandardControlRequests {
           request = setAddress,
           argValue = sanitized.toUShort(),
           argIndex = 0u,
-          dataLength = 0u)
+          dataLength = 0u,
+      )
     }
 
     // TODO Implement the descriptor and configuration requests

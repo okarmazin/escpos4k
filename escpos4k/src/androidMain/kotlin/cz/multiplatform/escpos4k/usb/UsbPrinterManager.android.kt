@@ -73,7 +73,11 @@ internal class AndroidUsbPrinterManager(context: Context) : AbstractUsbPrinterMa
 
       val permissionIntent =
           PendingIntent.getBroadcast(
-              context, 0, Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE)
+              context,
+              0,
+              Intent(ACTION_USB_PERMISSION),
+              PendingIntent.FLAG_IMMUTABLE,
+          )
 
       context.usbManager().requestPermission(context.platformDevice(printer), permissionIntent)
     }

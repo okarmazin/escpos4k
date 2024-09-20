@@ -13,7 +13,8 @@ class FindOutputEndpointTest {
             interfaceClass = UsbClass.Printer,
             name = null,
             bInterfaceNumber = 1,
-            endpoints = bulkAndControl())
+            endpoints = bulkAndControl(),
+        )
     val device =
         UsbDevice(
             "device1",
@@ -21,7 +22,8 @@ class FindOutputEndpointTest {
             "Epson",
             UsbClass.DefinedByInterface,
             1,
-            listOf(printerInterface))
+            listOf(printerInterface),
+        )
 
     assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
@@ -33,7 +35,8 @@ class FindOutputEndpointTest {
             interfaceClass = UsbClass.Printer,
             name = null,
             bInterfaceNumber = 1,
-            endpoints = control())
+            endpoints = control(),
+        )
     val device =
         UsbDevice(
             "device1",
@@ -41,7 +44,8 @@ class FindOutputEndpointTest {
             "Epson",
             UsbClass.DefinedByInterface,
             1,
-            listOf(printerInterface))
+            listOf(printerInterface),
+        )
 
     assertNull(device.findOutputEndpoint().getOrNull())
   }
@@ -53,7 +57,8 @@ class FindOutputEndpointTest {
             interfaceClass = UsbClass.VendorSpecific,
             name = null,
             bInterfaceNumber = 1,
-            endpoints = bulkAndControl())
+            endpoints = bulkAndControl(),
+        )
     val device =
         UsbDevice(
             "device1",
@@ -61,7 +66,8 @@ class FindOutputEndpointTest {
             "Epson",
             UsbClass.DefinedByInterface,
             1,
-            listOf(printerInterface))
+            listOf(printerInterface),
+        )
 
     assertSame(printerInterface.endpoints[1], device.findOutputEndpoint().getOrNull()!!)
   }
@@ -73,7 +79,8 @@ class FindOutputEndpointTest {
             interfaceClass = UsbClass.VendorSpecific,
             name = null,
             bInterfaceNumber = 1,
-            endpoints = control())
+            endpoints = control(),
+        )
     val device =
         UsbDevice(
             "device1",
@@ -81,7 +88,8 @@ class FindOutputEndpointTest {
             "Epson",
             UsbClass.DefinedByInterface,
             1,
-            listOf(printerInterface))
+            listOf(printerInterface),
+        )
 
     assertNull(device.findOutputEndpoint().getOrNull())
   }
@@ -94,12 +102,14 @@ class FindOutputEndpointTest {
                 interfaceClass = UsbClass.VendorSpecific,
                 name = null,
                 bInterfaceNumber = 1,
-                endpoints = control()),
+                endpoints = control(),
+            ),
             UsbInterface(
                 interfaceClass = UsbClass.VendorSpecific,
                 name = null,
                 bInterfaceNumber = 2,
-                endpoints = bulkAndControl()),
+                endpoints = bulkAndControl(),
+            ),
         )
     val device =
         UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
@@ -116,12 +126,14 @@ class FindOutputEndpointTest {
                     UsbClass.Image, // TODO check all of the other disqualifying classes
                 name = null,
                 bInterfaceNumber = 1,
-                endpoints = control()),
+                endpoints = control(),
+            ),
             UsbInterface(
                 interfaceClass = UsbClass.VendorSpecific,
                 name = null,
                 bInterfaceNumber = 2,
-                endpoints = bulkAndControl()),
+                endpoints = bulkAndControl(),
+            ),
         )
     val device =
         UsbDevice("device1", "Printer1", "Epson", UsbClass.DefinedByInterface, 1, printerInterfaces)
@@ -136,7 +148,5 @@ class FindOutputEndpointTest {
       )
 
   private fun control(): List<UsbEndpoint> =
-      listOf(
-          UsbEndpoint(1, UsbEndpoint.Type.Control, UsbEndpoint.Direction.Out, 1, 1, 1),
-      )
+      listOf(UsbEndpoint(1, UsbEndpoint.Type.Control, UsbEndpoint.Direction.Out, 1, 1, 1))
 }

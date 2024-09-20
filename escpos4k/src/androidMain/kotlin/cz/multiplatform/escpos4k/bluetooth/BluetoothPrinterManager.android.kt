@@ -120,7 +120,8 @@ private class AndroidBluetoothPrinterManager(context: Context) : BluetoothPrinte
                 platformDevice.type.toBtType(),
                 platformDevice.uuids.orEmpty().map { it.uuid.toString() },
                 platformDevice.bluetoothClass.majorDeviceClass,
-                platformDevice.bluetoothClass.deviceClass)
+                platformDevice.bluetoothClass.deviceClass,
+            )
           }
         }
         .mapLeft { BluetoothError.Unknown(it) }

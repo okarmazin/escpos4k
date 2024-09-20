@@ -50,7 +50,7 @@ public interface TcpPrinterManager {
   ): Either<TcpError, TcpPrinterConnection>
 }
 
-@ExperimentalEscPosApi
+@ExperimentalEscPosApi //
 public fun TcpPrinterManager(): TcpPrinterManager = TcpPrinterManagerImpl()
 
 @OptIn(ExperimentalEscPosApi::class)
@@ -60,7 +60,7 @@ private class TcpPrinterManagerImpl : TcpPrinterManager {
       ipAddress: String,
       port: Int,
       connectTimeout: Duration,
-      readWriteTimeout: Duration
+      readWriteTimeout: Duration,
   ): Either<TcpError, TcpPrinterConnection> {
     return withContext(Dispatchers.Default) {
       var socket: Socket? = null
@@ -69,7 +69,8 @@ private class TcpPrinterManagerImpl : TcpPrinterManager {
           socket = aSocket(SelectorManager(Dispatchers.Default)).tcp().connect(ipAddress, port)
         }
         currentCoroutineContext().ensureActive()
-        return@withContext TcpPrinterConnection(socket!!.connection(), name, ipAddress, port).right()
+        return@withContext TcpPrinterConnection(socket!!.connection(), name, ipAddress, port)
+            .right()
       } catch (cause: Throwable) {
         socket?.close()
 

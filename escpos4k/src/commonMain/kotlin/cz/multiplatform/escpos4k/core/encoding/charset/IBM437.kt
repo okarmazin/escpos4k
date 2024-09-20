@@ -147,5 +147,6 @@ public data object IBM437 : Charset(0, "IBM437") {
           '\u207F' to 0xFC,
           '\u00B2' to 0xFD,
           '\u25A0' to 0xFE,
-          '\u00A0' to 0xFF)
+          '\u00A0' to 0xFF,
+      )
 }

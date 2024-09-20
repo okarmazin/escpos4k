@@ -22,9 +22,8 @@ import cz.multiplatform.escpos4k.core.PrinterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-public class UsbPrinterConnection(
-    private val deviceConnection: UsbDeviceConnection,
-) : PrinterConnection {
+public class UsbPrinterConnection(private val deviceConnection: UsbDeviceConnection) :
+    PrinterConnection {
   override val name: String = with(deviceConnection.device) { productName ?: osAssignedName }
 
   public override val isOpen: Boolean
@@ -50,12 +49,12 @@ public class UsbPrinterConnection(
                   {
                     return@withContext PrintError.NotAPrinter
                   },
-                  ::identity)
+                  ::identity,
+              )
       val iface =
           deviceConnection.device.interfaces.firstOrNull {
             it.bInterfaceNumber == outEndpoint.ifaceNumber
-          }
-              ?: return@withContext PrintError.NotAPrinter
+          } ?: return@withContext PrintError.NotAPrinter
 
       deviceConnection.claimInterface(iface, true).fold(::mapConnectionError) {
         try {

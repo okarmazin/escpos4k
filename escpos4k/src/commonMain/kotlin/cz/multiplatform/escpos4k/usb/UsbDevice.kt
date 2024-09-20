@@ -28,5 +28,5 @@ public data class UsbDevice(
     val manufacturerName: String?,
     val deviceClass: DeviceClass,
     val productId: Int,
-    val interfaces: List<UsbInterface>
+    val interfaces: List<UsbInterface>,
 )

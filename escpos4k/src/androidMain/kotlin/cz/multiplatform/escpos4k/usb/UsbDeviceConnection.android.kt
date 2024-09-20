@@ -24,13 +24,13 @@ import kotlinx.coroutines.withContext
 
 internal class AndroidUsbDeviceConnection(
     private val platformDevice: android.hardware.usb.UsbDevice,
-    platformConnection: android.hardware.usb.UsbDeviceConnection
+    platformConnection: android.hardware.usb.UsbDeviceConnection,
 ) : UsbDeviceConnection(toCommonDevice(platformDevice)) {
   private var platformConnection: android.hardware.usb.UsbDeviceConnection? = platformConnection
 
   override fun claimInterfaceInternal(
       iface: UsbInterface,
-      force: Boolean
+      force: Boolean,
   ): Either<UsbConnectionError, Unit> {
     val isClaimed =
         platformConnection?.claimInterface(platformDevice.findPlatformInterface(iface), force)

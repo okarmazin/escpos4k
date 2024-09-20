@@ -33,7 +33,7 @@ public interface PrinterConnection {
 @ExperimentalEscPosApi
 public suspend fun PrinterConnection.print(
     config: PrinterConfiguration,
-    content: CommandBuilder.() -> Unit
+    content: CommandBuilder.() -> Unit,
 ): PrintError? {
   val builder = CommandBuilder(config, content)
   return printRaw(builder.bytes())
@@ -41,10 +41,12 @@ public suspend fun PrinterConnection.print(
 
 public sealed class ConnectionError {
   public data object NotAPrinter : ConnectionError()
+
   public data object FailedToOpenDevice : ConnectionError()
 }
 
 public sealed class PrintError {
   public data object NotConnected : PrintError()
+
   public data object NotAPrinter : PrintError()
 }

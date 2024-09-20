@@ -29,7 +29,7 @@ public sealed class Charset(
      *
      * https://www.iana.org/assignments/character-sets/character-sets.xhtml
      */
-    public val ianaName: String
+    public val ianaName: String,
 ) {
   public companion object {
     internal val default = IBM437

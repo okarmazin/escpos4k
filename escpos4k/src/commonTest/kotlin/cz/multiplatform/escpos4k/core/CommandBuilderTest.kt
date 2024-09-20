@@ -251,7 +251,9 @@ class CommandBuilderTest : FunSpec() {
         val builder =
             CommandBuilder(defaultConfig) {
               segmentedLine(
-                  LineSegment("", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
+                  LineSegment("", TextAlignment.LEFT),
+                  LineSegment("3", TextAlignment.LEFT),
+              )
             }
 
         builder.commands shouldContainExactly
@@ -267,7 +269,9 @@ class CommandBuilderTest : FunSpec() {
             CommandBuilder(PrinterConfiguration(10)) {
               textSize(8, 1)
               segmentedLine(
-                  LineSegment("12", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
+                  LineSegment("12", TextAlignment.LEFT),
+                  LineSegment("3", TextAlignment.LEFT),
+              )
             }
         builder.commands shouldContainExactly
             initSequence +

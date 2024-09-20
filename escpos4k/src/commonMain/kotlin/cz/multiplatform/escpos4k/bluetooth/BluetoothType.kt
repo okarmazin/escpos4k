@@ -20,5 +20,5 @@ public enum class BluetoothType {
   Classic,
   LowEnergy,
   Dual,
-  Unknown
+  Unknown,
 }

@@ -70,7 +70,7 @@ package cz.multiplatform.escpos4k.usb
  * The length is well-defined for Control Transfer requests.
  */
 public class SetupPacket(
-  /**
+    /**
      * Bit-mapped byte describing transfer direction, type of request, and recipient.
      *
      * The bit mask is as follows:
@@ -92,15 +92,15 @@ public class SetupPacket(
      * |           |                    | 4..31 = Reserved         |
      * ```
      */
-  public val requestType: UByte,
+    public val requestType: UByte,
 
-  /**
+    /**
      * The request being made. The meaning of this value is based on the declared recipient from
      * [requestType].
      */
-  public val request: UByte,
+    public val request: UByte,
 
-  /**
+    /**
      * Request argument: Value
      *
      * Requests can have two arguments: Value and Index (used both independently and together, based
@@ -110,9 +110,9 @@ public class SetupPacket(
      *
      * @see argIndex
      */
-  public val argValue: UShort,
+    public val argValue: UShort,
 
-  /**
+    /**
      * Request argument: Index
      *
      * Requests can have two arguments: Value and Index (used both independently and together, based
@@ -122,12 +122,12 @@ public class SetupPacket(
      *
      * @see argValue
      */
-  public val argIndex: UShort,
+    public val argIndex: UShort,
 
-  /**
+    /**
      * The length of data to be received in the optional Data phase of the Control Transfer.
      *
      * The length is well-defined for Control Transfer requests.
      */
-  public val dataLength: UShort,
+    public val dataLength: UShort,
 )

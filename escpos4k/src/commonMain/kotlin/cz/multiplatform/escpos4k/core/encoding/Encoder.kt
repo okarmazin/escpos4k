@@ -45,7 +45,8 @@ internal fun String.encode(charset: Charset): ByteArray {
             val byte = charset.mapping[char]?.toByte()
             if (byte == null) {
               log(
-                  "[${charset.ianaName}] Replacing unmappable code unit '${char.code}' at index $index with '$replacement'")
+                  "[${charset.ianaName}] Replacing unmappable code unit '${char.code}' at index $index with '$replacement'"
+              )
             }
             byte ?: replacementByte
           }

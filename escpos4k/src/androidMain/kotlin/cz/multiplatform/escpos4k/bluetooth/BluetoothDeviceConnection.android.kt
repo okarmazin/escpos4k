@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 
 internal class AndroidBluetoothDeviceConnection(
     private val connection: BluetoothSocket,
-    device: BluetoothDevice
+    device: BluetoothDevice,
 ) : BluetoothDeviceConnection(device) {
   private val writeMutex = Mutex()
 

@@ -35,11 +35,11 @@ public data class UsbEndpoint(
     Control,
     Isochronous,
     Bulk,
-    Interrupt
+    Interrupt,
   }
 
   public enum class Direction(internal val intValue: Int) {
     In(128),
-    Out(0)
+    Out(0),
   }
 }

@@ -35,15 +35,15 @@ public data class PrinterConfiguration(
      *
      * Used in:
      * - The layout algorithm of column-based command builder. The algorithm needs to know the total
-     * length of a line to be able to distribute the space among the columns.
+     *   length of a line to be able to distribute the space among the columns.
      */
-    val charactersPerLine: Int,
+    val charactersPerLine: Int
 
-//    /**
-//     * The total printable width in millimetres. In the typical case this number will be about
-//     * approximately `<paper width in mm> - 10` (printer leaves 5 mm margin on each side).
-//     *
-//     * Why is this important?
-//     */
-//    val effectivePrintingWidthMM: Int,
+    //    /**
+    //     * The total printable width in millimetres. In the typical case this number will be about
+    //     * approximately `<paper width in mm> - 10` (printer leaves 5 mm margin on each side).
+    //     *
+    //     * Why is this important?
+    //     */
+    //    val effectivePrintingWidthMM: Int,
 )

@@ -221,10 +221,7 @@ internal sealed class Command {
     override fun bytes(): ByteArray = byteArrayOf(29, 86, 1)
   }
 
-  class QRCode(
-      content: String,
-      errorCorrection: QRCorrectionLevel,
-  ) : Command() {
+  class QRCode(content: String, errorCorrection: QRCorrectionLevel) : Command() {
     private val content: ByteArray
 
     init {
@@ -268,10 +265,7 @@ internal sealed class Command {
     }
   }
 
-  class AztecCode(
-      content: String,
-      errorCorrection: Int,
-  ) : Command() {
+  class AztecCode(content: String, errorCorrection: Int) : Command() {
     private val content: ByteArray
 
     init {
@@ -487,5 +481,5 @@ internal sealed class Command {
 public enum class TextAlignment(internal val value: Byte) {
   LEFT(0),
   CENTER(1),
-  RIGHT(2)
+  RIGHT(2),
 }

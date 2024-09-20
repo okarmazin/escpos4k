@@ -59,10 +59,8 @@ public sealed class BarcodeSpec {
    * @see create
    */
   public class QRCodeSpec
-  private constructor(
-      public val text: String,
-      public val errorCorrection: QRCorrectionLevel,
-  ) : BarcodeSpec() {
+  private constructor(public val text: String, public val errorCorrection: QRCorrectionLevel) :
+      BarcodeSpec() {
 
     override fun asCommand(): Command.QRCode = Command.QRCode(text, errorCorrection)
 
@@ -90,6 +88,7 @@ public sealed class BarcodeSpec {
 
     public sealed class QRCodeError {
       public data object EmptyContent : QRCodeError()
+
       public data object TooLong : QRCodeError()
     }
 
@@ -104,14 +103,10 @@ public sealed class BarcodeSpec {
        */
       public fun create(
           text: String,
-          errorCorrection: QRCorrectionLevel = QRCorrectionLevel.L
+          errorCorrection: QRCorrectionLevel = QRCorrectionLevel.L,
       ): Either<QRCodeError, QRCodeSpec> = either {
-        ensure(text.isNotEmpty()) {
-          QRCodeError.EmptyContent
-        }
-        ensure(text.length <= MAX_LENGTH) {
-          QRCodeError.TooLong
-        }
+        ensure(text.isNotEmpty()) { QRCodeError.EmptyContent }
+        ensure(text.length <= MAX_LENGTH) { QRCodeError.TooLong }
 
         QRCodeSpec(text, errorCorrection)
       }
@@ -126,14 +121,12 @@ public sealed class BarcodeSpec {
    * @see create
    */
   public class AztecCodeSpec
-  private constructor(
-      public val text: String,
-      public val ecPercent: Int,
-  ) : BarcodeSpec() {
+  private constructor(public val text: String, public val ecPercent: Int) : BarcodeSpec() {
     override fun asCommand(): Command = Command.AztecCode(text, ecPercent)
 
     public sealed class AztecCodeError {
       public data object EmptyContent : AztecCodeError()
+
       public data object TooLong : AztecCodeError()
     }
 
@@ -160,12 +153,8 @@ public sealed class BarcodeSpec {
        */
       public fun create(text: String, ecPercent: Int = 23): Either<AztecCodeError, AztecCodeSpec> =
           either {
-            ensure(text.isNotEmpty()) {
-              AztecCodeError.EmptyContent
-            }
-            ensure(text.length <= MAX_LENGTH) {
-              AztecCodeError.TooLong
-            }
+            ensure(text.isNotEmpty()) { AztecCodeError.EmptyContent }
+            ensure(text.length <= MAX_LENGTH) { AztecCodeError.TooLong }
 
             AztecCodeSpec(text, ecPercent.coerceIn(5..95))
           }
@@ -185,11 +174,13 @@ public sealed class BarcodeSpec {
 
     public sealed class DataMatrixError {
       public data object EmptyContent : DataMatrixError()
+
       public data object TooLong : DataMatrixError()
     }
 
     public companion object {
       public const val MAX_LENGTH: Int = 3116
+
       /**
        * Print a Data Matrix.
        *
@@ -202,12 +193,8 @@ public sealed class BarcodeSpec {
        * numeric text. The realistic limit for random text is lower.
        */
       public fun create(text: String): Either<DataMatrixError, DataMatrixSpec> = either {
-        ensure(text.isNotEmpty()) {
-          DataMatrixError.EmptyContent
-        }
-        ensure(text.length <= MAX_LENGTH) {
-          DataMatrixError.TooLong
-        }
+        ensure(text.isNotEmpty()) { DataMatrixError.EmptyContent }
+        ensure(text.length <= MAX_LENGTH) { DataMatrixError.TooLong }
 
         DataMatrixSpec(text)
       }
@@ -233,7 +220,9 @@ public sealed class BarcodeSpec {
           return "IllegalCharacter(message='$message')"
         }
       }
+
       public data object IncorrectLength : UPCAError()
+
       public data class InvalidCheckDigit(val expected: Int, val actual: Int) : UPCAError()
     }
 
@@ -246,11 +235,9 @@ public sealed class BarcodeSpec {
        * contain digits and the input must be of certain length.
        *
        * The following input is accepted:
-       *
        * 1) 11-digit string. This function will calculate and add the 12th check digit.
-       *
        * 2) 12-digit string. This function will check whether the 12th digit is a valid check digit,
-       * returning an error if not.
+       *    returning an error if not.
        */
       public fun create(text: String, hri: HriPosition): Either<UPCAError, UPCASpec> = either {
         when (text.length) {
@@ -265,9 +252,7 @@ public sealed class BarcodeSpec {
             ensureNumericContent(text, UPCAError::IllegalCharacter)
             val checkDigit = calculateCheckDigit(text.take(11))
             val candidate = text.last().digitToInt()
-            ensure(candidate == checkDigit) {
-              UPCAError.InvalidCheckDigit(checkDigit, candidate)
-            }
+            ensure(candidate == checkDigit) { UPCAError.InvalidCheckDigit(checkDigit, candidate) }
 
             UPCASpec(text, hri)
           }
@@ -312,7 +297,9 @@ public sealed class BarcodeSpec {
           return "IllegalCharacter(message='$message')"
         }
       }
+
       public data object IncorrectLength : EAN13Error()
+
       public data class InvalidCheckDigit(val expected: Int, val actual: Int) : EAN13Error()
     }
 
@@ -325,11 +312,9 @@ public sealed class BarcodeSpec {
        * contain digits and the input must be of certain length.
        *
        * The following input is accepted:
-       *
        * 1) 12-digit string. This function will calculate and add the 13th check digit.
-       *
        * 2) 13-digit string. This function will check whether the 13th digit is a valid check digit,
-       * returning an error if not.
+       *    returning an error if not.
        */
       public fun create(text: String, hri: HriPosition): Either<EAN13Error, EAN13Spec> = either {
         when (text.length) {
@@ -344,9 +329,7 @@ public sealed class BarcodeSpec {
             ensureNumericContent(text, EAN13Error::IllegalCharacter)
             val checkDigit = calculateEANCheckDigit(text.take(12))
             val candidate = text.last().digitToInt()
-            ensure(candidate == checkDigit) {
-              EAN13Error.InvalidCheckDigit(checkDigit, candidate)
-            }
+            ensure(candidate == checkDigit) { EAN13Error.InvalidCheckDigit(checkDigit, candidate) }
 
             EAN13Spec(text, hri)
           }
@@ -377,7 +360,9 @@ public sealed class BarcodeSpec {
           return "IllegalCharacter(message='$message')"
         }
       }
+
       public data object IncorrectLength : EAN8Error()
+
       public data class InvalidCheckDigit(val expected: Int, val actual: Int) : EAN8Error()
     }
 
@@ -390,11 +375,9 @@ public sealed class BarcodeSpec {
        * contain digits and the input must be of certain length.
        *
        * The following input is accepted:
-       *
        * 1) 7-digit string. This function will calculate and add the 13th check digit.
-       *
        * 2) 8-digit string. This function will check whether the 13th digit is a valid check digit,
-       * returning an error if not.
+       *    returning an error if not.
        */
       public fun create(text: String, hri: HriPosition): Either<EAN8Error, EAN8Spec> = either {
         when (text.length) {
@@ -409,9 +392,7 @@ public sealed class BarcodeSpec {
             ensureNumericContent(text, EAN8Error::IllegalCharacter)
             val checkDigit = calculateEANCheckDigit(text.take(7))
             val candidate = text.last().digitToInt()
-            ensure(candidate == checkDigit) {
-              EAN8Error.InvalidCheckDigit(checkDigit, candidate)
-            }
+            ensure(candidate == checkDigit) { EAN8Error.InvalidCheckDigit(checkDigit, candidate) }
 
             EAN8Spec(text, hri)
           }
@@ -444,7 +425,7 @@ public enum class QRCorrectionLevel(internal val level: Byte) {
   /** 25 % (approx.) */
   Q(50),
   /** 30 % (approx.) */
-  H(51)
+  H(51),
 }
 
 private fun calculateEANCheckDigit(data: String): Int {

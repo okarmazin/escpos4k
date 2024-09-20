@@ -20,19 +20,20 @@ import cz.multiplatform.escpos4k.core.encoding.charset.Windows1252
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class EncoderTest : FunSpec({
-  fun String.ascii(): ByteArray = toCharArray().map { it.code.toByte() }.toByteArray()
+class EncoderTest :
+    FunSpec({
+      fun String.ascii(): ByteArray = toCharArray().map { it.code.toByte() }.toByteArray()
 
-  context("handling of unicode replacement character") {
-    test("unicode replacement char gets mapped to our replacement char") {
-      "abc\uFFFD".encode(Windows1252) shouldBe "abc?".ascii()
-      "abc?".encode(Windows1252) shouldBe "abc?".ascii()
-    }
-  }
+      context("handling of unicode replacement character") {
+        test("unicode replacement char gets mapped to our replacement char") {
+          "abc\uFFFD".encode(Windows1252) shouldBe "abc?".ascii()
+          "abc?".encode(Windows1252) shouldBe "abc?".ascii()
+        }
+      }
 
-  context("handling of unknown characters") {
-    test("unknown char gets mapped to our replacement char") {
-      "abcě".encode(Windows1252) shouldBe "abc?".ascii()
-    }
-  }
-})
+      context("handling of unknown characters") {
+        test("unknown char gets mapped to our replacement char") {
+          "abcě".encode(Windows1252) shouldBe "abc?".ascii()
+        }
+      }
+    })
