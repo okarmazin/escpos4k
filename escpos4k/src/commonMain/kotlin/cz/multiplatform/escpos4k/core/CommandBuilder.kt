@@ -44,9 +44,9 @@ import cz.multiplatform.escpos4k.core.encoding.charset.Charset
  * val builder = CommandBuilder(defaultConfig) {
  *   // Charsets
  *   line("Famous bridges:")
- *   charset(IBM865) // Can encode Ø, but not ů
+ *   charset(IBM865)                // Can encode Ø, but not ů
  *   line("Øresundsbroen: 7845m")
- *   charset(IBM852) // Can encode ů, but not Ø
+ *   charset(IBM852)                // Can encode ů, but not Ø
  *   line("Karlův most: 515m")
  *
  *   // Text style - temporary style builder
@@ -102,18 +102,19 @@ public class CommandBuilder(
       asReversed().asSequence().filterIsInstance<T>().firstOrNull()
 
   /**
-   * Print text without terminating the line. The supplied Kotlin `String` will be encoded to
-   * single-byte characters according to the currently selected [charset].
+   * Print a piece of text without terminating the line. The supplied Kotlin `String` will be
+   * encoded to single-byte characters according to the currently selected [charset].
    *
-   * The behavior when [text] contains characters not belonging to the currently selected charset is
-   * platform dependent. Usually the unknown character is replaced with a replacement character.
+   * Control characters (including newline) in the supplied text and characters not belonging to the
+   * currently selected charset will be replaced by the replacement character.
    *
    * ```
    * printer.print {
    *   text("I am.")
+   *   text(" ")
    *   text("I am also.")
    *
-   *   // The above prints: "I am.I am also."
+   *   // The above prints: "I am. I am also."
    * }
    * ```
    *
@@ -130,21 +131,20 @@ public class CommandBuilder(
   }
 
   /**
-   * Print text followed by `\n`. The supplied Kotlin `String` will be encoded to single-byte
-   * characters according to the currently selected [charset].
+   * Print text on a single line and move to the next line. The supplied Kotlin `String` will be
+   * encoded to single-byte characters according to the currently selected [charset].
    *
-   * The behavior when [text] contains characters not belonging to the currently selected charset is
-   * platform dependent. Usually the unknown character is replaced with a replacement character.
-   *
-   * Literally just `text(text + "\n")`
+   * Control characters (including newline) in the supplied text and characters not belonging to the
+   * currently selected charset will be replaced by the replacement character. This means you cannot
+   * print multiple lines with a single invocation of this function.
    *
    * ```
    * printer.print {
-   *   val text = "I'm Mr. Meeseeks, look at me!"
+   *   line("I'm Mr. Meeseeks, look at me!")
    *
-   *   text(text + "\n") // Annoying: must remember to add "\n"
+   *   line("A\nB")
    *
-   *   line(text) // Much better
+   *   // The above prints "A?B", because newline is a control character.
    * }
    * ```
    *
@@ -163,10 +163,10 @@ public class CommandBuilder(
    * printer.print {
    *   line("Famous bridges:")
    *
-   *   charset(IBM865) // Can encode Ø, but not ů
+   *   charset(IBM865)               // Can encode Ø, but not ů
    *   line("Øresundsbroen: 7845m")
    *
-   *   charset(IBM852) // Can encode ů, but not Ø
+   *   charset(IBM852)               // Can encode ů, but not Ø
    *   line("Karlův most: 515m")
    * }
    * ```
@@ -192,16 +192,14 @@ public class CommandBuilder(
    * printer.print {
    *   line("Famous bridges")
    *
-   *   // 865 can encode Ø, but not ů
-   *   charset(IBM865)
+   *   charset(IBM865)               // IBM865 can encode Ø, but not ů
    *   line("Øresundsbroen: 7845m")
    *
-   *   withCharset(IBM852) {
-   *     // 852 can encode ů, but not Ø
+   *   withCharset(IBM852) {         // IBM852 can encode ů, but not Ø
    *     line("Karlův most: 515m")
    *   }
    *
-   *   line("I can encode Ø again!")
+   *   line("I can print Ø again!")
    * }
    * ```
    *
@@ -230,7 +228,7 @@ public class CommandBuilder(
    *   textSize(width = 2, height = 3)
    *   line("Me big!")
    *
-   *   textSize() // Utilizing default arguments
+   *   textSize() // Utilizing default arguments 1, 1 to reset text size
    *
    *   line("I'm back to normal size.")
    * }
@@ -397,12 +395,11 @@ public class CommandBuilder(
   }
 
   /**
-   * Set the text alignment. Only takes effect if the printer is in the start-of-line state.
-   * Therefore, this cannot be used to align multiple pieces of text on the same line.
+   * Set the text alignment for the entire line. Only takes effect if the printer is in the
+   * start-of-line state. Therefore, this cannot be used to align multiple pieces of text on the
+   * same line.
    *
-   * Aligning multiple pieces of text on the same line has to be done manually by adding the
-   * appropriate number of spaces in between the fragments and then printing this spaced out text as
-   * a single line.
+   * See [segmentedLine] for aligning multiple pieces of text on a single line.
    *
    * @see segmentedLine
    * @see TextAlignment
@@ -427,7 +424,7 @@ public class CommandBuilder(
    * @see BarcodeSpec
    */
   public fun barcode(spec: BarcodeSpec) {
-    commands.add(spec.asCommand()) //
+    commands.add(spec.asCommand())
   }
 
   /**
@@ -436,9 +433,6 @@ public class CommandBuilder(
    *
    * **Segment Overflow**: If a segment is too long for its allotted space, the text overflows onto
    * the next line or lines. The overflown line keeps the text alignment.
-   *
-   * In the following example, each segment is given 8 characters to work with. The second segment
-   * is too long to fit, so it breaks downwards.
    *
    * ```
    * // Let the line length be 16. Each segment gets 8 single-width spaces to work with.
@@ -449,23 +443,21 @@ public class CommandBuilder(
    *
    * textSize(2, 1) // Double character width
    * segmentedLine(
-   *   LineSegment("seg3", TextAlignment.LEFT),
-   *   LineSegment("seg4_overflow", TextAlignment.RIGHT),
+   *   LineSegment("seg3_over", TextAlignment.LEFT),
+   *   LineSegment("seg4_over", TextAlignment.RIGHT),
    * )
    *
-   * // Printed output (the paper/segment bounds are outlined with '|' and '_'):
+   * ┌────────┬────────┐
+   * │seg1    │seg2_ove│
+   * │        │   rflow│
+   * └────────┴────────┘
    *
-   * -------------------
-   * |seg1    |seg2_ove|
-   * |        |   rflow|
-   * -------------------
-   *
-   * -----------
-   * |seg3|seg4|         <-- Only 8 total characters fit per line now
-   * |    |_ove|             since they are double width.
-   * |    |rflo|
-   * |    |   w|
-   * -----------
+   * ┌────┬────┐
+   * │seg3│seg4│         <-- Only 8 total characters fit per line now
+   * │_ove│_ove│             since they are double width.
+   * │r   │   r│
+   * │    │    │
+   * └────┴────┘
    * ```
    */
   public fun segmentedLine(
