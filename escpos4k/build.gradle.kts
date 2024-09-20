@@ -115,13 +115,10 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
 
-  testOptions {
-    unitTests.all {
-      it.useJUnitPlatform()
-    }
-  }
+  testOptions { unitTests.all { it.useJUnitPlatform() } }
 }
 
 tasks.withType<Test> {
   systemProperty("kotest.assertions.collection.print.size", 100)
+  useJUnitPlatform()
 }
