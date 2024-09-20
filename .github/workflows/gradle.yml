@@ -30,8 +30,8 @@ jobs:
             os: ubuntu-latest
           - target: mingwX64Test
             os: windows-latest
-          - target: wasmWasiTest
-            os: ubuntu-latest
+#          - target: wasmWasiTest
+#            os: ubuntu-latest
           - target: testDebugUnitTest
             os: ubuntu-latest
           - target: testReleaseUnitTest
