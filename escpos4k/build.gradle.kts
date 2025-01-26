@@ -5,7 +5,6 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.android.library)
   alias(libs.plugins.vanniktechPublishingBase)
-  alias(libs.plugins.kotest.multiplatform)
 //  alias(libs.plugins.detekt)
 }
 
@@ -75,10 +74,6 @@ kotlin {
     }
     val commonTest by getting {
       dependencies {
-        implementation(libs.kotest.assertions.core)
-        implementation(libs.kotest.framework.engine)
-        implementation(libs.kotest.framework.datatest)
-        implementation(libs.kotest.property)
         implementation(libs.kotlin.test.common.annotations)
         implementation(libs.kotlin.test.common.assertions)
       }
@@ -87,13 +82,11 @@ kotlin {
     val androidUnitTest by getting {
       dependencies {
         implementation(libs.kotlin.test.junit5)
-        implementation(libs.kotest.runner.junit5)
       }
     }
     val jvmTest by getting {
       dependencies {
         implementation(libs.kotlin.test.junit5)
-        implementation(libs.kotest.runner.junit5)
       }
     }
   }
@@ -124,7 +117,6 @@ android {
 }
 
 tasks.withType<Test> {
-  systemProperty("kotest.assertions.collection.print.size", 100)
   useJUnitPlatform()
 }
 

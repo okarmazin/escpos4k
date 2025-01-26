@@ -3,307 +3,311 @@ package cz.multiplatform.escpos4k.core
 import cz.multiplatform.escpos4k.core.encoding.charset.Charset
 import cz.multiplatform.escpos4k.core.encoding.charset.IBM850
 import cz.multiplatform.escpos4k.core.encoding.charset.Windows1251
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalEscPosApi::class)
-class CommandBuilderTest : FunSpec() {
+class CommandBuilderTest {
   private val defaultConfig = PrinterConfiguration(32)
   private val initSequence = listOf(Command.Initialize, Command.SelectCharset(Charset.default))
 
   /** Bytes without the InitSequence */
   private fun CommandBuilder.contentBytes() = bytes().drop(initSequence.sumOf { it.bytes().size })
 
-  init {
-    test("fresh CommandBuilder initial sequence") {
-      CommandBuilder(defaultConfig).commands shouldContainExactly initSequence
-    }
+  @Test
+  fun `fresh CommandBuilder initial sequence`() {
+    assertContentEquals(initSequence, CommandBuilder(defaultConfig).commands)
+  }
 
-    context("text") {
-      test("empty string does nothing") {
-        val builder = CommandBuilder(defaultConfig) { text("") }
-        builder.commands shouldContainExactly initSequence
-        builder.contentBytes().shouldBeEmpty()
-      }
-      test("output never contains newlines") {
-        val builder = CommandBuilder(defaultConfig) { text("\na\nbcd\n") }
-        builder.commands shouldContainExactly initSequence + Command.Text("\na\nbcd\n", Charset.default)
-        builder.contentBytes() shouldContainExactly "?a?bcd?".asciiToBytes().toList()
-      }
-    }
+  @Test
+  fun `text - empty string does nothing`() {
+    val builder = CommandBuilder(defaultConfig) { text("") }
+    assertContentEquals(initSequence, builder.commands)
+    assertEquals(0, builder.contentBytes().size)
+  }
 
-    context("line") {
-      test("empty line contains exactly newline") {
-        val builder = CommandBuilder(defaultConfig) { line("") }
-        builder.commands shouldContainExactly initSequence + Command.Newline
-        builder.contentBytes() shouldContainExactly "\n".asciiToBytes().toList()
-      }
+  @Test
+  fun ` text - output never contains newlines`() {
+    val builder = CommandBuilder(defaultConfig) { text("\na\nbcd\n") }
+    assertContentEquals(initSequence + Command.Text("\na\nbcd\n", Charset.default), builder.commands)
+    assertContentEquals("?a?bcd?".asciiToBytes().toList(), builder.contentBytes())
+  }
 
-      test("line contains exactly 1 newline, at the end") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              line("\nab\ncd")
-              line("\n")
-            }
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.Text("\nab\ncd", Charset.default) +
-                Command.Newline +
-                Command.Text("\n", Charset.default) +
-                Command.Newline
+  @Test
+  fun `line - empty line contains exactly newline`() {
+    val builder = CommandBuilder(defaultConfig) { line("") }
+    assertContentEquals(initSequence + Command.Newline, builder.commands)
+    assertContentEquals("\n".asciiToBytes().toList(), builder.contentBytes())
+  }
 
-        builder.contentBytes() shouldContainExactly "?ab?cd\n?\n".asciiToBytes().toList()
-      }
-    }
+  @Test
+  fun `line - line contains exactly 1 newline at the end`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          line("\nab\ncd")
+          line("\n")
+        }
+    val expectedCommands =
+        initSequence +
+            Command.Text("\nab\ncd", Charset.default) +
+            Command.Newline +
+            Command.Text("\n", Charset.default) +
+            Command.Newline
 
-    context("charset") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              charset(Charset.default)
-              charset(IBM850)
-              charset(IBM850)
-              charset(Windows1251)
-            }
-        builder.commands shouldContainExactly
-            initSequence + Command.SelectCharset(IBM850) + Command.SelectCharset(Windows1251)
-      }
-    }
+    assertContentEquals(expectedCommands, builder.commands)
+    assertContentEquals("?ab?cd\n?\n".asciiToBytes().toList(), builder.contentBytes())
+  }
 
-    context("withCharset") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              withCharset(Charset.default) {
-                withCharset(IBM850) {
-                  withCharset(IBM850) {
-                    withCharset(Windows1251) {
-                      text("innermost") //
-                    }
-                  }
+  @Test
+  fun `charset - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          charset(Charset.default)
+          charset(IBM850)
+          charset(IBM850)
+          charset(Windows1251)
+        }
+    val expectedCommands = initSequence + Command.SelectCharset(IBM850) + Command.SelectCharset(Windows1251)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
+
+  @Test
+  fun `withCharset - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          withCharset(Charset.default) {
+            withCharset(IBM850) {
+              withCharset(IBM850) {
+                withCharset(Windows1251) {
+                  text("innermost") //
                 }
               }
             }
+          }
+        }
 
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.SelectCharset(IBM850) +
-                Command.SelectCharset(Windows1251) +
-                Command.Text("innermost", Windows1251) +
-                Command.SelectCharset(IBM850) +
-                Command.SelectCharset(Charset.default)
-      }
-    }
+    val expectedCommands =
+        initSequence +
+            Command.SelectCharset(IBM850) +
+            Command.SelectCharset(Windows1251) +
+            Command.Text("innermost", Windows1251) +
+            Command.SelectCharset(IBM850) +
+            Command.SelectCharset(Charset.default)
 
-    context("textSize") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              textSize(1, 1)
-              textSize(2, 2)
-              textSize(2, 2)
-              textSize(3, 3)
-            }
-        builder.commands shouldContainExactly initSequence + Command.TextSize(2, 2) + Command.TextSize(3, 3)
-      }
-    }
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("withTextSize") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              withTextSize(1, 1) {
-                withTextSize(2, 2) {
-                  withTextSize(2, 2) {
-                    withTextSize(3, 3) {
-                      text("innermost") // force br
-                    }
-                  }
+  @Test
+  fun `textSize - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          textSize(1, 1)
+          textSize(2, 2)
+          textSize(2, 2)
+          textSize(3, 3)
+        }
+
+    val expectedCommands = initSequence + Command.TextSize(2, 2) + Command.TextSize(3, 3)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
+
+  @Test
+  fun `withTextSize - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          withTextSize(1, 1) {
+            withTextSize(2, 2) {
+              withTextSize(2, 2) {
+                withTextSize(3, 3) {
+                  text("innermost") // force br
                 }
               }
             }
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.TextSize(2, 2) +
-                Command.TextSize(3, 3) +
-                Command.Text("innermost", Charset.default) +
-                Command.TextSize(2, 2) +
-                Command.TextSize(1, 1)
-      }
-    }
+          }
+        }
+    val expectedCommands =
+        initSequence +
+            Command.TextSize(2, 2) +
+            Command.TextSize(3, 3) +
+            Command.Text("innermost", Charset.default) +
+            Command.TextSize(2, 2) +
+            Command.TextSize(1, 1)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("bold") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              bold(false)
-              bold(true)
-              bold(true)
-              bold(false)
-            }
+  @Test
+  fun `bold - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          bold(false)
+          bold(true)
+          bold(true)
+          bold(false)
+        }
 
-        builder.commands shouldContainExactly initSequence + Command.Bold(true) + Command.Bold(false)
-      }
-    }
+    val expectedCommands = initSequence + Command.Bold(true) + Command.Bold(false)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("withBold") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              withBold(false) {
-                withBold(true) {
-                  withBold(true) {
-                    withBold(false) {
-                      text("innermost") //
-                    }
-                  }
+  @Test
+  fun `withBold - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          withBold(false) {
+            withBold(true) {
+              withBold(true) {
+                withBold(false) {
+                  text("innermost") //
                 }
               }
             }
+          }
+        }
 
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.Bold(true) +
-                Command.Bold(false) +
-                Command.Text("innermost", Charset.default) +
-                Command.Bold(true) +
-                Command.Bold(false)
-      }
-    }
+    val expectedCommands =
+        initSequence +
+            Command.Bold(true) +
+            Command.Bold(false) +
+            Command.Text("innermost", Charset.default) +
+            Command.Bold(true) +
+            Command.Bold(false)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("underline") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              underline(false)
-              underline(true)
-              underline(true)
-              underline(false)
-            }
-        builder.commands shouldContainExactly initSequence + Command.Underline(true) + Command.Underline(false)
-      }
-    }
+  @Test
+  fun `underline - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          underline(false)
+          underline(true)
+          underline(true)
+          underline(false)
+        }
+    val expectedCommands = initSequence + Command.Underline(true) + Command.Underline(false)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("withUnderline") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              withUnderline(false) {
-                withUnderline(true) {
-                  withUnderline(true) {
-                    withUnderline(false) {
-                      text("innermost") //
-                    }
-                  }
+  @Test
+  fun `withUnderline - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          withUnderline(false) {
+            withUnderline(true) {
+              withUnderline(true) {
+                withUnderline(false) {
+                  text("innermost") //
                 }
               }
             }
+          }
+        }
 
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.Underline(true) +
-                Command.Underline(false) +
-                Command.Text("innermost", Charset.default) +
-                Command.Underline(true) +
-                Command.Underline(false)
-      }
-    }
+    val expectedCommands =
+        initSequence +
+            Command.Underline(true) +
+            Command.Underline(false) +
+            Command.Text("innermost", Charset.default) +
+            Command.Underline(true) +
+            Command.Underline(false)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("italics") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              italics(false)
-              italics(true)
-              italics(true)
-              italics(false)
-            }
-        builder.commands shouldContainExactly initSequence + Command.Italics(true) + Command.Italics(false)
-      }
-    }
+  @Test
+  fun `italics - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          italics(false)
+          italics(true)
+          italics(true)
+          italics(false)
+        }
+    val expectedCommands = initSequence + Command.Italics(true) + Command.Italics(false)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("withItalics") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              withItalics(false) {
-                withItalics(true) {
-                  withItalics(true) {
-                    withItalics(false) {
-                      text("innermost") //
-                    }
-                  }
+  @Test
+  fun `withItalics - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          withItalics(false) {
+            withItalics(true) {
+              withItalics(true) {
+                withItalics(false) {
+                  text("innermost") //
                 }
               }
             }
+          }
+        }
 
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.Italics(true) +
-                Command.Italics(false) +
-                Command.Text("innermost", Charset.default) +
-                Command.Italics(true) +
-                Command.Italics(false)
-      }
-    }
+    val expectedCommands =
+        initSequence +
+            Command.Italics(true) +
+            Command.Italics(false) +
+            Command.Text("innermost", Charset.default) +
+            Command.Italics(true) +
+            Command.Italics(false)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("textAlign") {
-      test("style is not applied if same as current") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              textAlign(TextAlignment.LEFT)
-              textAlign(TextAlignment.CENTER)
-              textAlign(TextAlignment.CENTER)
-              textAlign(TextAlignment.RIGHT)
-            }
-        builder.commands shouldContainExactly
-            initSequence + Command.Justify(TextAlignment.CENTER) + Command.Justify(TextAlignment.RIGHT)
-      }
-    }
+  @Test
+  fun `textAlign - style is not applied if same as current`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          textAlign(TextAlignment.LEFT)
+          textAlign(TextAlignment.CENTER)
+          textAlign(TextAlignment.CENTER)
+          textAlign(TextAlignment.RIGHT)
+        }
+    val expectedCommands = initSequence + Command.Justify(TextAlignment.CENTER) + Command.Justify(TextAlignment.RIGHT)
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-    context("segmentedLine") {
-      test("empty segments") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              segmentedLine()
-              segmentedLine()
-            }
-        builder.commands shouldContainExactly initSequence
-      }
+  @Test
+  fun `segmentedLine - empty segments`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          segmentedLine()
+          segmentedLine()
+        }
+    assertContentEquals(initSequence, builder.commands)
+  }
 
-      test("segment content empty") {
-        val builder =
-            CommandBuilder(defaultConfig) {
-              segmentedLine(LineSegment("", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
-            }
+  @Test
+  fun `segmentedLine - segment content empty`() {
+    val builder =
+        CommandBuilder(defaultConfig) {
+          segmentedLine(LineSegment("", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
+        }
 
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.Text("                ", Charset.default) +
-                Command.Text("3", Charset.default) +
-                Command.Text("               ", Charset.default) +
-                Command.Newline
-      }
+    val expectedCommands =
+        initSequence +
+            Command.Text("                ", Charset.default) +
+            Command.Text("3", Charset.default) +
+            Command.Text("               ", Charset.default) +
+            Command.Newline
+    assertContentEquals(expectedCommands, builder.commands)
+  }
 
-      test("prints at least 1 char per segment") {
-        val builder =
-            CommandBuilder(PrinterConfiguration(10)) {
-              textSize(8, 1)
-              segmentedLine(LineSegment("12", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
-            }
-        builder.commands shouldContainExactly
-            initSequence +
-                Command.TextSize(8, 1) +
-                Command.Text("1", Charset.default) +
-                Command.Text("3", Charset.default) +
-                Command.Newline +
-                Command.Text("2", Charset.default) +
-                Command.TextSize(1, 1) +
-                Command.Text("     ", Charset.default) +
-                Command.TextSize(8, 1) +
-                Command.Newline
-      }
-    }
+  @Test
+  fun `segmentedLine -prints at least 1 char per segment`() {
+    val builder =
+        CommandBuilder(PrinterConfiguration(10)) {
+          textSize(8, 1)
+          segmentedLine(LineSegment("12", TextAlignment.LEFT), LineSegment("3", TextAlignment.LEFT))
+        }
+    val expectedCommands =
+        initSequence +
+            Command.TextSize(8, 1) +
+            Command.Text("1", Charset.default) +
+            Command.Text("3", Charset.default) +
+            Command.Newline +
+            Command.Text("2", Charset.default) +
+            Command.TextSize(1, 1) +
+            Command.Text("     ", Charset.default) +
+            Command.TextSize(8, 1) +
+            Command.Newline
+    assertContentEquals(expectedCommands, builder.commands)
   }
 }

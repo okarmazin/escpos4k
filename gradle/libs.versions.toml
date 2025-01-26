@@ -8,8 +8,6 @@ arrow = "1.2.4"
 coroutines = "1.8.1"
 dependencyUpdates = "0.50.0"
 detekt = "1.23.6"
-kotest = "5.9.1"
-kotest-arrow = "1.4.0"
 kotlin = "2.0.10" # cannot upgrade to 2.1.0 yet because of Kotest
 ktor = "2.3.5"
 vanniktechPublishing = "0.25.3"
@@ -18,13 +16,6 @@ vanniktechPublishing = "0.25.3"
 [libraries]
 androidDesugaring = { module = "com.android.tools:desugar_jdk_libs", version.ref = "androidCoreDesugaring" }
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
-
-kotest-assertions-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotest-arrow" }
-kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
-kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
-kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
-kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
-kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 
 kotlin-test-common-annotations = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
 kotlin-test-common-assertions = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin" }
@@ -47,7 +38,6 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 dependencyUpdates = { id = "com.github.ben-manes.versions", version.ref = "dependencyUpdates" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 vanniktechPublishingBase = { id = "com.vanniktech.maven.publish.base", version.ref = "vanniktechPublishing" }
