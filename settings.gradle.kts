@@ -16,7 +16,7 @@ dependencyResolutionManagement {
 
 include(":escpos4k")
 
-include(":sample:app-android")
+//include(":sample:app-android")
 
 include(":sample:common")
 
