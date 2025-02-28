@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 include(":escpos4k")
 
-rootProject.name = "EscPos4k"
+rootProject.name = "escpos4k"

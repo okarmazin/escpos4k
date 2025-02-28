@@ -18,7 +18,7 @@ mavenPublishing {
   signAllPublications()
 
   pom {
-    name.set("EscPos4k")
+    name.set("escpos4k")
     description.set("ESC/POS for Kotlin Multiplatform")
     inceptionYear.set("2022")
     url.set("https://github.com/okarmazin/escpos4k")
